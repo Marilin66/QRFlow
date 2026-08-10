@@ -1,5 +1,9 @@
 # QRFlow
 
+![Build Android](https://github.com/Marilin66/QRFlow/workflows/Build%20Android%20APK/badge.svg)
+![Tests](https://github.com/Marilin66/QRFlow/workflows/Tests%20&%20Quality/badge.svg)
+![Build Web](https://github.com/Marilin66/QRFlow/workflows/Build%20Web%20App/badge.svg)
+
 > **« Le QR code est déjà sur mon téléphone : je veux pouvoir le scanner
 > sans utiliser un autre téléphone. »**
 
