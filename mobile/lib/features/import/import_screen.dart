@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -8,7 +9,7 @@ import '../../core/models/history_entry.dart';
 import '../../core/services/content_analyzer.dart';
 import '../result/result_screen.dart';
 
-enum _Phase { idle, analyzing, multiple, error }
+enum _Phase { idle, analyzing, multiple, error, unsupported }
 
 /// Mode 1 — Analyse d'une capture d'écran ou d'une image importée.
 class ImportScreen extends StatefulWidget {
@@ -22,21 +23,38 @@ class _ImportScreenState extends State<ImportScreen> {
   static const _analyzer = ContentAnalyzer();
 
   final ImagePicker _picker = ImagePicker();
-  final MobileScannerController _controller = MobileScannerController(
-    formats: const [BarcodeFormat.qrCode],
-  );
+  MobileScannerController? _controller;
 
   _Phase _phase = _Phase.idle;
   List<String> _rawValues = const [];
   String? _errorMessage;
 
   @override
+  void initState() {
+    super.initState();
+    if (!kIsWeb) {
+      _controller = MobileScannerController(
+        formats: const [BarcodeFormat.qrCode],
+      );
+    } else {
+      _phase = _Phase.unsupported;
+    }
+  }
+
+  @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   Future<void> _pickAndAnalyze() async {
+    if (kIsWeb) {
+      setState(() {
+        _phase = _Phase.unsupported;
+      });
+      return;
+    }
+
     setState(() {
       _phase = _Phase.analyzing;
       _errorMessage = null;
@@ -53,7 +71,7 @@ class _ImportScreenState extends State<ImportScreen> {
         return;
       }
 
-      final capture = await _controller.analyzeImage(file.path);
+      final capture = await _controller?.analyzeImage(file.path);
       final barcodes = capture?.barcodes ?? const [];
       final values = barcodes
           .map((b) => b.rawValue)
@@ -134,6 +152,7 @@ class _ImportScreenState extends State<ImportScreen> {
               ),
             _Phase.multiple => _buildMultiple(theme, multiQr),
             _Phase.error => _buildError(theme),
+            _Phase.unsupported => _buildUnsupported(theme),
           },
         ),
       ),
@@ -250,6 +269,43 @@ class _ImportScreenState extends State<ImportScreen> {
           onPressed: _pickAndAnalyze,
           icon: const Icon(Icons.refresh),
           label: const Text('Réessayer'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUnsupported(ThemeData theme) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.phonelink_off_outlined,
+          size: 56,
+          color: theme.colorScheme.secondary,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Cette fonctionnalité nécessite l\u2019application mobile.',
+          textAlign: TextAlign.center,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'L\u2019analyse d\u2019images n\u2019est pas disponible dans le navigateur.\n\n'
+          'Utilisez l\u2019application sur Android pour scanner des captures d\u2019écran.',
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+            height: 1.5,
+          ),
+        ),
+        const SizedBox(height: 24),
+        OutlinedButton.icon(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back),
+          label: const Text('Retour à l\u2019accueil'),
         ),
       ],
     );
