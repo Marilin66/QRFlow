@@ -96,13 +96,13 @@ class BubbleService : Service() {
 
     private fun showBubble() {
         val prefs = getSharedPreferences("FlutterSharedPreferences", MODE_PRIVATE)
-        val size = prefs.getFloat("flutter.bubble_size", 48f).toInt().coerceIn(32, 80)
-        val opacity = prefs.getFloat("flutter.bubble_opacity", 0.85f).coerceIn(0.4f, 1f)
+        val size = prefs.getFloat("flutter.bubble_size", 80f).toInt().coerceIn(56, 120)
+        val opacity = prefs.getFloat("flutter.bubble_opacity", 0.90f).coerceIn(0.4f, 1f)
 
         val view = TextView(this).apply {
             text = "QR"
             gravity = Gravity.CENTER
-            textSize = 15f
+            textSize = 22f
             setTextColor(Color.WHITE)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL

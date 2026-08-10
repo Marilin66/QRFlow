@@ -10,8 +10,8 @@ class AppState extends ChangeNotifier {
     _keepHistory = _prefs.getBool(_kKeepHistory) ?? true;
     _retentionDays = _prefs.getInt(_kRetentionDays) ?? 90;
     _multiQr = _prefs.getBool(_kMultiQr) ?? true;
-    _bubbleSize = _prefs.getDouble(_kBubbleSize) ?? 48.0;
-    _bubbleOpacity = _prefs.getDouble(_kBubbleOpacity) ?? 0.85;
+    _bubbleSize = _prefs.getDouble(_kBubbleSize) ?? 80.0;
+    _bubbleOpacity = _prefs.getDouble(_kBubbleOpacity) ?? 0.90;
   }
 
   static const _kThemeMode = 'theme_mode';

@@ -129,14 +129,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const Divider(height: 1),
                   ListTile(
                     title: const Text('Taille de la bulle'),
-                    trailing: Text('${state.bubbleSize.round()} px'),
+                    trailing: Text('${state.bubbleSize.round()} dp'),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Slider(
-                      min: 32,
-                      max: 80,
-                      divisions: 12,
+                      min: 56,
+                      max: 120,
+                      divisions: 16,
                       value: state.bubbleSize,
                       onChanged: (v) => state.bubbleSize = v,
                     ),
