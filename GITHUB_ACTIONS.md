@@ -1,21 +1,21 @@
 # 🤖 GitHub Actions - Guide Complet
 
-## 📋 Vue d'ensemble
+## [LIST] Vue d'ensemble
 
 Ce projet utilise **GitHub Actions** pour automatiser les builds et les tests à chaque push. Cela garantit que l'application peut toujours être compilée et que les tests passent.
 
 ---
 
-## 🔄 Workflows Configurés
+## [~] Workflows Configurés
 
-### 1. 🏗️ Build Android APK
+### 1. [BUILD] Build Android APK
 
 **Fichier :** `.github/workflows/build-android.yml`
 
 **Quand s'exécute-t-il ?**
-- ✅ À chaque push sur `main` ou `develop` qui modifie des fichiers dans `mobile/`
-- ✅ À chaque Pull Request vers `main`
-- ✅ Manuellement depuis l'onglet Actions
+- [OK] À chaque push sur `main` ou `develop` qui modifie des fichiers dans `mobile/`
+- [OK] À chaque Pull Request vers `main`
+- [OK] Manuellement depuis l'onglet Actions
 
 **Que fait-il ?**
 1. Installe Java 17
@@ -32,13 +32,13 @@ Ce projet utilise **GitHub Actions** pour automatiser les builds et les tests à
 
 ---
 
-### 2. 🧪 Tests & Quality
+### 2. [TEST] Tests & Quality
 
 **Fichier :** `.github/workflows/tests.yml`
 
 **Quand s'exécute-t-il ?**
-- ✅ À chaque push sur `main` ou `develop`
-- ✅ À chaque Pull Request
+- [OK] À chaque push sur `main` ou `develop`
+- [OK] À chaque Pull Request
 
 **Que fait-il ?**
 1. Analyse le code (`flutter analyze`)
@@ -48,13 +48,13 @@ Ce projet utilise **GitHub Actions** pour automatiser les builds et les tests à
 
 ---
 
-### 3. 🌐 Build Web App
+### 3. [WEB] Build Web App
 
 **Fichier :** `.github/workflows/build-web.yml`
 
 **Quand s'exécute-t-il ?**
-- ✅ À chaque push sur `main` qui modifie des fichiers dans `web/`
-- ✅ Manuellement depuis l'onglet Actions
+- [OK] À chaque push sur `main` qui modifie des fichiers dans `web/`
+- [OK] Manuellement depuis l'onglet Actions
 
 **Que fait-il ?**
 1. Installe Node.js 20
@@ -72,7 +72,7 @@ Ce projet utilise **GitHub Actions** pour automatiser les builds et les tests à
 1. Allez sur https://github.com/Marilin66/QRFlow
 2. Cliquez sur l'onglet **"Actions"**
 3. Dans la liste de gauche, cliquez sur **"Build Android APK"**
-4. Sélectionnez la dernière exécution avec une ✅ (checkmark vert)
+4. Sélectionnez la dernière exécution avec une [OK] (checkmark vert)
 5. Scrollez vers le bas jusqu'à la section **"Artifacts"**
 6. Cliquez sur :
    - **qrflow-debug-apk** pour télécharger l'APK de debug
@@ -90,7 +90,7 @@ gh run download --name qrflow-release-apk
 
 ---
 
-## 🚀 Déclencher un Build Manuellement
+## [=>] Déclencher un Build Manuellement
 
 ### Via l'Interface Web
 
@@ -115,7 +115,7 @@ gh workflow run build-web.yml
 
 ---
 
-## 🏷️ Créer une Release Automatique
+## [TAG] Créer une Release Automatique
 
 Lorsque vous créez un tag Git, le workflow créera automatiquement une **GitHub Release** avec l'APK Release attaché.
 
@@ -130,9 +130,9 @@ git push origin v0.1.0
 ```
 
 **Résultat :**
-- ✅ Une Release GitHub est créée automatiquement
-- ✅ L'APK Release est attaché à la release
-- ✅ Les notes de release sont générées automatiquement
+- [OK] Une Release GitHub est créée automatiquement
+- [OK] L'APK Release est attaché à la release
+- [OK] Les notes de release sont générées automatiquement
 
 **Accès :**
 - Allez dans l'onglet **"Releases"** du repository
@@ -140,7 +140,7 @@ git push origin v0.1.0
 
 ---
 
-## 📊 Badges de Statut
+## [CHART] Badges de Statut
 
 Les badges suivants sont affichés dans le README.md :
 
@@ -151,24 +151,24 @@ Les badges suivants sont affichés dans le README.md :
 ```
 
 **Signification des couleurs :**
-- 🟢 **Vert (passing)** : Le dernier build/test a réussi
-- 🔴 **Rouge (failing)** : Le dernier build/test a échoué
-- 🟡 **Jaune (running)** : Un build/test est en cours
-- ⚪ **Gris (no status)** : Aucun workflow exécuté récemment
+- [OK] **Vert (passing)** : Le dernier build/test a réussi
+- [ERROR] **Rouge (failing)** : Le dernier build/test a échoué
+- [WAIT] **Jaune (running)** : Un build/test est en cours
+- [ ] **Gris (no status)** : Aucun workflow exécuté récemment
 
 ---
 
-## 🔍 Voir les Logs d'Exécution
+## [SEARCH] Voir les Logs d'Exécution
 
 ### Pour déboguer un build qui échoue
 
 1. Allez dans **Actions**
-2. Cliquez sur le workflow qui a échoué (🔴)
+2. Cliquez sur le workflow qui a échoué ([ERROR])
 3. Cliquez sur l'exécution spécifique
 4. Cliquez sur le job "Build APK"
 5. Vous verrez tous les steps :
-   - ✅ Steps réussis
-   - 🔴 Steps échoués
+   - [OK] Steps réussis
+   - [ERROR] Steps échoués
 6. Cliquez sur un step pour voir ses logs détaillés
 
 **Les erreurs communes :**
@@ -178,7 +178,7 @@ Les badges suivants sont affichés dans le README.md :
 
 ---
 
-## ⚙️ Configuration Avancée
+## [CONFIG] Configuration Avancée
 
 ### Changer la Version de Flutter
 
@@ -227,16 +227,16 @@ on:
 
 ---
 
-## 🔒 Sécurité et Permissions
+## [LOCK] Sécurité et Permissions
 
 ### Permissions Requises
 
 Les workflows utilisent `GITHUB_TOKEN` qui est automatiquement fourni par GitHub.
 
 **Permissions nécessaires :**
-- ✅ `contents: read` - Lire le code
-- ✅ `actions: write` - Créer des artifacts
-- ✅ `releases: write` - Créer des releases (pour les tags)
+- [OK] `contents: read` - Lire le code
+- [OK] `actions: write` - Créer des artifacts
+- [OK] `releases: write` - Créer des releases (pour les tags)
 
 Ces permissions sont généralement accordées par défaut.
 
@@ -256,7 +256,7 @@ Aucun secret n'est requis pour les builds de base.
 
 ---
 
-## 📈 Statistiques et Métriques
+## [UP] Statistiques et Métriques
 
 ### Voir l'Historique des Builds
 
@@ -276,14 +276,14 @@ Aucun secret n'est requis pour les builds de base.
 
 ---
 
-## 🐛 Dépannage
+## [BUG] Dépannage
 
 ### Le workflow ne se déclenche pas
 
 **Vérifications :**
-- ✅ Vos changements touchent-ils les bons fichiers ? (ex: `mobile/**`)
-- ✅ Êtes-vous sur la bonne branche ? (`main` ou `develop`)
-- ✅ Les workflows sont-ils activés ? (Settings > Actions)
+- [OK] Vos changements touchent-ils les bons fichiers ? (ex: `mobile/**`)
+- [OK] Êtes-vous sur la bonne branche ? (`main` ou `develop`)
+- [OK] Les workflows sont-ils activés ? (Settings > Actions)
 
 ### Le build échoue
 
@@ -309,7 +309,7 @@ Aucun secret n'est requis pour les builds de base.
 
 ---
 
-## 📚 Ressources Utiles
+## [DOCS] Ressources Utiles
 
 ### Documentation Officielle
 - [GitHub Actions Docs](https://docs.github.com/en/actions)
@@ -340,7 +340,7 @@ gh run download <run-id>
 
 ---
 
-## ✅ Checklist de Validation
+## [OK] Checklist de Validation
 
 Après avoir configuré GitHub Actions, vérifiez :
 
@@ -354,18 +354,18 @@ Après avoir configuré GitHub Actions, vérifiez :
 
 ---
 
-## 🎯 Résumé
+## [TARGET] Résumé
 
 **Avec GitHub Actions, vous avez maintenant :**
 
-✅ **Builds automatiques** - À chaque push  
-✅ **Tests automatiques** - Garantit la qualité  
-✅ **APKs disponibles** - Téléchargeables sans compiler localement  
-✅ **Releases automatiques** - Avec les tags Git  
-✅ **Historique complet** - De tous les builds  
-✅ **Badges de statut** - Visibilité du statut du projet  
+[OK] **Builds automatiques** - À chaque push  
+[OK] **Tests automatiques** - Garantit la qualité  
+[OK] **APKs disponibles** - Téléchargeables sans compiler localement  
+[OK] **Releases automatiques** - Avec les tags Git  
+[OK] **Historique complet** - De tous les builds  
+[OK] **Badges de statut** - Visibilité du statut du projet  
 
-**Plus besoin de compiler manuellement !** 🚀
+**Plus besoin de compiler manuellement !** [=>]
 
 ---
 

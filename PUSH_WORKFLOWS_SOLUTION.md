@@ -1,6 +1,6 @@
-# 🚀 Solution pour Pousser les GitHub Actions
+# [=>] Solution pour Pousser les GitHub Actions
 
-## ⚠️ Problème Actuel
+## [!] Problème Actuel
 
 Le push des workflows GitHub Actions a échoué car le token n'a pas le scope `workflow`.
 
@@ -11,7 +11,7 @@ to create or update workflow without `workflow` scope)
 
 ---
 
-## ✅ Solution Rapide : GitHub Web Interface
+## [OK] Solution Rapide : GitHub Web Interface
 
 **La façon la plus simple sans changer de token :**
 
@@ -70,16 +70,16 @@ git push origin main
 
 ---
 
-## 🎯 Résultat Attendu
+## [TARGET] Résultat Attendu
 
 Une fois les workflows ajoutés sur GitHub :
 
 1. **Vérifier dans Actions**
    - Allez sur https://github.com/Marilin66/QRFlow/actions
    - Vous devriez voir :
-     - ✅ Build Android APK
-     - ✅ Tests & Quality
-     - ✅ Build Web App
+     - [OK] Build Android APK
+     - [OK] Tests & Quality
+     - [OK] Build Web App
 
 2. **Premier Build Automatique**
    - Le dernier commit devrait déclencher automatiquement les workflows
@@ -87,14 +87,14 @@ Une fois les workflows ajoutés sur GitHub :
    - Vérifiez le statut dans l'onglet Actions
 
 3. **Télécharger l'APK**
-   - Une fois le build terminé (✅)
+   - Une fois le build terminé ([OK])
    - Cliquez sur le workflow "Build Android APK"
    - Section "Artifacts" en bas de page
    - Téléchargez `qrflow-release-apk`
 
 ---
 
-## 🔄 Alternative : Installer GitHub CLI (Pour le Futur)
+## [~] Alternative : Installer GitHub CLI (Pour le Futur)
 
 Pour éviter ce problème à l'avenir, installez GitHub CLI :
 
@@ -113,14 +113,14 @@ git push origin main
 ```
 
 **Avantages de GitHub CLI :**
-- ✅ Gère automatiquement les tokens avec les bons scopes
-- ✅ Plus sécurisé
-- ✅ Pas besoin de gérer manuellement les PAT
-- ✅ Commandes pratiques (`gh workflow run`, `gh run list`, etc.)
+- [OK] Gère automatiquement les tokens avec les bons scopes
+- [OK] Plus sécurisé
+- [OK] Pas besoin de gérer manuellement les PAT
+- [OK] Commandes pratiques (`gh workflow run`, `gh run list`, etc.)
 
 ---
 
-## 📝 Contenu des Fichiers à Créer
+## [NOTE] Contenu des Fichiers à Créer
 
 ### build-android.yml
 ```yaml
@@ -305,26 +305,26 @@ jobs:
 
 ---
 
-## ✅ Checklist de Validation
+## [OK] Checklist de Validation
 
 Après avoir créé les workflows sur GitHub :
 
 - [ ] Les 3 workflows sont visibles dans l'onglet Actions
 - [ ] Un workflow s'est déclenché automatiquement
 - [ ] Le workflow "Build Android APK" s'exécute (ou est en attente)
-- [ ] Après quelques minutes, le build est terminé (✅)
+- [ ] Après quelques minutes, le build est terminé ([OK])
 - [ ] Les artifacts APK sont disponibles en téléchargement
 - [ ] Les badges dans le README s'affichent correctement
 
 ---
 
-## 🎉 Une Fois Configuré
+## [SUCCESS] Une Fois Configuré
 
 **À chaque push sur `main` :**
-1. ✅ Les tests s'exécutent automatiquement
-2. ✅ L'APK est compilé automatiquement
-3. ✅ L'APK est disponible en téléchargement dans Actions
-4. ✅ Plus besoin de compiler localement !
+1. [OK] Les tests s'exécutent automatiquement
+2. [OK] L'APK est compilé automatiquement
+3. [OK] L'APK est disponible en téléchargement dans Actions
+4. [OK] Plus besoin de compiler localement !
 
 **Pour télécharger un APK :**
 1. GitHub.com → QRFlow → Actions
@@ -334,4 +334,4 @@ Après avoir créé les workflows sur GitHub :
 
 ---
 
-**C'est tout ! Les workflows seront opérationnels dès qu'ils seront sur GitHub.** 🚀
+**C'est tout ! Les workflows seront opérationnels dès qu'ils seront sur GitHub.** [=>]

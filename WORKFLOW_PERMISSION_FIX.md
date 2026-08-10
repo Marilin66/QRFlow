@@ -1,6 +1,6 @@
-# ⚠️ Erreur de Permission GitHub Workflow
+# [!] Erreur de Permission GitHub Workflow
 
-## 🔴 Problème Rencontré
+## [ERROR] Problème Rencontré
 
 Lors du push des workflows GitHub Actions, l'erreur suivante apparaît :
 
@@ -9,11 +9,11 @@ Lors du push des workflows GitHub Actions, l'erreur suivante apparaît :
 to create or update workflow `.github/workflows/README.md` without `workflow` scope)
 ```
 
-## 🔍 Cause
+## [SEARCH] Cause
 
 Le **Personal Access Token (PAT)** utilisé n'a pas le scope `workflow` nécessaire pour créer ou modifier des fichiers de workflow GitHub Actions dans le dossier `.github/workflows/`.
 
-## ✅ Solution
+## [OK] Solution
 
 ### Option 1 : Mettre à Jour le Token Existant (Recommandé)
 
@@ -47,9 +47,9 @@ Le **Personal Access Token (PAT)** utilisé n'a pas le scope `workflow` nécessa
    - **Note :** "QRFlow Workflow Token"
    - **Expiration :** 90 jours (ou selon votre préférence)
    - **Scopes à cocher :**
-     - ✅ `repo` (Full control of private repositories)
-     - ✅ `workflow` (Update GitHub Action workflows)
-     - ✅ `write:packages` (si vous utilisez GitHub Packages)
+     - [OK] `repo` (Full control of private repositories)
+     - [OK] `workflow` (Update GitHub Action workflows)
+     - [OK] `write:packages` (si vous utilisez GitHub Packages)
 
 3. **Générer et copier le token**
    - Cliquez sur "Generate token"
@@ -106,7 +106,7 @@ Si vous voulez juste ajouter les workflows rapidement :
 
 ---
 
-## 🔧 Vérifier les Permissions Actuelles
+## [TOOL] Vérifier les Permissions Actuelles
 
 ```bash
 # Voir la configuration Git actuelle
@@ -121,20 +121,20 @@ gh auth token
 
 ---
 
-## 📝 Scopes Recommandés pour le Développement
+## [NOTE] Scopes Recommandés pour le Développement
 
 Pour un projet complet, votre PAT devrait avoir :
 
 | Scope | Description | Nécessaire pour |
 |-------|-------------|-----------------|
-| ✅ `repo` | Accès complet aux repos | Push, pull, clone |
-| ✅ `workflow` | Modifier workflows | GitHub Actions |
-| ⚪ `write:packages` | Publier packages | GitHub Packages (optionnel) |
-| ⚪ `delete_repo` | Supprimer repos | Administration (optionnel) |
+| [OK] `repo` | Accès complet aux repos | Push, pull, clone |
+| [OK] `workflow` | Modifier workflows | GitHub Actions |
+| [ ] `write:packages` | Publier packages | GitHub Packages (optionnel) |
+| [ ] `delete_repo` | Supprimer repos | Administration (optionnel) |
 
 ---
 
-## 🎯 Après Avoir Mis à Jour le Token
+## [TARGET] Après Avoir Mis à Jour le Token
 
 Une fois le token mis à jour avec le scope `workflow` :
 
@@ -151,7 +151,7 @@ git push origin main
 
 ---
 
-## ✅ Vérification
+## [OK] Vérification
 
 Pour confirmer que tout fonctionne :
 
@@ -174,14 +174,14 @@ Pour confirmer que tout fonctionne :
 
 ---
 
-## 🔒 Sécurité du Token
+## [LOCK] Sécurité du Token
 
 **Important :**
-- ⚠️ Ne commitez JAMAIS votre token dans le code
-- ⚠️ Ne partagez JAMAIS votre token publiquement
-- ✅ Régénérez votre token si vous pensez qu'il a été exposé
-- ✅ Utilisez des tokens avec le minimum de scopes nécessaires
-- ✅ Définissez une date d'expiration
+- [!] Ne commitez JAMAIS votre token dans le code
+- [!] Ne partagez JAMAIS votre token publiquement
+- [OK] Régénérez votre token si vous pensez qu'il a été exposé
+- [OK] Utilisez des tokens avec le minimum de scopes nécessaires
+- [OK] Définissez une date d'expiration
 
 **Si votre token est exposé :**
 1. Allez sur https://github.com/settings/tokens
@@ -190,7 +190,7 @@ Pour confirmer que tout fonctionne :
 
 ---
 
-## 📚 Ressources
+## [DOCS] Ressources
 
 - [GitHub Personal Access Tokens](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
 - [GitHub Actions Permissions](https://docs.github.com/en/actions/security-guides/automatic-token-authentication)
@@ -198,7 +198,7 @@ Pour confirmer que tout fonctionne :
 
 ---
 
-## 💡 Solution Recommandée
+## [IDEA] Solution Recommandée
 
 **La solution la plus simple et sécurisée :**
 
@@ -214,8 +214,8 @@ gh auth login
 git push origin main
 ```
 
-GitHub CLI gère automatiquement les tokens avec les bons scopes ! 🎉
+GitHub CLI gère automatiquement les tokens avec les bons scopes ! [SUCCESS]
 
 ---
 
-**Une fois le problème résolu, les workflows seront automatiquement actifs et builderont l'APK à chaque push !** ✅
+**Une fois le problème résolu, les workflows seront automatiquement actifs et builderont l'APK à chaque push !** [OK]
