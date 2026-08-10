@@ -1,0 +1,28 @@
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/android/local.properties
+mobile/android/app/.cxx/
+mobile/android/.gradle/
+
+# Node / web
+web/node_modules/
+web/dist/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Fichiers internes de l'outil d'IA
+.agents/
+skills-lock.json
+
+# Document de conception local (cahier des charges)
+Nouveau document texte.txt

@@ -1,0 +1,215 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Tokens QRFlow ───────────────────────────────────────────────────
+   Identité : l'univers du QR code — repérage, visée, données.
+   Palette : bleu encre (fond sombre), bleu électrique (action),
+   cyan laser (scan), ambre (sécurité). */
+@theme {
+  --font-display: "Space Grotesk", "Inter Variable", system-ui, sans-serif;
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-ink-950: #060d1d;
+  --color-ink-900: #0a1328;
+  --color-ink-800: #12203f;
+  --color-ink-700: #1c3057;
+
+  --color-electric-400: #5b8bff;
+  --color-electric-500: #2e63ff;
+  --color-electric-600: #1f4fe8;
+  --color-electric-700: #1a3fbe;
+
+  --color-laser-400: #4de1ff;
+  --color-laser-500: #22c7f5;
+
+  --color-safety-400: #ffb84d;
+  --color-safety-500: #f59e0b;
+
+  --color-paper: #f2f6fc;
+}
+
+/* ── Base ──────────────────────────────────────────────────────────── */
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-paper font-sans text-slate-700 antialiased dark:bg-ink-950 dark:text-slate-300;
+}
+
+::selection {
+  @apply bg-electric-500/25;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-electric-500);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Typographie ───────────────────────────────────────────────────── */
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* ── Boutons ───────────────────────────────────────────────────────── */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-200 active:scale-[0.98];
+}
+
+.btn-primary {
+  @apply bg-electric-500 text-white shadow-lg shadow-electric-500/25 hover:bg-electric-600;
+}
+
+.btn-ghost {
+  @apply border border-slate-300 bg-white text-slate-700 hover:border-electric-400 hover:text-electric-600 dark:border-ink-700 dark:bg-ink-900 dark:text-slate-300 dark:hover:border-electric-500 dark:hover:text-electric-400;
+}
+
+.btn-danger {
+  @apply bg-red-600 text-white hover:bg-red-700;
+}
+
+/* ── Cartes ────────────────────────────────────────────────────────── */
+.card {
+  @apply rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-ink-800 dark:bg-ink-900;
+}
+
+.eyebrow {
+  @apply text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500;
+}
+
+/* ── Coins de visée (viseurs) ──────────────────────────────────────── */
+.corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-color: var(--color-electric-500);
+  pointer-events: none;
+}
+
+.corner-tl {
+  top: -3px;
+  left: -3px;
+  border-top: 3px solid;
+  border-left: 3px solid;
+  border-top-left-radius: 10px;
+}
+
+.corner-tr {
+  top: -3px;
+  right: -3px;
+  border-top: 3px solid;
+  border-right: 3px solid;
+  border-top-right-radius: 10px;
+}
+
+.corner-bl {
+  bottom: -3px;
+  left: -3px;
+  border-bottom: 3px solid;
+  border-left: 3px solid;
+  border-bottom-left-radius: 10px;
+}
+
+.corner-br {
+  bottom: -3px;
+  right: -3px;
+  border-bottom: 3px solid;
+  border-right: 3px solid;
+  border-bottom-right-radius: 10px;
+}
+
+/* ── Ligne de scan laser ───────────────────────────────────────────── */
+@keyframes scan {
+  0% {
+    top: 10%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    top: 90%;
+    opacity: 0;
+  }
+}
+
+.scanline {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-laser-400),
+    transparent
+  );
+  box-shadow:
+    0 0 14px 2px color-mix(in srgb, var(--color-laser-400) 55%, transparent),
+    0 0 34px 8px color-mix(in srgb, var(--color-laser-400) 20%, transparent);
+  animation: scan 2.6s ease-in-out infinite;
+}
+
+/* ── Halo du héro ──────────────────────────────────────────────────── */
+.hero-glow {
+  background:
+    radial-gradient(
+      60% 60% at 50% 40%,
+      color-mix(in srgb, var(--color-electric-500) 18%, transparent),
+      transparent 70%
+    );
+}
+
+/* ── Entrée de page ────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: fadeUp 0.28s ease-out both;
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.status-dot {
+  animation: pulseDot 1.6s ease-in-out infinite;
+}
+
+/* ── Mouvement réduit ──────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .scanline,
+  .status-dot {
+    animation: none;
+  }
+  .scanline {
+    opacity: 0.6;
+  }
+  .page-enter {
+    animation: none;
+  }
+}
