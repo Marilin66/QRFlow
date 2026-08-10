@@ -8,10 +8,13 @@ on:
       - '.github/workflows/build-web.yml'
   workflow_dispatch:
 
+
 jobs:
   build:
     name: Build Web
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     
     steps:
       - name: Checkout code
