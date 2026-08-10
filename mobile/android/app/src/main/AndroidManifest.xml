@@ -6,6 +6,9 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <!-- Overlay / Bulle flottante (CRITIQUE : requis pour apparaître dans les paramètres) -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
     <!-- Services au premier plan (bulle + MediaProjection) -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
