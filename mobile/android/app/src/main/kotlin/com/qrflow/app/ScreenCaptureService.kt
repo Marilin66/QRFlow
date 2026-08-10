@@ -155,41 +155,56 @@ class ScreenCaptureService : Service() {
     /** Capture une image depuis le VirtualDisplay et l'enregistre en PNG. */
     private fun captureFrame() {
         val reader = imageReader ?: return
-        val image = reader.acquireLatestImage() ?: return
-        try {
-            val plane = image.planes[0]
-            val buffer = plane.buffer
-            val pixelStride = plane.pixelStride
-            val rowStride = plane.rowStride
-            val rowPadding = rowStride - pixelStride * image.width
+        
+        // Petit délai pour s'assurer que le contenu est bien rendu
+        mainHandler.postDelayed({
+            val image = reader.acquireLatestImage() ?: return@postDelayed
+            try {
+                val plane = image.planes[0]
+                val buffer = plane.buffer
+                val pixelStride = plane.pixelStride
+                val rowStride = plane.rowStride
+                val rowPadding = rowStride - pixelStride * image.width
 
-            val bitmap = Bitmap.createBitmap(
-                image.width + rowPadding / pixelStride,
-                image.height,
-                Bitmap.Config.ARGB_8888,
-            )
-            bitmap.copyPixelsFromBuffer(buffer)
-            val crop = Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
-            bitmap.recycle()
+                val bitmap = Bitmap.createBitmap(
+                    image.width + rowPadding / pixelStride,
+                    image.height,
+                    Bitmap.Config.ARGB_8888,
+                )
+                bitmap.copyPixelsFromBuffer(buffer)
+                val crop = Bitmap.createBitmap(bitmap, 0, 0, image.width, image.height)
+                bitmap.recycle()
 
-            savePng(crop)
-            crop.recycle()
-        } finally {
-            image.close()
-        }
+                savePng(crop)
+                crop.recycle()
+            } catch (e: Exception) {
+                android.util.Log.e("ScreenCaptureService", "Erreur capture: ${e.message}", e)
+            } finally {
+                image.close()
+            }
+        }, 200) // Délai de 200ms pour garantir le rendu
     }
 
     private fun savePng(bitmap: Bitmap) {
-        val dir = java.io.File(cacheDir, "qrflow")
-        if (!dir.exists()) dir.mkdirs()
-        val file = java.io.File(dir, "capture_${System.currentTimeMillis()}.png")
-        file.outputStream().use { out ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+        try {
+            val dir = java.io.File(cacheDir, "qrflow")
+            if (!dir.exists()) dir.mkdirs()
+            val file = java.io.File(dir, "capture_${System.currentTimeMillis()}.png")
+            file.outputStream().use { out ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+            }
+            val path = file.absolutePath
+            android.util.Log.d("ScreenCaptureService", "Capture enregistrée: $path")
+            
+            getSharedPreferences(ScreenCaptureChannel.PREFS, Context.MODE_PRIVATE)
+                .edit()
+                .putString(ScreenCaptureChannel.KEY_PENDING_CAPTURE, path)
+                .apply()
+                
+            android.util.Log.d("ScreenCaptureService", "Chemin enregistré dans SharedPreferences")
+        } catch (e: Exception) {
+            android.util.Log.e("ScreenCaptureService", "Erreur sauvegarde: ${e.message}", e)
         }
-        getSharedPreferences(ScreenCaptureChannel.PREFS, Context.MODE_PRIVATE)
-            .edit()
-            .putString(ScreenCaptureChannel.KEY_PENDING_CAPTURE, file.absolutePath)
-            .apply()
     }
 
     override fun onDestroy() {

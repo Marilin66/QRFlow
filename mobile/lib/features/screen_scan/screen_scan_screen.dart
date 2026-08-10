@@ -1,3 +1,5 @@
+import 'dart:io' as io;
+
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
@@ -46,7 +48,10 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
     // L'utilisateur revient des paramètres système ou après une capture.
     if (state == AppLifecycleState.resumed) {
       _refreshState();
-      _checkPendingCapture();
+      // Délai pour s'assurer que la capture est bien enregistrée
+      Future.delayed(const Duration(milliseconds: 500), () {
+        if (mounted) _checkPendingCapture();
+      });
     }
   }
 
@@ -98,18 +103,48 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
     _checking = true;
     try {
       final path = await ScreenCaptureBridge.takePendingCapture();
-      if (path == null || !mounted) return;
+      if (path == null || path.isEmpty || !mounted) {
+        _checking = false;
+        return;
+      }
 
+      // Vérifier que le fichier existe
+      final file = io.File(path);
+      if (!file.existsSync()) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Erreur : fichier de capture introuvable.'),
+            ),
+          );
+        }
+        _checking = false;
+        return;
+      }
+
+      // Analyser l'image
       final controller = MobileScannerController(formats: const [BarcodeFormat.qrCode]);
       String? raw;
       try {
         final capture = await controller.analyzeImage(path);
         raw = capture?.barcodes.map((b) => b.rawValue).whereType<String>().firstOrNull;
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Erreur lors de l\'analyse : $e'),
+            ),
+          );
+        }
       } finally {
         await controller.dispose();
       }
 
-      if (!mounted) return;
+      if (!mounted) {
+        _checking = false;
+        return;
+      }
+
       if (raw == null || raw.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -117,11 +152,14 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
               'Aucun QR code détecté sur cette capture.\n'
               'Essayez à nouveau avec un QR code bien visible.',
             ),
+            duration: Duration(seconds: 4),
           ),
         );
+        _checking = false;
         return;
       }
 
+      // Succès : analyser le contenu et afficher le résultat
       final content = _analyzer.analyze(raw);
       await Navigator.of(context).push(
         MaterialPageRoute(
@@ -132,6 +170,15 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
           ),
         ),
       );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur inattendue : $e'),
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
     } finally {
       _checking = false;
     }

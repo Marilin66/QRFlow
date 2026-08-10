@@ -83,10 +83,15 @@ class ScreenCaptureBridge {
   static Future<String?> takePendingCapture() async {
     if (!_isAndroid) return null;
     try {
-      return await _channel.invokeMethod<String>('getPendingCapture');
-    } on PlatformException {
+      debugPrint('[ScreenCaptureBridge] Demande de capture en attente...');
+      final path = await _channel.invokeMethod<String>('getPendingCapture');
+      debugPrint('[ScreenCaptureBridge] Chemin reçu: $path');
+      return path;
+    } on PlatformException catch (e) {
+      debugPrint('[ScreenCaptureBridge] Erreur PlatformException: ${e.message}');
       return null;
-    } on MissingPluginException {
+    } on MissingPluginException catch (e) {
+      debugPrint('[ScreenCaptureBridge] Erreur MissingPluginException: ${e.message}');
       return null;
     }
   }

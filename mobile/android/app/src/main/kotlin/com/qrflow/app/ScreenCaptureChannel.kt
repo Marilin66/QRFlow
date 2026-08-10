@@ -95,18 +95,23 @@ class ScreenCaptureChannel private constructor(
                 }
 
                 "captureScreen" -> {
+                    android.util.Log.d("ScreenCaptureChannel", "captureScreen appelé, isRunning=${ScreenCaptureService.isRunning}")
                     if (ScreenCaptureService.isRunning) {
                         ScreenCaptureService.requestCaptureNow(activity)
+                        android.util.Log.d("ScreenCaptureChannel", "Demande de capture envoyée au service")
                     } else {
                         activity.requestScreenCapture()
+                        android.util.Log.d("ScreenCaptureChannel", "Demande de consentement MediaProjection")
                     }
                     result.success(null)
                 }
 
                 "getPendingCapture" -> {
                     val path = prefs().getString(KEY_PENDING_CAPTURE, null)
+                    android.util.Log.d("ScreenCaptureChannel", "getPendingCapture appelé, path=$path")
                     if (path != null) {
                         prefs().edit().remove(KEY_PENDING_CAPTURE).apply()
+                        android.util.Log.d("ScreenCaptureChannel", "Chemin consommé: $path")
                     }
                     result.success(path)
                 }
