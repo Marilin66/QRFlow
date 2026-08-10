@@ -26,3 +26,6 @@ skills-lock.json
 
 # Document de conception local (cahier des charges)
 Nouveau document texte.txt
+
+# Secret : token GitHub (ne jamais committer !)
+token.txt
