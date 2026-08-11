@@ -18,14 +18,17 @@ import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Service d'accessibilité QRFlow — capture d'écran (Android 11+).
+ * Service d'accessibilité QRFlow.
  *
- * Architecture sans point de rupture :
- *  - la bulle flottante appelle [captureScreenNow] DIRECTEMENT sur l'instance
- *    (même processus). Aucun broadcast, aucun receiver dynamique.
- *  - chaque capture est sauvegardée en PNG dans le cache puis remise à Flutter
- *    via [deliverCaptureToFlutter] (SharedPreferences + relance de l'activité).
- *  - toute erreur est consignée pour être affichée dans l'application.
+ * Stratégie de scan (appelé depuis la bulle PENDANT que l'autre app est visible) :
+ *
+ *  1. Lecture directe de l'arbre d'accessibilité : aucune capture d'écran,
+ *     instantané. Si des contenus QR plausibles sont trouvés → livraison directe.
+ *  2. Si l'arbre ne contient rien d'exploitable : capture d'écran via
+ *     AccessibilityService.takeScreenshot() — l'écran de l'autre app est ENCORE
+ *     visible (la bulle n'a pas encore relancé QRFlow), on obtient donc bien le
+ *     contenu voulu. MLKit analyse le bitmap directement en mémoire.
+ *  3. Seulement APRÈS l'analyse, QRFlow est relancé au premier plan avec le résultat.
  */
 class QRFlowAccessibilityService : AccessibilityService() {
 
@@ -48,6 +51,7 @@ class QRFlowAccessibilityService : AccessibilityService() {
 
     private val ioExecutor: ExecutorService = Executors.newSingleThreadExecutor()
     private val captureInProgress = AtomicBoolean(false)
+
     @Volatile
     private var lastCaptureAt = 0L
 
@@ -69,81 +73,176 @@ class QRFlowAccessibilityService : AccessibilityService() {
 
     override fun onInterrupt() {}
 
-    /** Capture l'écran maintenant. Appelé par la bulle ou le canal natif. */
-    fun captureScreenNow() {
+    /**
+     * Point d'entrée principal appelé par la bulle flottante.
+     *
+     * IMPORTANT : Cette méthode est appelée alors que l'AUTRE application
+     * est encore visible à l'écran (avant tout retour vers QRFlow).
+     * C'est ici que le scan doit se produire, pas après.
+     */
+    fun scanScreenNow() {
+        ioExecutor.execute {
+            // Étape 1 : lecture directe (zéro capture, instantané).
+            val texts = extractScreenTexts()
+            if (texts.isNotEmpty()) {
+                Log.i(TAG, "Lecture directe : ${texts.size} candidat(s) trouvés — livraison sans capture")
+                deliverTextCandidatesToFlutter(this, texts)
+                return@execute
+            }
+
+            Log.i(TAG, "Arbre vide — tentative de capture d'écran immédiate (l'autre app est visible)")
+            // Étape 2 : capture immédiate pendant que l'autre app est encore à l'écran.
+            captureAndAnalyzeNow()
+        }
+    }
+
+    /**
+     * Capture l'écran EN MÉMOIRE et analyse directement le bitmap avec MLKit.
+     * QRFlow n'est relancé au premier plan QU'APRÈS l'analyse pour éviter
+     * de capturer son propre écran.
+     */
+    private fun captureAndAnalyzeNow() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             recordCaptureError(this, "La capture d'écran nécessite Android 11 ou plus.")
+            launchAppForFeedback(this)
             return
         }
         if (!captureInProgress.compareAndSet(false, true)) {
             Log.w(TAG, "Une capture est déjà en cours")
             return
         }
-        ioExecutor.execute {
-            try {
-                // Android rejette les captures plus rapprochées que ~1 s.
-                val wait = SCREENSHOT_INTERVAL_MS - (System.currentTimeMillis() - lastCaptureAt)
-                if (wait > 0) Thread.sleep(wait)
 
-                takeScreenshot(
-                    0,
-                    ioExecutor,
-                    object : TakeScreenshotCallback {
-                        override fun onSuccess(result: ScreenshotResult) {
-                            lastCaptureAt = System.currentTimeMillis()
-                            handleScreenshot(result)
-                        }
+        // Respect du délai minimum Android entre deux captures.
+        val wait = SCREENSHOT_INTERVAL_MS - (System.currentTimeMillis() - lastCaptureAt)
+        if (wait > 0) {
+            try { Thread.sleep(wait) } catch (_: InterruptedException) {}
+        }
 
-                        override fun onFailure(errorCode: Int) {
-                            Log.e(TAG, "Échec de la capture d'écran (code $errorCode)")
-                            recordCaptureError(
-                                this@QRFlowAccessibilityService,
-                                "Capture impossible (code $errorCode). Certaines applications " +
-                                    "bloquent la capture (banque, DRM…). " +
-                                    "Utilisez « Depuis une capture »."
-                            )
-                            captureInProgress.set(false)
-                        }
+        try {
+            takeScreenshot(
+                0, // Display par défaut
+                ioExecutor,
+                object : TakeScreenshotCallback {
+                    override fun onSuccess(result: ScreenshotResult) {
+                        lastCaptureAt = System.currentTimeMillis()
+                        processScreenshotWithMLKit(result)
                     }
-                )
-            } catch (e: IllegalStateException) {
-                // Service momentanément déconnecté (redémarrage système…).
-                Log.e(TAG, "Service non connecté", e)
-                recordCaptureError(
-                    this@QRFlowAccessibilityService,
-                    "Le service de capture n'est pas connecté. Vérifiez que QRFlow " +
-                        "est activé dans les paramètres d'accessibilité, puis réessayez."
-                )
-                captureInProgress.set(false)
-            } catch (e: Exception) {
-                Log.e(TAG, "Erreur lors de takeScreenshot", e)
-                recordCaptureError(
-                    this@QRFlowAccessibilityService,
-                    "Erreur lors de la capture : ${e.message}"
-                )
-                captureInProgress.set(false)
-            }
+
+                    override fun onFailure(errorCode: Int) {
+                        captureInProgress.set(false)
+                        Log.e(TAG, "Échec de capture (code $errorCode)")
+                        recordCaptureError(
+                            this@QRFlowAccessibilityService,
+                            "Impossible de capturer l'écran (code $errorCode). " +
+                                "Certaines applications bloquent la capture (banque, DRM…)."
+                        )
+                        launchAppForFeedback(this@QRFlowAccessibilityService)
+                    }
+                }
+            )
+        } catch (e: IllegalStateException) {
+            captureInProgress.set(false)
+            Log.e(TAG, "Service non connecté lors de la capture", e)
+            recordCaptureError(this, "Service d'accessibilité déconnecté. Réessayez.")
+            launchAppForFeedback(this)
+        } catch (e: Exception) {
+            captureInProgress.set(false)
+            Log.e(TAG, "Erreur inattendue lors de la capture", e)
+            recordCaptureError(this, "Erreur lors de la capture : ${e.message}")
+            launchAppForFeedback(this)
         }
     }
 
     /**
-     * Point d'entrée de la bulle : tente d'abord une lecture directe de
-     * l'écran (arbre d'accessibilité, AUCUNE capture), puis bascule sur la
-     * capture d'écran si aucun contenu exploitable n'est trouvé.
+     * Analyse le bitmap capturé directement avec MLKit (en mémoire).
+     * - Si QR codes trouvés → livraison des valeurs textuelles.
+     * - Sinon → sauvegarde PNG et livraison du chemin pour analyse Flutter.
      */
-    fun scanScreenNow() {
-        // L'extraction de l'arbre d'accessibilité est exécutée hors du thread
-        // principal (grosses hiérarchies de vues possibles, ex. WebView).
-        ioExecutor.execute {
-            val texts = extractScreenTexts()
-            if (texts.isNotEmpty()) {
-                Log.i(TAG, "Lecture directe : ${texts.size} candidat(s), aucune capture")
-                deliverTextCandidatesToFlutter(this, texts)
-            } else {
-                Log.i(TAG, "Aucun texte exploitable, repli sur capture d'écran")
-                captureScreenNow()
+    private fun processScreenshotWithMLKit(result: ScreenshotResult) {
+        try {
+            val hardwareBitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, result.colorSpace)
+                ?: run {
+                    captureInProgress.set(false)
+                    recordCaptureError(this, "Bitmap null après capture.")
+                    launchAppForFeedback(this)
+                    return
+                }
+
+            // Copie en bitmap logiciel (requis pour MLKit et PNG).
+            val bitmap = hardwareBitmap.copy(Bitmap.Config.ARGB_8888, false)
+            hardwareBitmap.recycle()
+            try { result.hardwareBuffer.close() } catch (_: Exception) {}
+
+            // Vérification rapide : si le bitmap est entièrement noir, inutile de l'analyser.
+            if (isBitmapBlack(bitmap)) {
+                Log.w(TAG, "Bitmap entièrement noir — l'app cible a peut-être bloqué la capture")
+                bitmap.recycle()
+                captureInProgress.set(false)
+                recordCaptureError(
+                    this,
+                    "La capture est noire. L'application cible bloque peut-être les captures. " +
+                        "Essayez d'appuyer sur la bulle avant de changer d'application."
+                )
+                launchAppForFeedback(this)
+                return
             }
+
+            val inputImage = InputImage.fromBitmap(bitmap, 0)
+            val scanner = BarcodeScanning.getClient()
+
+            scanner.process(inputImage)
+                .addOnSuccessListener { barcodes ->
+                    captureInProgress.set(false)
+                    val qrValues = barcodes.mapNotNull { it.rawValue?.takeIf { v -> v.isNotBlank() } }
+
+                    if (qrValues.isNotEmpty()) {
+                        Log.i(TAG, "MLKit en mémoire : ${qrValues.size} QR trouvé(s)")
+                        bitmap.recycle()
+                        // QR trouvés en mémoire : livraison directe sans fichier PNG.
+                        deliverTextCandidatesToFlutter(this, qrValues)
+                    } else {
+                        Log.i(TAG, "MLKit : aucun QR trouvé dans le bitmap — sauvegarde PNG pour Flutter")
+                        val path = saveBitmap(bitmap)
+                        bitmap.recycle()
+                        deliverCaptureToFlutter(this, path)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    captureInProgress.set(false)
+                    Log.e(TAG, "MLKit a échoué", e)
+                    // Repli : livrer le PNG à Flutter.
+                    val path = saveBitmap(bitmap)
+                    bitmap.recycle()
+                    deliverCaptureToFlutter(this, path)
+                }
+        } catch (e: Exception) {
+            captureInProgress.set(false)
+            Log.e(TAG, "Erreur lors du traitement de la capture", e)
+            recordCaptureError(this, "Erreur de traitement de la capture.")
+            launchAppForFeedback(this)
         }
+    }
+
+    /**
+     * Vérifie rapidement si un bitmap est entièrement (ou quasi) noir.
+     * Échantillonne 100 pixels répartis sur l'image.
+     */
+    private fun isBitmapBlack(bitmap: Bitmap): Boolean {
+        val w = bitmap.width
+        val h = bitmap.height
+        if (w == 0 || h == 0) return true
+        var darkCount = 0
+        val sampleCount = 100
+        for (i in 0 until sampleCount) {
+            val x = (w.toLong() * i / sampleCount).toInt().coerceIn(0, w - 1)
+            val y = (h.toLong() * i / sampleCount).toInt().coerceIn(0, h - 1)
+            val pixel = bitmap.getPixel(x, y)
+            val r = (pixel shr 16) and 0xFF
+            val g = (pixel shr 8) and 0xFF
+            val b = pixel and 0xFF
+            if (r < 10 && g < 10 && b < 10) darkCount++
+        }
+        return darkCount > sampleCount * 0.9 // > 90% de pixels noirs
     }
 
     /**
@@ -170,11 +269,7 @@ class QRFlowAccessibilityService : AccessibilityService() {
         }
         // Recyclage dans l'ordre inverse (enfants avant parents).
         for (i in allNodes.indices.reversed()) {
-            try {
-                allNodes[i].recycle()
-            } catch (_: Exception) {
-                // Déjà recyclé.
-            }
+            try { allNodes[i].recycle() } catch (_: Exception) {}
         }
         return found.take(10).toList()
     }
@@ -193,65 +288,12 @@ class QRFlowAccessibilityService : AccessibilityService() {
         )
         if (strongPrefixes.any { lower.startsWith(it) }) return true
         // Nom de domaine plausible (ex. mon-site.com/chemin).
-        if (s.length <= 200 && DOMAIN_REGEX.matches(lower)) {
-            return true
-        }
+        if (s.length <= 200 && DOMAIN_REGEX.matches(lower)) return true
         // Texte court et simple (pavage QR « texte » typique).
         if (s.length in 2..60 && !s.contains('\n') && s.count { it.isWhitespace() } <= 8) {
             return !s.endsWith(".")
         }
         return false
-    }
-
-    private fun handleScreenshot(result: ScreenshotResult) {
-        try {
-            val hardwareBitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, result.colorSpace)
-                ?: throw IllegalStateException("wrapHardwareBuffer a retourné null")
-
-            val bitmap = hardwareBitmap.copy(Bitmap.Config.ARGB_8888, false)
-            hardwareBitmap.recycle()
-            try {
-                result.hardwareBuffer.close()
-            } catch (_: Exception) {
-                // Buffer déjà fermé
-            }
-
-            val inputImage = InputImage.fromBitmap(bitmap, 0)
-            val scanner = BarcodeScanning.getClient()
-            scanner.process(inputImage)
-                .addOnSuccessListener { barcodes ->
-                    val results = LinkedHashSet<String>()
-                    for (b in barcodes) {
-                        val raw = b.rawValue
-                        if (!raw.isNullOrBlank()) {
-                            results.add(raw)
-                        }
-                    }
-                    if (results.isNotEmpty()) {
-                        Log.i(TAG, "MLKit natif : ${results.size} QR code(s) trouvé(s) dans le bitmap")
-                        bitmap.recycle()
-                        captureInProgress.set(false)
-                        deliverTextCandidatesToFlutter(this, results.toList())
-                    } else {
-                        Log.i(TAG, "MLKit natif n'a pas trouvé de QR dans le bitmap, sauvegarde PNG")
-                        val path = saveBitmap(bitmap)
-                        bitmap.recycle()
-                        captureInProgress.set(false)
-                        deliverCaptureToFlutter(this, path)
-                    }
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "MLKit natif a échoué", e)
-                    val path = saveBitmap(bitmap)
-                    bitmap.recycle()
-                    captureInProgress.set(false)
-                    deliverCaptureToFlutter(this, path)
-                }
-        } catch (e: Exception) {
-            Log.e(TAG, "Erreur lors du traitement de la capture", e)
-            recordCaptureError(this, "Erreur lors du traitement de la capture.")
-            captureInProgress.set(false)
-        }
     }
 
     private fun saveBitmap(bitmap: Bitmap): String {
@@ -260,9 +302,7 @@ class QRFlowAccessibilityService : AccessibilityService() {
         val file = File(dir, "capture_${System.currentTimeMillis()}.png")
         FileOutputStream(file).use { out ->
             val ok = bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-            if (!ok) {
-                Log.e(TAG, "compress() a échoué, le PNG peut être vide")
-            }
+            if (!ok) Log.e(TAG, "compress() a échoué, PNG peut être vide")
         }
         return file.absolutePath
     }

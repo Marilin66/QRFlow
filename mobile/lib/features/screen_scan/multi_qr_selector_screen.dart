@@ -41,6 +41,16 @@ class _MultiQRSelectorScreenState extends State<MultiQRSelectorScreen> {
   Future<void> _analyzeImage() async {
     try {
       final image = File(widget.imagePath);
+      if (!image.existsSync()) {
+        if (mounted) {
+          setState(() {
+            _errorMessage = "Fichier de capture introuvable.";
+            _isAnalyzing = false;
+          });
+        }
+        return;
+      }
+
       final decodedImage = await decodeImageFromList(await image.readAsBytes());
       if (mounted) {
         setState(() {
@@ -51,14 +61,17 @@ class _MultiQRSelectorScreenState extends State<MultiQRSelectorScreen> {
 
       final capture = await _controller.analyzeImage(widget.imagePath);
       if (mounted) {
+        final barcodes = capture?.barcodes ?? [];
         setState(() {
-          _detectedBarcodes = capture?.barcodes ?? [];
+          _detectedBarcodes = barcodes;
           _isAnalyzing = false;
+          if (barcodes.isEmpty) {
+            _errorMessage =
+                "Aucun QR code détecté dans la capture.\n\n"
+                "Conseil : assurez-vous que le QR code est bien visible à "
+                "l'écran avant d'appuyer sur la bulle, puis réessayez.";
+          }
         });
-
-        if (_detectedBarcodes.isEmpty) {
-          _errorMessage = "Aucun QR code détecté sur cette capture.";
-        }
       }
     } catch (e) {
       if (mounted) {
