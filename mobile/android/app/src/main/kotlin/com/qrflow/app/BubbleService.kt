@@ -19,7 +19,7 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.TextView
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.core.app.NotificationCompat
 import kotlin.math.abs
@@ -99,16 +99,17 @@ class BubbleService : Service() {
         val size = prefs.getFloat("flutter.bubble_size", 100f).toInt().coerceIn(56, 160)
         val opacity = prefs.getFloat("flutter.bubble_opacity", 0.90f).coerceIn(0.4f, 1f)
 
-        val view = TextView(this).apply {
-            text = "QR"
-            gravity = Gravity.CENTER
-            textSize = 24f
-            setTextColor(Color.WHITE)
+        val view = ImageView(this).apply {
+            setImageResource(R.drawable.ic_bubble_logo)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            setPadding(12, 12, 12, 12)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
-                setColor(Color.parseColor("#2962FF"))
+                setColor(Color.WHITE)
+                setStroke(3, Color.parseColor("#2D3B8C"))
             }
             alpha = opacity
+            elevation = 8f
             setOnTouchListener(dragListener)
             setOnClickListener {
                 val intent = Intent(QRFlowAccessibilityService.ACTION_TAKE_SCREENSHOT)
