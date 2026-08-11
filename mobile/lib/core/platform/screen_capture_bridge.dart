@@ -6,11 +6,7 @@ import 'package:flutter/services.dart';
 /// Pont vers le code natif Android (canal « com.qrflow.app/screen_capture »).
 ///
 /// Gère : la bulle flottante, la permission d'affichage par-dessus les
-/// applications, et la capture d'écran via MediaProjection.
-///
-/// Sur les plateformes non Android, toutes les méthodes retournent un
-/// résultat « non pris en charge » afin que l'interface puisse proposer le
-/// repli vers l'import d'une capture.
+/// applications, et l'accessibilité.
 class ScreenCaptureBridge {
   ScreenCaptureBridge._();
 
@@ -24,6 +20,7 @@ class ScreenCaptureBridge {
       return {
         'isAndroid': false,
         'overlayPermission': false,
+        'accessibilityPermission': false,
         'bubbleActive': false,
         'supported': false,
       };
@@ -44,7 +41,17 @@ class ScreenCaptureBridge {
     try {
       await _channel.invokeMethod('requestOverlayPermission');
     } on PlatformException {
-      // Silencieux : l'utilisateur peut revenir via les paramètres.
+      // Silencieux
+    }
+  }
+
+  /// Demande la permission d'accessibilité (pour la capture d'écran).
+  static Future<void> requestAccessibilityPermission() async {
+    if (!_isAndroid) return;
+    try {
+      await _channel.invokeMethod('requestAccessibilityPermission');
+    } on PlatformException {
+      // Silencieux
     }
   }
 
@@ -65,17 +72,17 @@ class ScreenCaptureBridge {
     try {
       await _channel.invokeMethod('stopBubble');
     } on PlatformException {
-      // Silencieux.
+      // Silencieux
     }
   }
 
-  /// Déclenche la capture d'écran (consentement MediaProjection si besoin).
+  /// Déclenche la capture d'écran.
   static Future<void> captureScreen() async {
     if (!_isAndroid) return;
     try {
       await _channel.invokeMethod('captureScreen');
     } on PlatformException {
-      // Silencieux.
+      // Silencieux
     }
   }
 
@@ -83,27 +90,11 @@ class ScreenCaptureBridge {
   static Future<String?> takePendingCapture() async {
     if (!_isAndroid) return null;
     try {
-      debugPrint('[ScreenCaptureBridge] Demande de capture en attente...');
-      final path = await _channel.invokeMethod<String>('getPendingCapture');
-      debugPrint('[ScreenCaptureBridge] Chemin reçu: $path');
-      return path;
+      return await _channel.invokeMethod<String>('getPendingCapture');
     } on PlatformException catch (e) {
-      debugPrint('[ScreenCaptureBridge] Erreur PlatformException: ${e.message}');
       return null;
     } on MissingPluginException catch (e) {
-      debugPrint('[ScreenCaptureBridge] Erreur MissingPluginException: ${e.message}');
       return null;
-    }
-  }
-
-  /// Demande la permission de notification (Android 13+), nécessaire pour
-  /// afficher la notification de service au premier plan.
-  static Future<void> ensureNotificationPermission() async {
-    if (!_isAndroid) return;
-    try {
-      await _channel.invokeMethod('ensureNotificationPermission');
-    } on PlatformException {
-      // Silencieux.
     }
   }
 }

@@ -1,8 +1,7 @@
 package com.qrflow.app
 
 import android.Manifest
-import android.app.Activity
-import android.app.Activity.RESULT_OK
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -10,26 +9,17 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.text.TextUtils
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
-/**
- * Pont entre Dart et le code natif Android.
- *
- * Canal : [CHANNEL]
- * Méthodes : getPlatformState, requestOverlayPermission, ensureNotificationPermission,
- * startBubble, stopBubble, captureScreen, getPendingCapture.
- */
 class ScreenCaptureChannel private constructor(
     private val activity: MainActivity,
     private val channel: MethodChannel,
 ) {
     companion object {
         const val CHANNEL = "com.qrflow.app/screen_capture"
-
-        /** Action lancée lorsque l'utilisateur appuie sur la bulle flottante. */
         const val ACTION_CAPTURE = "com.qrflow.app.CAPTURE"
-
         const val PREFS = "qrflow_prefs"
         const val KEY_PENDING_CAPTURE = "pending_capture_path"
         const val KEY_BUBBLE_ACTIVE = "bubble_active"
@@ -40,14 +30,34 @@ class ScreenCaptureChannel private constructor(
         }
     }
 
+    private fun isAccessibilityServiceEnabled(context: Context): Boolean {
+        val expectedComponentName = ComponentName(context, QRFlowAccessibilityService::class.java)
+        val enabledServicesSetting = Settings.Secure.getString(
+            context.contentResolver,
+            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        ) ?: return false
+
+        val colonSplitter = TextUtils.SimpleStringSplitter(':')
+        colonSplitter.setString(enabledServicesSetting)
+        while (colonSplitter.hasNext()) {
+            val componentNameString = colonSplitter.next()
+            val enabledService = ComponentName.unflattenFromString(componentNameString)
+            if (enabledService != null && enabledService == expectedComponentName) {
+                return true
+            }
+        }
+        return false
+    }
+
     private fun attach() {
         channel.setMethodCallHandler { call, result ->
             when (call.method) {
                 "getPlatformState" -> result.success(
                     mapOf(
                         "isAndroid" to true,
-                        "supported" to true,
+                        "supported" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R),
                         "overlayPermission" to Settings.canDrawOverlays(activity),
+                        "accessibilityPermission" to isAccessibilityServiceEnabled(activity),
                         "bubbleActive" to prefs().getBoolean(KEY_BUBBLE_ACTIVE, false),
                     )
                 )
@@ -58,6 +68,14 @@ class ScreenCaptureChannel private constructor(
                             Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                             Uri.parse("package:${activity.packageName}"),
                         )
+                        activity.startActivity(intent)
+                    }
+                    result.success(null)
+                }
+
+                "requestAccessibilityPermission" -> {
+                    if (!isAccessibilityServiceEnabled(activity)) {
+                        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
                         activity.startActivity(intent)
                     }
                     result.success(null)
@@ -79,7 +97,7 @@ class ScreenCaptureChannel private constructor(
                 }
 
                 "startBubble" -> {
-                    if (Settings.canDrawOverlays(activity)) {
+                    if (Settings.canDrawOverlays(activity) && isAccessibilityServiceEnabled(activity)) {
                         BubbleService.start(activity)
                         prefs().edit().putBoolean(KEY_BUBBLE_ACTIVE, true).apply()
                         result.success(true)
@@ -95,23 +113,15 @@ class ScreenCaptureChannel private constructor(
                 }
 
                 "captureScreen" -> {
-                    android.util.Log.d("ScreenCaptureChannel", "captureScreen appelé, isRunning=${ScreenCaptureService.isRunning}")
-                    if (ScreenCaptureService.isRunning) {
-                        ScreenCaptureService.requestCaptureNow(activity)
-                        android.util.Log.d("ScreenCaptureChannel", "Demande de capture envoyée au service")
-                    } else {
-                        activity.requestScreenCapture()
-                        android.util.Log.d("ScreenCaptureChannel", "Demande de consentement MediaProjection")
-                    }
+                    val intent = Intent(QRFlowAccessibilityService.ACTION_TAKE_SCREENSHOT)
+                    activity.sendBroadcast(intent)
                     result.success(null)
                 }
 
                 "getPendingCapture" -> {
                     val path = prefs().getString(KEY_PENDING_CAPTURE, null)
-                    android.util.Log.d("ScreenCaptureChannel", "getPendingCapture appelé, path=$path")
                     if (path != null) {
                         prefs().edit().remove(KEY_PENDING_CAPTURE).apply()
-                        android.util.Log.d("ScreenCaptureChannel", "Chemin consommé: $path")
                     }
                     result.success(path)
                 }
@@ -123,16 +133,4 @@ class ScreenCaptureChannel private constructor(
 
     private fun prefs(): SharedPreferences =
         activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
-
-    /**
-     * Appelé par [MainActivity] quand l'utilisateur répond à la demande de
-     * consentement MediaProjection.
-     */
-    fun onProjectionResult(resultCode: Int, data: Intent?) {
-        if (resultCode == RESULT_OK && data != null) {
-            ScreenCaptureService.start(activity, resultCode, data)
-        }
-        // Résultat refusé : on ne fait rien, l'interface propose le repli
-        // vers l'import d'une capture.
-    }
 }

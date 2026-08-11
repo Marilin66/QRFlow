@@ -96,13 +96,13 @@ class BubbleService : Service() {
 
     private fun showBubble() {
         val prefs = getSharedPreferences("FlutterSharedPreferences", MODE_PRIVATE)
-        val size = prefs.getFloat("flutter.bubble_size", 80f).toInt().coerceIn(56, 120)
+        val size = prefs.getFloat("flutter.bubble_size", 100f).toInt().coerceIn(56, 160)
         val opacity = prefs.getFloat("flutter.bubble_opacity", 0.90f).coerceIn(0.4f, 1f)
 
         val view = TextView(this).apply {
             text = "QR"
             gravity = Gravity.CENTER
-            textSize = 22f
+            textSize = 24f
             setTextColor(Color.WHITE)
             background = GradientDrawable().apply {
                 shape = GradientDrawable.OVAL
@@ -111,11 +111,8 @@ class BubbleService : Service() {
             alpha = opacity
             setOnTouchListener(dragListener)
             setOnClickListener {
-                val intent = Intent(this@BubbleService, MainActivity::class.java).apply {
-                    action = ScreenCaptureChannel.ACTION_CAPTURE
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                }
-                startActivity(intent)
+                val intent = Intent(QRFlowAccessibilityService.ACTION_TAKE_SCREENSHOT)
+                sendBroadcast(intent)
             }
         }
 

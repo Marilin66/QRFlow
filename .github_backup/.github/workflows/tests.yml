@@ -1,0 +1,43 @@
+name: Tests & Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+      
+      - name: Get dependencies
+        working-directory: mobile
+        run: flutter pub get
+      
+      - name: Analyze code
+        working-directory: mobile
+        run: flutter analyze
+      
+      - name: Run tests
+        working-directory: mobile
+        run: flutter test --coverage
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: mobile/coverage/lcov.info
+          flags: mobile
+          name: qrflow-mobile
+          fail_ci_if_error: false
