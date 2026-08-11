@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/models/history_entry.dart';
 import '../core/platform/screen_capture_bridge.dart';
+import '../core/services/content_analyzer.dart';
 import '../core/services/history_service.dart';
 import '../features/home/home_screen.dart';
+import '../features/result/result_screen.dart';
 import '../features/screen_scan/multi_qr_selector_screen.dart';
 import '../features/screen_scan/screen_text_selector_screen.dart';
 import 'app_state.dart';
@@ -78,15 +81,30 @@ class _QRFlowAppState extends State<QRFlowApp> with WidgetsBindingObserver {
         return;
       }
 
-      // Lecture directe de l'écran (aucune capture) : les contenus textuels
-      // détectés sont proposés à l'utilisateur.
+      // Lecture directe / MLKit natif à l'écran : les contenus QR détectés
+      // sont immédiatement exploités.
       final candidates = await ScreenCaptureBridge.takePendingTextCandidates();
       if (candidates.isNotEmpty) {
-        await navigator.push(
-          MaterialPageRoute(
-            builder: (_) => ScreenTextSelectorScreen(candidates: candidates),
-          ),
-        );
+        if (candidates.length == 1) {
+          const analyzer = ContentAnalyzer();
+          final raw = candidates.first;
+          final content = analyzer.analyze(raw);
+          await navigator.push(
+            MaterialPageRoute(
+              builder: (_) => ResultScreen(
+                content: content,
+                raw: raw,
+                method: ScanMethod.screenScan,
+              ),
+            ),
+          );
+        } else {
+          await navigator.push(
+            MaterialPageRoute(
+              builder: (_) => ScreenTextSelectorScreen(candidates: candidates),
+            ),
+          );
+        }
         return;
       }
 

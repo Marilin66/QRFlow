@@ -43,4 +43,5 @@ flutter {
 
 dependencies {
     implementation("androidx.core:core-ktx:1.13.1")
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
 }

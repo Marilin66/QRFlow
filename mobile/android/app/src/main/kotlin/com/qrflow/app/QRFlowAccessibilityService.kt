@@ -8,6 +8,8 @@ import android.os.Build
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.common.InputImage
 import java.io.File
 import java.io.FileOutputStream
 import java.util.ArrayDeque
@@ -206,24 +208,48 @@ class QRFlowAccessibilityService : AccessibilityService() {
             val hardwareBitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, result.colorSpace)
                 ?: throw IllegalStateException("wrapHardwareBuffer a retourné null")
 
-            // Un bitmap « matériel » ne peut pas être compressé en PNG : on
-            // copie d'abord les pixels dans un bitmap logiciel ARGB_8888.
             val bitmap = hardwareBitmap.copy(Bitmap.Config.ARGB_8888, false)
             hardwareBitmap.recycle()
             try {
                 result.hardwareBuffer.close()
             } catch (_: Exception) {
-                // Certains constructeurs ferment déjà le buffer.
+                // Buffer déjà fermé
             }
 
-            val path = saveBitmap(bitmap)
-            bitmap.recycle()
-            Log.i(TAG, "Capture enregistrée : $path")
-            deliverCaptureToFlutter(this, path)
+            val inputImage = InputImage.fromBitmap(bitmap, 0)
+            val scanner = BarcodeScanning.getClient()
+            scanner.process(inputImage)
+                .addOnSuccessListener { barcodes ->
+                    val results = LinkedHashSet<String>()
+                    for (b in barcodes) {
+                        val raw = b.rawValue
+                        if (!raw.isNullOrBlank()) {
+                            results.add(raw)
+                        }
+                    }
+                    if (results.isNotEmpty()) {
+                        Log.i(TAG, "MLKit natif : ${results.size} QR code(s) trouvé(s) dans le bitmap")
+                        bitmap.recycle()
+                        captureInProgress.set(false)
+                        deliverTextCandidatesToFlutter(this, results.toList())
+                    } else {
+                        Log.i(TAG, "MLKit natif n'a pas trouvé de QR dans le bitmap, sauvegarde PNG")
+                        val path = saveBitmap(bitmap)
+                        bitmap.recycle()
+                        captureInProgress.set(false)
+                        deliverCaptureToFlutter(this, path)
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "MLKit natif a échoué", e)
+                    val path = saveBitmap(bitmap)
+                    bitmap.recycle()
+                    captureInProgress.set(false)
+                    deliverCaptureToFlutter(this, path)
+                }
         } catch (e: Exception) {
             Log.e(TAG, "Erreur lors du traitement de la capture", e)
             recordCaptureError(this, "Erreur lors du traitement de la capture.")
-        } finally {
             captureInProgress.set(false)
         }
     }
