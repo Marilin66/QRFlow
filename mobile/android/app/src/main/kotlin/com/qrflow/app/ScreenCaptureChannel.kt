@@ -13,6 +13,12 @@ import android.text.TextUtils
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
+/**
+ * Canal MethodChannel entre Flutter et le code natif.
+ *
+ * Fournit : état des permissions, démarrage/arrêt de la bulle, déclenchement
+ * de la capture, et récupération des captures / erreurs en attente.
+ */
 class ScreenCaptureChannel private constructor(
     private val activity: MainActivity,
     private val channel: MethodChannel,
@@ -101,7 +107,8 @@ class ScreenCaptureChannel private constructor(
                 }
 
                 "startBubble" -> {
-                    // La capture d'écran via l'accessibilité nécessite Android 11+.
+                    // La capture via l'accessibilité nécessite Android 11+,
+                    // la superposition et le service d'accessibilité activé.
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
                         Settings.canDrawOverlays(activity) &&
                         isAccessibilityServiceEnabled(activity)
@@ -121,9 +128,15 @@ class ScreenCaptureChannel private constructor(
                 }
 
                 "captureScreen" -> {
-                    val intent = Intent(QRFlowAccessibilityService.ACTION_TAKE_SCREENSHOT)
-                    activity.sendBroadcast(intent)
-                    result.success(null)
+                    // Capture directe via le service d'accessibilité
+                    // (appelé quand l'app est au premier plan).
+                    val service = QRFlowAccessibilityService.instance
+                    if (service != null) {
+                        service.captureScreenNow()
+                        result.success(true)
+                    } else {
+                        result.success(false)
+                    }
                 }
 
                 "getPendingCapture" -> {
@@ -157,4 +170,38 @@ class ScreenCaptureChannel private constructor(
     fun notifyCaptureReady(path: String?) {
         channel.invokeMethod(METHOD_CAPTURE_READY, path, null)
     }
+}
+
+/** Consigne une erreur de capture pour que Flutter puisse l'afficher. */
+fun recordCaptureError(context: Context, message: String) {
+    context.getSharedPreferences(ScreenCaptureChannel.PREFS, Context.MODE_PRIVATE)
+        .edit()
+        .putString(ScreenCaptureChannel.KEY_LAST_CAPTURE_ERROR, message)
+        .apply()
+}
+
+/**
+ * Sauvegarde la capture en attente puis ramène l'application au premier plan
+ * pour que Flutter puisse l'analyser.
+ */
+fun deliverCaptureToFlutter(context: Context, path: String) {
+    context.getSharedPreferences(ScreenCaptureChannel.PREFS, Context.MODE_PRIVATE)
+        .edit()
+        .putString(ScreenCaptureChannel.KEY_PENDING_CAPTURE, path)
+        .apply()
+
+    val intent = Intent(context, MainActivity::class.java).apply {
+        action = ScreenCaptureChannel.ACTION_CAPTURE
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        putExtra(QRFlowAccessibilityService.EXTRA_PATH, path)
+    }
+    context.startActivity(intent)
+}
+
+/** Ramène l'application au premier plan (pour afficher un message). */
+fun launchAppForFeedback(context: Context) {
+    val intent = Intent(context, MainActivity::class.java).apply {
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+    }
+    context.startActivity(intent)
 }

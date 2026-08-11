@@ -23,9 +23,10 @@ class HelpScreen extends StatelessWidget {
               icon: Icons.smartphone,
               title: 'Mode 2 — Scanner l\u2019écran',
               text: 'Activez la bulle flottante, ouvrez l\u2019application où '
-                  'le QR code est affiché, puis appuyez sur la bulle. Android '
-                  'demande votre accord pour la capture d\u2019écran, puis le '
-                  'QR code est analysé automatiquement.',
+                  'le QR code est affiché, puis appuyez sur la bulle. La '
+                  'capture est prise via le service d\u2019accessibilité '
+                  '(Android 11+), sans popup à chaque fois, puis le QR code '
+                  'est analysé automatiquement.',
             ),
             _HelpCard(
               icon: Icons.lock_outline,
@@ -43,12 +44,13 @@ class HelpScreen extends StatelessWidget {
                   'L\u2019historique est stocké localement.',
             ),
             _HelpCard(
-              icon: Icons.help_outline,
-              title: 'Pourquoi un consentement à chaque session ?',
-              text: 'Depuis Android 14, le jeton de capture d\u2019écran '
-                  '(MediaProjection) est à usage unique : Android l\u2019exige '
-                  'pour protéger votre vie privée. C\u2019est une règle de '
-                  'sécurité du système, pas une limitation de l\u2019application.',
+              icon: Icons.accessibility_new,
+              title: 'Service d\u2019accessibilité',
+              text: 'La capture d\u2019écran utilise le service d\u2019accessibilité '
+                  'd\u2019Android (Android 11+). Ce service n\u2019est utilisé '
+                  'que pour prendre une photo de l\u2019écran au moment où vous '
+                  'appuyez sur la bulle. Aucune donnée n\u2019est lue, '
+                  'enregistrée ou envoyée ailleurs.',
             ),
             _HelpCard(
               icon: Icons.block,

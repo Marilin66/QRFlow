@@ -16,27 +16,27 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
+import android.util.Log
 import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
-import android.util.Log
-import androidx.core.content.ContextCompat
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import kotlin.math.abs
 
 /**
  * Bulle flottante affichée par-dessus les autres applications.
  *
- * La bulle est déplaçable. Un appui sur la bulle lance [MainActivity] avec
- * l'action [ScreenCaptureChannel.ACTION_CAPTURE], ce qui déclenche le
- * consentement de capture d'écran puis l'analyse.
+ * Un appui sur la bulle déclenche immédiatement
+ * [QRFlowAccessibilityService.captureScreenNow] : appel direct dans le même
+ * processus, aucun broadcast. Si le service d'accessibilité n'est pas
+ * connecté, un message d'erreur est consigné et l'application est ramenée au
+ * premier plan pour l'afficher.
  *
- * Règles respectées :
- *  - permission SYSTEM_ALERT_WINDOW accordée par l'utilisateur ;
- *  - service au premier plan déclaré avec le type `specialUse` (Android 14+) ;
- *  - aucune action automatique : l'appui sur la bulle est nécessaire.
+ * Réglages respectés (lu dans FlutterSharedPreferences) : taille et opacité
+ * de la bulle configurées dans les paramètres de l'application.
  */
 class BubbleService : Service() {
 
@@ -48,14 +48,11 @@ class BubbleService : Service() {
         /**
          * Préfixe utilisé par shared_preferences_android (>= 2.3) pour
          * stocker les doubles : `putString(key, PREFIX + valeur)`.
-         * Les anciennes versions utilisaient `putFloat`. Les deux formats
-         * doivent être gérés pour ne jamais crasher la bulle.
          */
         private const val DOUBLE_PREFIX = "VGhpcyBpcyB0aGUgcHJlZml4IGZvciBEb3VibGUu"
 
         fun start(context: Context) {
-            val intent = Intent(context, BubbleService::class.java)
-            ContextCompat.startForegroundService(context, intent)
+            ContextCompat.startForegroundService(context, Intent(context, BubbleService::class.java))
         }
 
         fun stop(context: Context) {
@@ -106,7 +103,7 @@ class BubbleService : Service() {
 
     private fun showBubble() {
         // Un format de préférence inattendu ne doit jamais empêcher la bulle
-        // de s'afficher : tout le rendu est protégé par try/catch.
+        // de s'afficher : tout le rendu est protégé.
         try {
             doShowBubble()
         } catch (e: Exception) {
@@ -135,8 +132,19 @@ class BubbleService : Service() {
             elevation = 8f
             setOnTouchListener(dragListener)
             setOnClickListener {
-                val intent = Intent(QRFlowAccessibilityService.ACTION_TAKE_SCREENSHOT)
-                sendBroadcast(intent)
+                val service = QRFlowAccessibilityService.instance
+                if (service != null) {
+                    Log.i("QRFlow", "Appui sur la bulle : capture demandée")
+                    service.captureScreenNow()
+                } else {
+                    Log.e("QRFlow", "Service d'accessibilité non connecté")
+                    recordCaptureError(
+                        this@BubbleService,
+                        "Le service de capture n'est pas connecté. Vérifiez que QRFlow " +
+                            "est activé dans les paramètres d'accessibilité, puis réessayez."
+                    )
+                    launchAppForFeedback(this@BubbleService)
+                }
             }
         }
 
@@ -164,11 +172,8 @@ class BubbleService : Service() {
 
     /**
      * Lit une préférence numérique écrite par le plugin shared_preferences.
-     *
      * Depuis shared_preferences_android 2.3+, les doubles sont stockés comme
-     * `String` préfixée ; avant, ils l'étaient comme `Float`. La lecture
-     * directe par `getFloat` lèverait une ClassCastException sur un appareil
-     * où la valeur a été écrite par la nouvelle version du plugin.
+     * `String` préfixée ; avant, ils l'étaient comme `Float`.
      */
     private fun readFloatSetting(
         prefs: SharedPreferences,
