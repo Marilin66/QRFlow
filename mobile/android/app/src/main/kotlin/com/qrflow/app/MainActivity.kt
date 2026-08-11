@@ -3,7 +3,6 @@ package com.qrflow.app
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
-import androidx.activity.result.contract.ActivityResultContracts
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 
@@ -17,11 +16,7 @@ import io.flutter.embedding.engine.FlutterEngine
 class MainActivity : FlutterActivity() {
 
     private lateinit var screenCaptureChannel: ScreenCaptureChannel
-
-    private val projectionLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            screenCaptureChannel.onProjectionResult(result.resultCode, result.data)
-        }
+    private val SCREEN_CAPTURE_REQUEST_CODE = 1000
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -50,6 +45,13 @@ class MainActivity : FlutterActivity() {
     /** Déclenche la demande de consentement pour la capture d'écran. */
     fun requestScreenCapture() {
         val mpm = getSystemService(MediaProjectionManager::class.java)
-        projectionLauncher.launch(mpm.createScreenCaptureIntent())
+        startActivityForResult(mpm.createScreenCaptureIntent(), SCREEN_CAPTURE_REQUEST_CODE)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == SCREEN_CAPTURE_REQUEST_CODE) {
+            screenCaptureChannel.onProjectionResult(resultCode, data)
+        }
     }
 }

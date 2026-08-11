@@ -104,6 +104,10 @@ class ScreenCaptureService : Service() {
 
         val mpm = getSystemService(MediaProjectionManager::class.java)
         val projection = mpm.getMediaProjection(resultCode, data)
+        if (projection == null) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
         mediaProjection = projection
         projection.registerCallback(
             object : MediaProjection.Callback() {
