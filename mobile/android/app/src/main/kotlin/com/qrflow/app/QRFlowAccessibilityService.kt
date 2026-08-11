@@ -68,15 +68,6 @@ class QRFlowAccessibilityService : AccessibilityService() {
             recordCaptureError(this, "La capture d'écran nécessite Android 11 ou plus.")
             return
         }
-        if (!isConnected) {
-            Log.e(TAG, "Service non connecté")
-            recordCaptureError(
-                this,
-                "Le service de capture n'est pas connecté. Vérifiez que QRFlow est " +
-                    "activé dans les paramètres d'accessibilité, puis réessayez."
-            )
-            return
-        }
         if (!captureInProgress.compareAndSet(false, true)) {
             Log.w(TAG, "Une capture est déjà en cours")
             return
@@ -108,6 +99,15 @@ class QRFlowAccessibilityService : AccessibilityService() {
                         }
                     }
                 )
+            } catch (e: IllegalStateException) {
+                // Service momentanément déconnecté (redémarrage système…).
+                Log.e(TAG, "Service non connecté", e)
+                recordCaptureError(
+                    this@QRFlowAccessibilityService,
+                    "Le service de capture n'est pas connecté. Vérifiez que QRFlow " +
+                        "est activé dans les paramètres d'accessibilité, puis réessayez."
+                )
+                captureInProgress.set(false)
             } catch (e: Exception) {
                 Log.e(TAG, "Erreur lors de takeScreenshot", e)
                 recordCaptureError(
