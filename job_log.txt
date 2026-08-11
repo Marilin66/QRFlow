@@ -1,0 +1,555 @@
+﻿ï»¿2026-08-11T08:19:50.3494879Z Current runner version: '2.336.0'
+2026-08-11T08:19:50.3516177Z ##[group]Runner Image Provisioner
+2026-08-11T08:19:50.3516925Z Hosted Compute Agent
+2026-08-11T08:19:50.3517392Z Version: 20260707.563
+2026-08-11T08:19:50.3517948Z Commit: 02667638d2b423fbc733a8e32a88b44996a3ba6e
+2026-08-11T08:19:50.3518693Z Build Date: 2026-07-07T19:33:50Z
+2026-08-11T08:19:50.3519260Z Worker ID: {03300d41-e098-4612-905f-1fc875ef7794}
+2026-08-11T08:19:50.3519879Z Azure Region: westus
+2026-08-11T08:19:50.3520340Z ##[endgroup]
+2026-08-11T08:19:50.3521785Z ##[group]Operating System
+2026-08-11T08:19:50.3522337Z Ubuntu
+2026-08-11T08:19:50.3522756Z 24.04.4
+2026-08-11T08:19:50.3523211Z LTS
+2026-08-11T08:19:50.3523626Z ##[endgroup]
+2026-08-11T08:19:50.3524057Z ##[group]Runner Image
+2026-08-11T08:19:50.3524644Z Image: ubuntu-24.04
+2026-08-11T08:19:50.3525100Z Version: 20260720.247.2
+2026-08-11T08:19:50.3526113Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260720.247/images/ubuntu/Ubuntu2404-Readme.md
+2026-08-11T08:19:50.3527296Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260720.247
+2026-08-11T08:19:50.3528133Z ##[endgroup]
+2026-08-11T08:19:50.3529192Z ##[group]GITHUB_TOKEN Permissions
+2026-08-11T08:19:50.3530953Z Contents: read
+2026-08-11T08:19:50.3531473Z Metadata: read
+2026-08-11T08:19:50.3531999Z Packages: read
+2026-08-11T08:19:50.3532463Z ##[endgroup]
+2026-08-11T08:19:50.3534158Z Secret source: Actions
+2026-08-11T08:19:50.3535088Z Prepare workflow directory
+2026-08-11T08:19:50.3794848Z Prepare all required actions
+2026-08-11T08:19:50.3833599Z Getting action download info
+2026-08-11T08:19:50.7288073Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-08-11T08:19:51.1530742Z Download action repository 'actions/setup-java@v4' (SHA:cf277c60eb25467037889841efdb72551f06f6c3)
+2026-08-11T08:19:51.7782704Z Download action repository 'subosito/flutter-action@v2' (SHA:1a449444c387b1966244ae4d4f8c696479add0b2)
+2026-08-11T08:19:52.0303982Z Download action repository 'actions/upload-artifact@v4' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-08-11T08:19:52.1518099Z Download action repository 'softprops/action-gh-release@v1' (SHA:de2c0eb89ae2a093876385947365aca7b0e5f844)
+2026-08-11T08:19:52.5473599Z Getting action download info
+2026-08-11T08:19:52.6900122Z Download action repository 'actions/cache@v5' (SHA:caa296126883cff596d87d8935842f9db880ef25)
+2026-08-11T08:19:52.9010128Z Complete job name: Build APK
+2026-08-11T08:19:52.9825865Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-11T08:19:52.9835017Z ##[group]Run actions/checkout@v4
+2026-08-11T08:19:52.9835979Z with:
+2026-08-11T08:19:52.9836669Z   repository: Marilin66/QRFlow
+2026-08-11T08:19:52.9842979Z   token: ***
+2026-08-11T08:19:52.9843696Z   ssh-strict: true
+2026-08-11T08:19:52.9844403Z   ssh-user: git
+2026-08-11T08:19:52.9845109Z   persist-credentials: true
+2026-08-11T08:19:52.9845904Z   clean: true
+2026-08-11T08:19:52.9846631Z   sparse-checkout-cone-mode: true
+2026-08-11T08:19:52.9847458Z   fetch-depth: 1
+2026-08-11T08:19:52.9848145Z   fetch-tags: false
+2026-08-11T08:19:52.9848952Z   show-progress: true
+2026-08-11T08:19:52.9849664Z   lfs: false
+2026-08-11T08:19:52.9850374Z   submodules: false
+2026-08-11T08:19:52.9851118Z   set-safe-directory: true
+2026-08-11T08:19:52.9851930Z   allow-unsafe-pr-checkout: false
+2026-08-11T08:19:52.9852972Z ##[endgroup]
+2026-08-11T08:19:53.0716051Z Syncing repository: Marilin66/QRFlow
+2026-08-11T08:19:53.0718227Z ##[group]Getting Git version info
+2026-08-11T08:19:53.0719508Z Working directory is '/home/runner/work/QRFlow/QRFlow'
+2026-08-11T08:19:53.0721047Z [command]/usr/bin/git version
+2026-08-11T08:19:53.0839441Z git version 2.54.0
+2026-08-11T08:19:53.0858168Z ##[endgroup]
+2026-08-11T08:19:53.0872051Z Temporarily overriding HOME='/home/runner/work/_temp/5bea40a0-e2b4-43d0-b14b-a0865f1bfe43' before making global git config changes
+2026-08-11T08:19:53.0875356Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-11T08:19:53.0877868Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/QRFlow/QRFlow
+2026-08-11T08:19:53.0912258Z Deleting the contents of '/home/runner/work/QRFlow/QRFlow'
+2026-08-11T08:19:53.0917610Z ##[group]Initializing the repository
+2026-08-11T08:19:53.0921946Z [command]/usr/bin/git init /home/runner/work/QRFlow/QRFlow
+2026-08-11T08:19:53.1017900Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-08-11T08:19:53.1020994Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-08-11T08:19:53.1025621Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-08-11T08:19:53.1028041Z hint: call:
+2026-08-11T08:19:53.1029407Z hint:
+2026-08-11T08:19:53.1030769Z hint: 	git config --global init.defaultBranch <name>
+2026-08-11T08:19:53.1032357Z hint:
+2026-08-11T08:19:53.1033945Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-08-11T08:19:53.1036257Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-08-11T08:19:53.1038220Z hint:
+2026-08-11T08:19:53.1039473Z hint: 	git branch -m <name>
+2026-08-11T08:19:53.1040776Z hint:
+2026-08-11T08:19:53.1042611Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-08-11T08:19:53.1044805Z Initialized empty Git repository in /home/runner/work/QRFlow/QRFlow/.git/
+2026-08-11T08:19:53.1048695Z [command]/usr/bin/git remote add origin https://github.com/Marilin66/QRFlow
+2026-08-11T08:19:53.1066015Z ##[endgroup]
+2026-08-11T08:19:53.1067753Z ##[group]Disabling automatic garbage collection
+2026-08-11T08:19:53.1069473Z [command]/usr/bin/git config --local gc.auto 0
+2026-08-11T08:19:53.1129117Z ##[endgroup]
+2026-08-11T08:19:53.1130800Z ##[group]Setting up auth
+2026-08-11T08:19:53.1135502Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-08-11T08:19:53.1170184Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-08-11T08:19:53.1683024Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-11T08:19:53.1715952Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-08-11T08:19:53.1909647Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-11T08:19:53.1942978Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-08-11T08:19:53.2137782Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-08-11T08:19:53.2171862Z ##[endgroup]
+2026-08-11T08:19:53.2173086Z ##[group]Fetching the repository
+2026-08-11T08:19:53.2182229Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +84492b688e10b2f2eb6dd2422c83bfd0122faf21:refs/remotes/origin/main
+2026-08-11T08:19:53.8235758Z From https://github.com/Marilin66/QRFlow
+2026-08-11T08:19:53.8237456Z  * [new ref]         84492b688e10b2f2eb6dd2422c83bfd0122faf21 -> origin/main
+2026-08-11T08:19:53.8256739Z ##[endgroup]
+2026-08-11T08:19:53.8258247Z ##[group]Determining the checkout info
+2026-08-11T08:19:53.8260164Z ##[endgroup]
+2026-08-11T08:19:53.8264874Z [command]/usr/bin/git sparse-checkout disable
+2026-08-11T08:19:53.8302396Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-08-11T08:19:53.8330324Z ##[group]Checking out the ref
+2026-08-11T08:19:53.8333823Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-08-11T08:19:53.8475360Z Switched to a new branch 'main'
+2026-08-11T08:19:53.8476859Z branch 'main' set up to track 'origin/main'.
+2026-08-11T08:19:53.8483857Z ##[endgroup]
+2026-08-11T08:19:53.8525813Z [command]/usr/bin/git log -1 --format=%H
+2026-08-11T08:19:53.8548173Z 84492b688e10b2f2eb6dd2422c83bfd0122faf21
+2026-08-11T08:19:53.8849462Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-11T08:19:53.8853187Z ##[group]Run actions/setup-java@v4
+2026-08-11T08:19:53.8853917Z with:
+2026-08-11T08:19:53.8854472Z   distribution: zulu
+2026-08-11T08:19:53.8855092Z   java-version: 17
+2026-08-11T08:19:53.8855686Z   cache: gradle
+2026-08-11T08:19:53.8856289Z   java-package: jdk
+2026-08-11T08:19:53.8856914Z   check-latest: false
+2026-08-11T08:19:53.8857536Z   server-id: github
+2026-08-11T08:19:53.8858164Z   server-username: GITHUB_ACTOR
+2026-08-11T08:19:53.8859024Z   server-password: GITHUB_TOKEN
+2026-08-11T08:19:53.8859764Z   overwrite-settings: true
+2026-08-11T08:19:53.8860449Z   job-status: success
+2026-08-11T08:19:53.8866237Z   token: ***
+2026-08-11T08:19:53.8866852Z ##[endgroup]
+2026-08-11T08:19:54.0248268Z ##[warning]setup-java v4 is deprecated and will no longer receive updates. Please migrate to actions/setup-java@v5.
+2026-08-11T08:19:54.0257314Z ##[group]Installed distributions
+2026-08-11T08:19:54.0258177Z Trying to resolve the latest version from remote
+2026-08-11T08:19:54.0333499Z (node:2061) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-11T08:19:54.0335449Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-11T08:19:54.0682798Z Resolved latest version as 17.0.20+8
+2026-08-11T08:19:54.0688274Z Trying to download...
+2026-08-11T08:19:54.0689911Z Downloading Java 17.0.20+8 (Zulu) from https://cdn.azul.com/zulu/bin/zulu17.68.17-ca-jdk17.0.20-linux_x64.tar.gz ...
+2026-08-11T08:19:56.1967166Z Extracting Java archive...
+2026-08-11T08:19:56.2069629Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/11dcaeb4-b762-4b4e-b716-dfc4b15f9f92 -f /home/runner/work/_temp/5c325d7e-bebb-46e1-acbf-828a198aaca6
+2026-08-11T08:20:00.3060482Z Java 17.0.20+8 was downloaded
+2026-08-11T08:20:00.3060906Z Setting Java 17.0.20+8 as the default
+2026-08-11T08:20:00.3067776Z Creating toolchains.xml for JDK version 17 from zulu
+2026-08-11T08:20:00.3123816Z Writing to /home/runner/.m2/toolchains.xml
+2026-08-11T08:20:00.3124300Z 
+2026-08-11T08:20:00.3124494Z Java configuration:
+2026-08-11T08:20:00.3124893Z   Distribution: zulu
+2026-08-11T08:20:00.3125196Z   Version: 17.0.20+8
+2026-08-11T08:20:00.3125562Z   Path: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:20:00.3125914Z 
+2026-08-11T08:20:00.3129902Z ##[endgroup]
+2026-08-11T08:20:00.3147958Z Creating settings.xml with server-id: github
+2026-08-11T08:20:00.3148777Z Writing to /home/runner/.m2/settings.xml
+2026-08-11T08:20:00.5933325Z Cache hit for: setup-java-Linux-x64-gradle-732ce87e588f6beaf969bcbc8ccc44428515d402ea7a39d6db86ff39b7abe93e
+2026-08-11T08:20:00.6022957Z (node:2061) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-08-11T08:20:01.8758232Z Received 0 of 2957570810 (0.0%), 0.0 MBs/sec
+2026-08-11T08:20:02.8809577Z Received 104857600 of 2957570810 (3.5%), 50.0 MBs/sec
+2026-08-11T08:20:03.8790432Z Received 150994944 of 2957570810 (5.1%), 48.0 MBs/sec
+2026-08-11T08:20:04.8777823Z Received 264241152 of 2957570810 (8.9%), 63.0 MBs/sec
+2026-08-11T08:20:05.8775449Z Received 276824064 of 2957570810 (9.4%), 52.8 MBs/sec
+2026-08-11T08:20:06.8783210Z Received 390070272 of 2957570810 (13.2%), 62.0 MBs/sec
+2026-08-11T08:20:07.8820904Z Received 486539264 of 2957570810 (16.5%), 66.2 MBs/sec
+2026-08-11T08:20:08.8802281Z Received 570425344 of 2957570810 (19.3%), 68.0 MBs/sec
+2026-08-11T08:20:09.8804940Z Received 666894336 of 2957570810 (22.5%), 70.6 MBs/sec
+2026-08-11T08:20:10.8860267Z Received 746586112 of 2957570810 (25.2%), 71.2 MBs/sec
+2026-08-11T08:20:11.8813866Z Received 834666496 of 2957570810 (28.2%), 72.3 MBs/sec
+2026-08-11T08:20:12.8814984Z Received 926941184 of 2957570810 (31.3%), 73.6 MBs/sec
+2026-08-11T08:20:13.8817798Z Received 968884224 of 2957570810 (32.8%), 71.0 MBs/sec
+2026-08-11T08:20:14.8814715Z Received 1052770304 of 2957570810 (35.6%), 71.7 MBs/sec
+2026-08-11T08:20:15.8817283Z Received 1069547520 of 2957570810 (36.2%), 68.0 MBs/sec
+2026-08-11T08:20:16.8833151Z Received 1145044992 of 2957570810 (38.7%), 68.2 MBs/sec
+2026-08-11T08:20:17.8837608Z Received 1212153856 of 2957570810 (41.0%), 68.0 MBs/sec
+2026-08-11T08:20:18.8843309Z Received 1300234240 of 2957570810 (44.0%), 68.9 MBs/sec
+2026-08-11T08:20:19.8847803Z Received 1337982976 of 2957570810 (45.2%), 67.1 MBs/sec
+2026-08-11T08:20:20.8844168Z Received 1384120320 of 2957570810 (46.8%), 66.0 MBs/sec
+2026-08-11T08:20:21.8842934Z Received 1472200704 of 2957570810 (49.8%), 66.8 MBs/sec
+2026-08-11T08:20:22.8842349Z Received 1476395008 of 2957570810 (49.9%), 64.0 MBs/sec
+2026-08-11T08:20:23.8879930Z Received 1560281088 of 2957570810 (52.8%), 64.7 MBs/sec
+2026-08-11T08:20:24.8855103Z Received 1606418432 of 2957570810 (54.3%), 63.8 MBs/sec
+2026-08-11T08:20:25.8860300Z Received 1665138688 of 2957570810 (56.3%), 63.5 MBs/sec
+2026-08-11T08:20:26.8867743Z Received 1740636160 of 2957570810 (58.9%), 63.8 MBs/sec
+2026-08-11T08:20:27.8871983Z Received 1811939328 of 2957570810 (61.3%), 64.0 MBs/sec
+2026-08-11T08:20:28.8877993Z Received 1874853888 of 2957570810 (63.4%), 63.8 MBs/sec
+2026-08-11T08:20:29.8876349Z Received 1891631104 of 2957570810 (64.0%), 62.2 MBs/sec
+2026-08-11T08:20:30.8884085Z Received 1983905792 of 2957570810 (67.1%), 63.0 MBs/sec
+2026-08-11T08:20:31.8899488Z Received 2038431744 of 2957570810 (68.9%), 62.7 MBs/sec
+2026-08-11T08:20:32.8891214Z Received 2122317824 of 2957570810 (71.8%), 63.2 MBs/sec
+2026-08-11T08:20:33.8898430Z Received 2151677952 of 2957570810 (72.8%), 62.2 MBs/sec
+2026-08-11T08:20:34.8911084Z Received 2239758336 of 2957570810 (75.7%), 62.8 MBs/sec
+2026-08-11T08:20:35.8906678Z Received 2277507072 of 2957570810 (77.0%), 62.0 MBs/sec
+2026-08-11T08:20:36.8911643Z Received 2277507072 of 2957570810 (77.0%), 60.3 MBs/sec
+2026-08-11T08:20:37.8921002Z Received 2353004544 of 2957570810 (79.6%), 60.6 MBs/sec
+2026-08-11T08:20:38.8924470Z Received 2407530496 of 2957570810 (81.4%), 60.4 MBs/sec
+2026-08-11T08:20:39.8931162Z Received 2415919104 of 2957570810 (81.7%), 59.1 MBs/sec
+2026-08-11T08:20:40.8942236Z Received 2516582400 of 2957570810 (85.1%), 60.0 MBs/sec
+2026-08-11T08:20:41.8945390Z Received 2541748224 of 2957570810 (85.9%), 59.1 MBs/sec
+2026-08-11T08:20:42.8961005Z Received 2587885568 of 2957570810 (87.5%), 58.7 MBs/sec
+2026-08-11T08:20:43.8971920Z Received 2675965952 of 2957570810 (90.5%), 59.3 MBs/sec
+2026-08-11T08:20:44.8980619Z Received 2709520384 of 2957570810 (91.6%), 58.7 MBs/sec
+2026-08-11T08:20:45.9010007Z Received 2805989376 of 2957570810 (94.9%), 59.4 MBs/sec
+2026-08-11T08:20:46.8990464Z Received 2839543808 of 2957570810 (96.0%), 58.8 MBs/sec
+2026-08-11T08:20:47.8992714Z Received 2936012800 of 2957570810 (99.3%), 59.5 MBs/sec
+2026-08-11T08:20:48.8994737Z Received 2953376506 of 2957570810 (99.9%), 58.6 MBs/sec
+2026-08-11T08:20:49.3414454Z Received 2957570810 of 2957570810 (100.0%), 58.2 MBs/sec
+2026-08-11T08:20:49.3415379Z Cache Size: ~2821 MB (2957570810 B)
+2026-08-11T08:20:49.3540810Z [command]/usr/bin/tar -xf /home/runner/work/_temp/a78938b2-f388-4527-a9cf-1e41018892ae/cache.tzst -P -C /home/runner/work/QRFlow/QRFlow --use-compress-program unzstd
+2026-08-11T08:21:15.1121569Z Cache restored successfully
+2026-08-11T08:21:15.2236225Z Cache restored from key: setup-java-Linux-x64-gradle-732ce87e588f6beaf969bcbc8ccc44428515d402ea7a39d6db86ff39b7abe93e
+2026-08-11T08:21:15.2559818Z ##[group]Run subosito/flutter-action@v2
+2026-08-11T08:21:15.2560069Z with:
+2026-08-11T08:21:15.2560256Z   flutter-version: 3.44.2
+2026-08-11T08:21:15.2560453Z   channel: stable
+2026-08-11T08:21:15.2560624Z   cache: true
+2026-08-11T08:21:15.2560793Z   architecture: X64
+2026-08-11T08:21:15.2560981Z   pub-cache-path: default
+2026-08-11T08:21:15.2561176Z   dry-run: false
+2026-08-11T08:21:15.2561402Z   git-source: https://github.com/flutter/flutter.git
+2026-08-11T08:21:15.2561670Z env:
+2026-08-11T08:21:15.2561897Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:21:15.2562235Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:21:15.2562507Z ##[endgroup]
+2026-08-11T08:21:15.2620632Z ##[start-action display=Make yq tool available on Windows runners;id=__subosito_flutter-action.__run]
+2026-08-11T08:21:15.2629527Z ##[end-action id=__subosito_flutter-action.__run;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-08-11T08:21:15.2631460Z ##[start-action display=Make setup script executable;id=__subosito_flutter-action.__run_2]
+2026-08-11T08:21:15.2659966Z ##[group]Run chmod +x "$GITHUB_ACTION_PATH/setup.sh"
+2026-08-11T08:21:15.2660309Z [36;1mchmod +x "$GITHUB_ACTION_PATH/setup.sh"[0m
+2026-08-11T08:21:15.2704071Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-08-11T08:21:15.2704367Z env:
+2026-08-11T08:21:15.2704596Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:21:15.2704928Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:21:15.2705198Z ##[endgroup]
+2026-08-11T08:21:15.2813357Z ##[end-action id=__subosito_flutter-action.__run_2;outcome=success;conclusion=success;duration_ms=18]
+2026-08-11T08:21:15.2815586Z ##[start-action display=Set action inputs;id=__subosito_flutter-action.flutter-action]
+2026-08-11T08:21:15.2847403Z ##[group]Run $GITHUB_ACTION_PATH/setup.sh -p \
+2026-08-11T08:21:15.2847732Z [36;1m$GITHUB_ACTION_PATH/setup.sh -p \[0m
+2026-08-11T08:21:15.2847983Z [36;1m  -n '3.44.2' \[0m
+2026-08-11T08:21:15.2848167Z [36;1m  -f '' \[0m
+2026-08-11T08:21:15.2848506Z [36;1m  -a 'X64' \[0m
+2026-08-11T08:21:15.2848737Z [36;1m  -k '' \[0m
+2026-08-11T08:21:15.2848904Z [36;1m  -c '' \[0m
+2026-08-11T08:21:15.2849058Z [36;1m  -l '' \[0m
+2026-08-11T08:21:15.2849219Z [36;1m  -d 'default' \[0m
+2026-08-11T08:21:15.2849491Z [36;1m  -g 'https://github.com/flutter/flutter.git' \[0m
+2026-08-11T08:21:15.2849743Z [36;1m  stable[0m
+2026-08-11T08:21:15.2888677Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-08-11T08:21:15.2888967Z env:
+2026-08-11T08:21:15.2889190Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:21:15.2889514Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:21:15.2889772Z ##[endgroup]
+2026-08-11T08:21:15.4913187Z ##[end-action id=__subosito_flutter-action.flutter-action;outcome=success;conclusion=success;duration_ms=209]
+2026-08-11T08:21:15.4917888Z ##[start-action display=Cache Flutter;id=__subosito_flutter-action.cache-flutter]
+2026-08-11T08:21:15.5764856Z ##[group]Run actions/cache@v5
+2026-08-11T08:21:15.5765076Z with:
+2026-08-11T08:21:15.5765286Z   path: /opt/hostedtoolcache/flutter/stable-3.44.2-x64
+2026-08-11T08:21:15.5765661Z   key: flutter-linux-stable-3.44.2-x64-c9a6c484230f8b5e408ec57be1ef71dee1e77020
+2026-08-11T08:21:15.5765991Z   enableCrossOsArchive: false
+2026-08-11T08:21:15.5766193Z   fail-on-cache-miss: false
+2026-08-11T08:21:15.5766384Z   lookup-only: false
+2026-08-11T08:21:15.5766560Z   save-always: false
+2026-08-11T08:21:15.5766725Z env:
+2026-08-11T08:21:15.5766929Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:21:15.5767248Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:21:15.5767516Z ##[endgroup]
+2026-08-11T08:21:15.9408920Z Cache hit for: flutter-linux-stable-3.44.2-x64-c9a6c484230f8b5e408ec57be1ef71dee1e77020
+2026-08-11T08:21:17.2512004Z Received 0 of 1688507885 (0.0%), 0.0 MBs/sec
+2026-08-11T08:21:18.2522264Z Received 88080384 of 1688507885 (5.2%), 42.0 MBs/sec
+2026-08-11T08:21:19.2529750Z Received 130023424 of 1688507885 (7.7%), 41.3 MBs/sec
+2026-08-11T08:21:20.2530784Z Received 130023424 of 1688507885 (7.7%), 31.0 MBs/sec
+2026-08-11T08:21:21.2532462Z Received 130023424 of 1688507885 (7.7%), 24.8 MBs/sec
+2026-08-11T08:21:22.2534022Z Received 130023424 of 1688507885 (7.7%), 20.7 MBs/sec
+2026-08-11T08:21:23.2559447Z Received 159383552 of 1688507885 (9.4%), 21.7 MBs/sec
+2026-08-11T08:21:24.2595714Z Received 255852544 of 1688507885 (15.2%), 30.5 MBs/sec
+2026-08-11T08:21:25.2558147Z Received 264241152 of 1688507885 (15.6%), 28.0 MBs/sec
+2026-08-11T08:21:26.2564720Z Received 289406976 of 1688507885 (17.1%), 27.6 MBs/sec
+2026-08-11T08:21:27.2599577Z Received 381681664 of 1688507885 (22.6%), 33.1 MBs/sec
+2026-08-11T08:21:28.2573463Z Received 402653184 of 1688507885 (23.8%), 32.0 MBs/sec
+2026-08-11T08:21:29.2579264Z Received 494927872 of 1688507885 (29.3%), 36.3 MBs/sec
+2026-08-11T08:21:30.2581967Z Received 532676608 of 1688507885 (31.5%), 36.3 MBs/sec
+2026-08-11T08:21:31.2582079Z Received 599785472 of 1688507885 (35.5%), 38.1 MBs/sec
+2026-08-11T08:21:32.2587751Z Received 662700032 of 1688507885 (39.2%), 39.5 MBs/sec
+2026-08-11T08:21:33.2599431Z Received 704643072 of 1688507885 (41.7%), 39.5 MBs/sec
+2026-08-11T08:21:34.2583380Z Received 788529152 of 1688507885 (46.7%), 41.8 MBs/sec
+2026-08-11T08:21:35.2599880Z Received 855638016 of 1688507885 (50.7%), 42.9 MBs/sec
+2026-08-11T08:21:36.2782037Z Received 939524096 of 1688507885 (55.6%), 44.7 MBs/sec
+2026-08-11T08:21:37.2782172Z Received 998244352 of 1688507885 (59.1%), 45.3 MBs/sec
+2026-08-11T08:21:38.2794416Z Received 1069547520 of 1688507885 (63.3%), 46.3 MBs/sec
+2026-08-11T08:21:39.2791941Z Received 1124073472 of 1688507885 (66.6%), 46.6 MBs/sec
+2026-08-11T08:21:40.2792553Z Received 1195376640 of 1688507885 (70.8%), 47.4 MBs/sec
+2026-08-11T08:21:41.2792433Z Received 1220542464 of 1688507885 (72.3%), 46.5 MBs/sec
+2026-08-11T08:21:42.2792623Z Received 1291845632 of 1688507885 (76.5%), 47.3 MBs/sec
+2026-08-11T08:21:43.2794062Z Received 1333788672 of 1688507885 (79.0%), 47.1 MBs/sec
+2026-08-11T08:21:44.2802407Z Received 1354760192 of 1688507885 (80.2%), 46.1 MBs/sec
+2026-08-11T08:21:45.2839506Z Received 1426063360 of 1688507885 (84.5%), 46.8 MBs/sec
+2026-08-11T08:21:46.2811028Z Received 1468006400 of 1688507885 (86.9%), 46.6 MBs/sec
+2026-08-11T08:21:47.2863674Z Received 1493172224 of 1688507885 (88.4%), 45.9 MBs/sec
+2026-08-11T08:21:48.2849599Z Received 1568669696 of 1688507885 (92.9%), 46.7 MBs/sec
+2026-08-11T08:21:49.2822888Z Received 1606418432 of 1688507885 (95.1%), 46.4 MBs/sec
+2026-08-11T08:21:50.2825465Z Received 1665138688 of 1688507885 (98.6%), 46.7 MBs/sec
+2026-08-11T08:21:51.2838535Z Received 1680119277 of 1688507885 (99.5%), 45.7 MBs/sec
+2026-08-11T08:21:52.2769562Z Received 1688507885 of 1688507885 (100.0%), 44.7 MBs/sec
+2026-08-11T08:21:52.2793731Z Cache Size: ~1610 MB (1688507885 B)
+2026-08-11T08:21:52.2835173Z [command]/usr/bin/tar -xf /home/runner/work/_temp/fe6b87fe-9f91-49ac-b599-c7329549a64c/cache.tzst -P -C /home/runner/work/QRFlow/QRFlow --use-compress-program unzstd
+2026-08-11T08:22:00.5075474Z Cache restored successfully
+2026-08-11T08:22:01.2524417Z Cache restored from key: flutter-linux-stable-3.44.2-x64-c9a6c484230f8b5e408ec57be1ef71dee1e77020
+2026-08-11T08:22:01.2616061Z ##[end-action id=__subosito_flutter-action.cache-flutter;outcome=success;conclusion=success;duration_ms=45769]
+2026-08-11T08:22:01.2618889Z ##[start-action display=Cache pub dependencies;id=__subosito_flutter-action.cache-pub]
+2026-08-11T08:22:01.3335276Z ##[group]Run actions/cache@v5
+2026-08-11T08:22:01.3335491Z with:
+2026-08-11T08:22:01.3335668Z   path: /home/runner/.pub-cache
+2026-08-11T08:22:01.3336237Z   key: flutter-pub-linux-stable-3.44.2-x64-c9a6c484230f8b5e408ec57be1ef71dee1e77020-7adc79aee99ac840de97d8ea08d5620483388bc6c7911dd7aeeb7059c68f29ef
+2026-08-11T08:22:01.3337058Z   enableCrossOsArchive: false
+2026-08-11T08:22:01.3337438Z   fail-on-cache-miss: false
+2026-08-11T08:22:01.3337638Z   lookup-only: false
+2026-08-11T08:22:01.3337809Z   save-always: false
+2026-08-11T08:22:01.3337967Z env:
+2026-08-11T08:22:01.3338179Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:01.3338799Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:01.3339106Z ##[endgroup]
+2026-08-11T08:22:01.6879778Z Cache hit for: flutter-pub-linux-stable-3.44.2-x64-c9a6c484230f8b5e408ec57be1ef71dee1e77020-7adc79aee99ac840de97d8ea08d5620483388bc6c7911dd7aeeb7059c68f29ef
+2026-08-11T08:22:02.9884082Z Received 0 of 59496671 (0.0%), 0.0 MBs/sec
+2026-08-11T08:22:03.5875857Z Received 59496671 of 59496671 (100.0%), 35.5 MBs/sec
+2026-08-11T08:22:03.5877202Z Cache Size: ~57 MB (59496671 B)
+2026-08-11T08:22:03.5908753Z [command]/usr/bin/tar -xf /home/runner/work/_temp/eee3f32c-5909-46c8-84e4-5a55b16c9ed1/cache.tzst -P -C /home/runner/work/QRFlow/QRFlow --use-compress-program unzstd
+2026-08-11T08:22:04.2598755Z Cache restored successfully
+2026-08-11T08:22:04.2689156Z Cache restored from key: flutter-pub-linux-stable-3.44.2-x64-c9a6c484230f8b5e408ec57be1ef71dee1e77020-7adc79aee99ac840de97d8ea08d5620483388bc6c7911dd7aeeb7059c68f29ef
+2026-08-11T08:22:04.2755467Z ##[end-action id=__subosito_flutter-action.cache-pub;outcome=success;conclusion=success;duration_ms=3013]
+2026-08-11T08:22:04.2757656Z ##[start-action display=Run setup script;id=__subosito_flutter-action.__run_3]
+2026-08-11T08:22:04.2787088Z ##[group]Run $GITHUB_ACTION_PATH/setup.sh \
+2026-08-11T08:22:04.2787384Z [36;1m$GITHUB_ACTION_PATH/setup.sh \[0m
+2026-08-11T08:22:04.2787614Z [36;1m  -n '3.44.2' \[0m
+2026-08-11T08:22:04.2787809Z [36;1m  -a 'x64' \[0m
+2026-08-11T08:22:04.2788062Z [36;1m  -c '/opt/hostedtoolcache/flutter/stable-3.44.2-x64' \[0m
+2026-08-11T08:22:04.2788666Z [36;1m  -d '/home/runner/.pub-cache' \[0m
+2026-08-11T08:22:04.2788987Z [36;1m  stable[0m
+2026-08-11T08:22:04.2828096Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-08-11T08:22:04.2828571Z env:
+2026-08-11T08:22:04.2828805Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:04.2829137Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:04.2829411Z ##[endgroup]
+2026-08-11T08:22:04.4016972Z ##[end-action id=__subosito_flutter-action.__run_3;outcome=success;conclusion=success;duration_ms=125]
+2026-08-11T08:22:04.4065438Z ##[group]Run flutter doctor -v
+2026-08-11T08:22:04.4065717Z [36;1mflutter doctor -v[0m
+2026-08-11T08:22:04.4105537Z shell: /usr/bin/bash -e {0}
+2026-08-11T08:22:04.4105760Z env:
+2026-08-11T08:22:04.4105992Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:04.4106350Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:04.4106703Z   FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.44.2-x64/flutter
+2026-08-11T08:22:04.4107001Z   PUB_CACHE: /home/runner/.pub-cache
+2026-08-11T08:22:04.4107230Z ##[endgroup]
+2026-08-11T08:22:04.7040326Z [â] Flutter (Channel stable, 3.44.2, on Ubuntu 24.04.4 LTS 6.17.0-1020-azure, locale C.UTF-8) [34ms]
+2026-08-11T08:22:04.7049633Z     â¢ Flutter version 3.44.2 on channel stable at /opt/hostedtoolcache/flutter/stable-3.44.2-x64/flutter
+2026-08-11T08:22:04.7050309Z     â¢ Upstream repository https://github.com/flutter/flutter.git
+2026-08-11T08:22:04.7051013Z     â¢ Framework revision c9a6c48423 (9 weeks ago), 2026-06-10 15:52:41 -0700
+2026-08-11T08:22:04.7051455Z     â¢ Engine revision 77e2e94772
+2026-08-11T08:22:04.7051763Z     â¢ Dart version 3.12.2
+2026-08-11T08:22:04.7052064Z     â¢ DevTools version 2.57.0
+2026-08-11T08:22:04.7053348Z     â¢ Feature flags: enable-web, enable-linux-desktop, enable-macos-desktop, enable-windows-desktop, enable-android, enable-ios, cli-animations, enable-native-assets, enable-swift-package-manager, omit-legacy-version-file, enable-lldb-debugging, enable-uiscene-migration
+2026-08-11T08:22:04.7055021Z 
+2026-08-11T08:22:08.3377044Z [!] Android toolchain - develop for Android devices (Android SDK version 37.0.0) [3.7s]
+2026-08-11T08:22:08.3377786Z     â¢ Android SDK at /usr/local/lib/android/sdk
+2026-08-11T08:22:08.3378619Z     â¢ Emulator version unknown
+2026-08-11T08:22:08.3379046Z     â¢ Platform android-37.0, build-tools 37.0.0
+2026-08-11T08:22:08.3379478Z     â¢ ANDROID_HOME = /usr/local/lib/android/sdk
+2026-08-11T08:22:08.3389581Z     â¢ ANDROID_SDK_ROOT = /usr/local/lib/android/sdk
+2026-08-11T08:22:08.3394813Z     â¢ Java binary at: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64/bin/java
+2026-08-11T08:22:08.3395423Z       This JDK is specified by the JAVA_HOME environment variable.
+2026-08-11T08:22:08.3396003Z       To manually set the JDK path, use: `flutter config --jdk-dir="path/to/jdk"`.
+2026-08-11T08:22:08.3396702Z     â¢ Java version OpenJDK Runtime Environment Zulu17.68+17-CA (build 17.0.20+8-LTS)
+2026-08-11T08:22:08.3397419Z     ! Some Android licenses not accepted. To resolve this, run: flutter doctor --android-licenses
+2026-08-11T08:22:08.3397866Z 
+2026-08-11T08:22:08.3398096Z [â] Chrome - develop for the web [40ms]
+2026-08-11T08:22:08.3399328Z     â¢ Chrome at google-chrome
+2026-08-11T08:22:08.3399529Z 
+2026-08-11T08:22:08.3399785Z [â] Linux toolchain - develop for Linux desktop [1,302ms]
+2026-08-11T08:22:08.3400240Z     â¢ Ubuntu clang version 18.1.3 (1ubuntu1)
+2026-08-11T08:22:08.3400622Z     â¢ cmake version 3.31.6
+2026-08-11T08:22:08.3400956Z     â¢ ninja version 1.13.2
+2026-08-11T08:22:08.3401311Z     â¢ pkg-config version 1.8.1
+2026-08-11T08:22:08.3401844Z     â GTK 3.0 development libraries are required for Linux development.
+2026-08-11T08:22:08.3402467Z       They are likely available from your distribution (e.g.: apt install libgtk-3-dev)
+2026-08-11T08:22:08.3403024Z     ! Unable to access driver information using 'eglinfo'.
+2026-08-11T08:22:08.3403557Z       It is likely available from your distribution (e.g.: apt install mesa-utils)
+2026-08-11T08:22:08.3403916Z 
+2026-08-11T08:22:08.3404162Z [â] Connected device (2 available) [1,027ms]
+2026-08-11T08:22:08.3404752Z     â¢ Linux (desktop) â¢ linux  â¢ linux-x64      â¢ Ubuntu 24.04.4 LTS 6.17.0-1020-azure
+2026-08-11T08:22:08.3405438Z     â¢ Chrome (web)    â¢ chrome â¢ web-javascript â¢ Google Chrome 150.0.7871.128
+2026-08-11T08:22:08.3405782Z 
+2026-08-11T08:22:08.3405955Z [â] Network resources [305ms]
+2026-08-11T08:22:08.3406369Z     â¢ All expected network resources are available.
+2026-08-11T08:22:08.3406627Z 
+2026-08-11T08:22:08.3407136Z ! Doctor found issues in 2 categories.
+2026-08-11T08:22:08.3537280Z ##[group]Run flutter pub get
+2026-08-11T08:22:08.3537643Z [36;1mflutter pub get[0m
+2026-08-11T08:22:08.3576638Z shell: /usr/bin/bash -e {0}
+2026-08-11T08:22:08.3576854Z env:
+2026-08-11T08:22:08.3577086Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:08.3577430Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:08.3577787Z   FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.44.2-x64/flutter
+2026-08-11T08:22:08.3578114Z   PUB_CACHE: /home/runner/.pub-cache
+2026-08-11T08:22:08.3578507Z ##[endgroup]
+2026-08-11T08:22:08.6576061Z Resolving dependencies...
+2026-08-11T08:22:08.7436743Z Downloading packages...
+2026-08-11T08:22:08.9511303Z   flutter_lints 4.0.0 (6.0.0 available)
+2026-08-11T08:22:08.9511609Z   hooks 2.0.2 (2.1.0 available)
+2026-08-11T08:22:08.9511866Z   lints 4.0.0 (6.1.0 available)
+2026-08-11T08:22:08.9512175Z   matcher 0.12.19 (0.12.20 available)
+2026-08-11T08:22:08.9512544Z   material_color_utilities 0.13.0 (0.13.1 available)
+2026-08-11T08:22:08.9512792Z   meta 1.18.0 (1.19.0 available)
+2026-08-11T08:22:08.9513004Z   record_use 0.6.0 (1.1.0 available)
+2026-08-11T08:22:08.9513223Z   share_plus 11.1.0 (13.3.0 available)
+2026-08-11T08:22:08.9513476Z   share_plus_platform_interface 6.1.0 (7.2.0 available)
+2026-08-11T08:22:08.9513729Z   test_api 0.7.11 (0.7.13 available)
+2026-08-11T08:22:08.9513934Z   vector_math 2.2.0 (2.4.2 available)
+2026-08-11T08:22:08.9514152Z   win32 5.15.0 (6.4.0 available)
+2026-08-11T08:22:08.9514994Z Got dependencies!
+2026-08-11T08:22:08.9517777Z 12 packages have newer versions incompatible with dependency constraints.
+2026-08-11T08:22:08.9518151Z Try `flutter pub outdated` for more information.
+2026-08-11T08:22:10.3669264Z ##[group]Run flutter test
+2026-08-11T08:22:10.3669521Z [36;1mflutter test[0m
+2026-08-11T08:22:10.3708583Z shell: /usr/bin/bash -e {0}
+2026-08-11T08:22:10.3708801Z env:
+2026-08-11T08:22:10.3709030Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:10.3709376Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:10.3709722Z   FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.44.2-x64/flutter
+2026-08-11T08:22:10.3710013Z   PUB_CACHE: /home/runner/.pub-cache
+2026-08-11T08:22:10.3710235Z ##[endgroup]
+2026-08-11T08:22:10.7214547Z Resolving dependencies...
+2026-08-11T08:22:10.8045575Z Downloading packages...
+2026-08-11T08:22:11.0559103Z   flutter_lints 4.0.0 (6.0.0 available)
+2026-08-11T08:22:11.0559784Z   hooks 2.0.2 (2.1.0 available)
+2026-08-11T08:22:11.0560291Z   lints 4.0.0 (6.1.0 available)
+2026-08-11T08:22:11.0560740Z   matcher 0.12.19 (0.12.20 available)
+2026-08-11T08:22:11.0561381Z   material_color_utilities 0.13.0 (0.13.1 available)
+2026-08-11T08:22:11.0561892Z   meta 1.18.0 (1.19.0 available)
+2026-08-11T08:22:11.0562332Z   record_use 0.6.0 (1.1.0 available)
+2026-08-11T08:22:11.0562788Z   share_plus 11.1.0 (13.3.0 available)
+2026-08-11T08:22:11.0563295Z   share_plus_platform_interface 6.1.0 (7.2.0 available)
+2026-08-11T08:22:11.0563809Z   test_api 0.7.11 (0.7.13 available)
+2026-08-11T08:22:11.0564255Z   vector_math 2.2.0 (2.4.2 available)
+2026-08-11T08:22:11.0564706Z   win32 5.15.0 (6.4.0 available)
+2026-08-11T08:22:11.0565135Z Got dependencies!
+2026-08-11T08:22:11.0565692Z 12 packages have newer versions incompatible with dependency constraints.
+2026-08-11T08:22:11.0566331Z Try `flutter pub outdated` for more information.
+2026-08-11T08:22:12.7875593Z 
+2026-08-11T08:22:19.3149403Z â URL https classique
+2026-08-11T08:22:19.3168178Z â URL www sans schÃ©ma
+2026-08-11T08:22:19.3182898Z â URL IP non sÃ©curisÃ©e = suspecte
+2026-08-11T08:22:19.3199736Z â URL extension douteuse = suspecte
+2026-08-11T08:22:19.3213295Z â URL http non sÃ©curisÃ© mais pas forcÃ©ment suspect
+2026-08-11T08:22:19.3226948Z â Texte texte simple
+2026-08-11T08:22:19.3239988Z â Texte chaÃ®ne vide -> inconnu
+2026-08-11T08:22:19.3254434Z â TÃ©lÃ©phone numÃ©ro libre
+2026-08-11T08:22:19.3266753Z â TÃ©lÃ©phone prÃ©fixe tel:
+2026-08-11T08:22:19.3285786Z â E-mail adresse simple
+2026-08-11T08:22:19.3303515Z â E-mail mailto avec sujet
+2026-08-11T08:22:19.3318728Z â E-mail MATMSG
+2026-08-11T08:22:19.3333456Z â SMS SMSTO
+2026-08-11T08:22:19.3348173Z â SMS sms: avec corps
+2026-08-11T08:22:19.3365108Z â Wi-Fi WPA
+2026-08-11T08:22:19.3380347Z â Wi-Fi sans mot de passe
+2026-08-11T08:22:19.3402475Z â GÃ©olocalisation geo:
+2026-08-11T08:22:19.3424047Z â GÃ©olocalisation GEO:
+2026-08-11T08:22:19.3450524Z â Contact vCard
+2026-08-11T08:22:19.3465906Z â Contact MECARD
+2026-08-11T08:22:19.3513095Z â Calendrier VEVENT
+2026-08-11T08:22:19.3529550Z â Application market://
+2026-08-11T08:22:19.3671317Z 
+2026-08-11T08:22:19.3675827Z ð 22 tests passed.
+2026-08-11T08:22:19.4186166Z ##[group]Run flutter build apk --debug
+2026-08-11T08:22:19.4186463Z [36;1mflutter build apk --debug[0m
+2026-08-11T08:22:19.4225832Z shell: /usr/bin/bash -e {0}
+2026-08-11T08:22:19.4226050Z env:
+2026-08-11T08:22:19.4226287Z   JAVA_HOME: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:19.4226632Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Zulu_jdk/17.0.20-8/x64
+2026-08-11T08:22:19.4226989Z   FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.44.2-x64/flutter
+2026-08-11T08:22:19.4227287Z   PUB_CACHE: /home/runner/.pub-cache
+2026-08-11T08:22:19.4227507Z ##[endgroup]
+2026-08-11T08:22:19.5949469Z Resolving dependencies...
+2026-08-11T08:22:19.6800937Z Downloading packages...
+2026-08-11T08:22:19.7419686Z   flutter_lints 4.0.0 (6.0.0 available)
+2026-08-11T08:22:19.7420627Z   hooks 2.0.2 (2.1.0 available)
+2026-08-11T08:22:19.7420864Z   lints 4.0.0 (6.1.0 available)
+2026-08-11T08:22:19.7421072Z   matcher 0.12.19 (0.12.20 available)
+2026-08-11T08:22:19.7421425Z   material_color_utilities 0.13.0 (0.13.1 available)
+2026-08-11T08:22:19.7421678Z   meta 1.18.0 (1.19.0 available)
+2026-08-11T08:22:19.7421889Z   record_use 0.6.0 (1.1.0 available)
+2026-08-11T08:22:19.7422103Z   share_plus 11.1.0 (13.3.0 available)
+2026-08-11T08:22:19.7422358Z   share_plus_platform_interface 6.1.0 (7.2.0 available)
+2026-08-11T08:22:19.7422609Z   test_api 0.7.11 (0.7.13 available)
+2026-08-11T08:22:19.7422815Z   vector_math 2.2.0 (2.4.2 available)
+2026-08-11T08:22:19.7423026Z   win32 5.15.0 (6.4.0 available)
+2026-08-11T08:22:19.7423227Z Got dependencies!
+2026-08-11T08:22:19.7424112Z 12 packages have newer versions incompatible with dependency constraints.
+2026-08-11T08:22:19.7439155Z Try `flutter pub outdated` for more information.
+2026-08-11T08:22:46.0350203Z WARNING: Your Android app project: app located at: /home/runner/work/QRFlow/QRFlow/mobile/android/app/build.gradle.kts
+2026-08-11T08:22:46.0351226Z Running Gradle task 'assembleDebug'...                          
+2026-08-11T08:22:46.0379697Z applies the Kotlin Gradle Plugin, which will cause build failures in future versions of Flutter. 
+2026-08-11T08:22:46.0389956Z Please migrate your app to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers
+2026-08-11T08:22:46.0390895Z 
+2026-08-11T08:22:46.0391762Z WARNING: Your app uses the following plugins that apply Kotlin Gradle Plugin (KGP): mobile_scanner, share_plus
+2026-08-11T08:22:46.0467872Z Future versions of Flutter will fail to build if your app uses plugins that apply KGP.
+2026-08-11T08:22:46.0469167Z 
+2026-08-11T08:22:46.0469741Z Please check the changelogs of these plugins and upgrade to a version that supports Built-in Kotlin.
+2026-08-11T08:22:46.0470755Z If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing 
+2026-08-11T08:22:46.0472323Z an issue against a plugin: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers#report-incompatible-kotlin-gradle-plugin-usage-to-plugin-authors
+2026-08-11T08:22:46.0473502Z 
+2026-08-11T08:22:46.0474425Z If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+2026-08-11T08:22:55.2221478Z lib/features/settings/settings_screen.dart:33:33: Error: Member not found: 'ScreenCaptureBridge.ensureNotificationPermission'.
+2026-08-11T08:22:55.2222492Z       await ScreenCaptureBridge.ensureNotificationPermission();
+2026-08-11T08:22:55.2223004Z                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-08-11T08:23:00.2227534Z Target kernel_snapshot_program failed: Exception
+2026-08-11T08:23:00.2228209Z 
+2026-08-11T08:23:00.2228628Z 
+2026-08-11T08:23:00.2228925Z FAILURE: Build failed with an exception.
+2026-08-11T08:23:00.2229343Z 
+2026-08-11T08:23:00.2229596Z * What went wrong:
+2026-08-11T08:23:00.2230099Z Execution failed for task ':app:compileFlutterBuildDebug'.
+2026-08-11T08:23:00.2231649Z > Process 'command '/opt/hostedtoolcache/flutter/stable-3.44.2-x64/flutter/bin/flutter'' finished with non-zero exit value 1
+2026-08-11T08:23:00.2232491Z 
+2026-08-11T08:23:00.2232747Z * Try:
+2026-08-11T08:23:00.2233264Z > Run with --stacktrace option to get the stack trace.
+2026-08-11T08:23:00.2234077Z > Run with --info or --debug option to get more log output.
+2026-08-11T08:23:00.2234691Z > Run with --scan to get full insights.
+2026-08-11T08:23:00.2235235Z > Get more help at https://help.gradle.org.
+2026-08-11T08:23:00.2235646Z 
+2026-08-11T08:23:00.2235922Z BUILD FAILED in 40s
+2026-08-11T08:23:00.6330618Z Running Gradle task 'assembleDebug'...                             40.6s
+2026-08-11T08:23:00.6401953Z Gradle task assembleDebug failed with exit code 1
+2026-08-11T08:23:00.6450347Z ##[error]Process completed with exit code 1.
+2026-08-11T08:23:00.6587409Z Post job cleanup.
+2026-08-11T08:23:00.6591337Z ##[start-action display=Cache pub dependencies;id=__e41675db-5b8e-4f5f-b804-cd2c28aef5f8.cache-pub]
+2026-08-11T08:23:00.6593105Z ##[end-action id=__e41675db-5b8e-4f5f-b804-cd2c28aef5f8.cache-pub;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-08-11T08:23:00.6594546Z ##[start-action display=Cache Flutter;id=__e41675db-5b8e-4f5f-b804-cd2c28aef5f8.cache-flutter]
+2026-08-11T08:23:00.6596036Z ##[end-action id=__e41675db-5b8e-4f5f-b804-cd2c28aef5f8.cache-flutter;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-08-11T08:23:00.6644686Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-11T08:23:00.6645624Z Post job cleanup.
+2026-08-11T08:23:00.7757276Z (node:3006) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-08-11T08:23:00.7757961Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-08-11T08:23:00.7929059Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+2026-08-11T08:23:00.7930049Z Post job cleanup.
+2026-08-11T08:23:00.8702627Z [command]/usr/bin/git version
+2026-08-11T08:23:00.8740598Z git version 2.54.0
+2026-08-11T08:23:00.8774496Z Temporarily overriding HOME='/home/runner/work/_temp/bb40e0cf-e37a-4077-a7e7-ea66812709bb' before making global git config changes
+2026-08-11T08:23:00.8775298Z Adding repository directory to the temporary git global config as a safe directory
+2026-08-11T08:23:00.8779964Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/QRFlow/QRFlow
+2026-08-11T08:23:00.8816687Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-08-11T08:23:00.8849598Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-08-11T08:23:00.9066049Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-08-11T08:23:00.9086595Z http.https://github.com/.extraheader
+2026-08-11T08:23:00.9097048Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-08-11T08:23:00.9127208Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-08-11T08:23:00.9355361Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-08-11T08:23:00.9394582Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-08-11T08:23:00.9780380Z Cleaning up orphan processes
+2026-08-11T08:23:01.0056529Z Terminate orphan process: pid (2412) (adb)
+2026-08-11T08:23:01.0075135Z Terminate orphan process: pid (2706) (java)
+2026-08-11T08:23:01.0101941Z Terminate orphan process: pid (2784) (java)
+2026-08-11T08:23:01.0111783Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-java@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+

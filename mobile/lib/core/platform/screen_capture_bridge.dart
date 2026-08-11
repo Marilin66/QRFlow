@@ -91,10 +91,20 @@ class ScreenCaptureBridge {
     if (!_isAndroid) return null;
     try {
       return await _channel.invokeMethod<String>('getPendingCapture');
-    } on PlatformException catch (e) {
+    } on PlatformException {
       return null;
-    } on MissingPluginException catch (e) {
+    } on MissingPluginException {
       return null;
+    }
+  }
+
+  /// Demande la permission de notification (Android 13+).
+  static Future<void> ensureNotificationPermission() async {
+    if (!_isAndroid) return;
+    try {
+      await _channel.invokeMethod('ensureNotificationPermission');
+    } on PlatformException {
+      // Silencieux
     }
   }
 }
