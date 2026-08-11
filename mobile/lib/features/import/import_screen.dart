@@ -229,10 +229,8 @@ class _ImportScreenState extends State<ImportScreen> {
               final content = _analyzer.analyze(raw);
               return Card(
                 child: ListTile(
-                  leading: Text(
-                    content.type.emoji,
-                    style: const TextStyle(fontSize: 26),
-                  ),
+                  leading: Icon(content.type.icon, size: 26),
+
                   title: Text(
                     content.summary,
                     maxLines: 1,

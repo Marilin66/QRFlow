@@ -60,7 +60,7 @@ class HomeScreen extends StatelessWidget {
 
             // ── Mode 1 : depuis une capture ──────────────────────────
             _ModeCard(
-              emoji: '📷',
+              icon: Icons.photo_library_outlined,
               title: 'Depuis une capture',
               subtitle: 'Importer une capture d\u2019écran ou une image',
               color: theme.colorScheme.primary,
@@ -72,7 +72,7 @@ class HomeScreen extends StatelessWidget {
 
             // ── Mode 2 : scanner l'écran ─────────────────────────────
             _ModeCard(
-              emoji: '📱',
+              icon: Icons.smartphone,
               title: 'Scanner l\u2019écran',
               subtitle:
                   'Détecter un QR code affiché dans une autre application',
@@ -128,14 +128,14 @@ class HomeScreen extends StatelessWidget {
 
 class _ModeCard extends StatelessWidget {
   const _ModeCard({
-    required this.emoji,
+    required this.icon,
     required this.title,
     required this.subtitle,
     required this.color,
     required this.onTap,
   });
 
-  final String emoji;
+  final IconData icon;
   final String title;
   final String subtitle;
   final Color color;
@@ -162,7 +162,7 @@ class _ModeCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(18),
                 ),
                 alignment: Alignment.center,
-                child: Text(emoji, style: const TextStyle(fontSize: 32)),
+                child: Icon(icon, size: 32, color: color),
               ),
               const SizedBox(width: 16),
               Expanded(

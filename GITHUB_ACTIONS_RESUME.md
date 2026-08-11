@@ -1,34 +1,34 @@
-# ✅ GitHub Actions - Configuration Complète
+# [OK] GitHub Actions - Configuration Complète
 
-## 📋 Résumé
+## [LIST] Résumé
 
 Les **GitHub Actions** pour builds automatiques sont maintenant **configurés** mais doivent être ajoutés manuellement sur GitHub.
 
 ---
 
-## 📂 Fichiers Préparés
+## [FOLDER] Fichiers Préparés
 
 ### Workflows (dans `.github/workflows/`)
 
 | Fichier | Description | Status |
 |---------|-------------|--------|
-| `build-android.yml` | Build APK automatique | ⏳ À créer sur GitHub |
-| `tests.yml` | Tests et analyse code | ⏳ À créer sur GitHub |
-| `build-web.yml` | Build app web | ⏳ À créer sur GitHub |
-| `README.md` | Documentation workflows | ⏳ À créer sur GitHub |
+| `build-android.yml` | Build APK automatique | [WAIT] À créer sur GitHub |
+| `tests.yml` | Tests et analyse code | [WAIT] À créer sur GitHub |
+| `build-web.yml` | Build app web | [WAIT] À créer sur GitHub |
+| `README.md` | Documentation workflows | [WAIT] À créer sur GitHub |
 
-### Documentation (✅ Poussée sur GitHub)
+### Documentation ([OK] Poussée sur GitHub)
 
 | Fichier | Description |
 |---------|-------------|
-| `GITHUB_ACTIONS.md` | ✅ Guide complet d'utilisation |
-| `WORKFLOW_PERMISSION_FIX.md` | ✅ Résolution problème de permission |
-| `PUSH_WORKFLOWS_SOLUTION.md` | ✅ Instructions pas à pas |
-| `README.md` | ✅ Badges de statut ajoutés |
+| `GITHUB_ACTIONS.md` | [OK] Guide complet d'utilisation |
+| `WORKFLOW_PERMISSION_FIX.md` | [OK] Résolution problème de permission |
+| `PUSH_WORKFLOWS_SOLUTION.md` | [OK] Instructions pas à pas |
+| `README.md` | [OK] Badges de statut ajoutés |
 
 ---
 
-## 🚀 Prochaine Étape : Créer les Workflows sur GitHub
+## [=>] Prochaine Étape : Créer les Workflows sur GitHub
 
 ### Pourquoi Manuellement ?
 
@@ -51,23 +51,23 @@ Le token GitHub actuel n'a pas le scope `workflow` nécessaire pour créer des f
 
 ---
 
-## ✅ Une Fois Configuré
+## [OK] Une Fois Configuré
 
 **À chaque push sur `main` :**
-- ✅ Les tests s'exécutent automatiquement
-- ✅ L'APK Android est compilé
-- ✅ L'APK est disponible en téléchargement (30-90 jours)
-- ✅ Plus besoin de compiler localement !
+- [OK] Les tests s'exécutent automatiquement
+- [OK] L'APK Android est compilé
+- [OK] L'APK est disponible en téléchargement (30-90 jours)
+- [OK] Plus besoin de compiler localement !
 
 **Pour télécharger un APK :**
 1. https://github.com/Marilin66/QRFlow/actions
 2. Cliquez sur "Build Android APK"
-3. Sélectionnez une exécution réussie (✅)
-4. Section "Artifacts" → Téléchargez `qrflow-release-apk`
+3. Sélectionnez une exécution réussie ([OK])
+4. Section "Artifacts" -> Téléchargez `qrflow-release-apk`
 
 ---
 
-## 📊 Ce Qui Sera Automatisé
+## [CHART] Ce Qui Sera Automatisé
 
 ### Build Android APK
 - **Déclenchement :** Push sur `main`/`develop` qui modifie `mobile/**`
@@ -94,7 +94,7 @@ Le token GitHub actuel n'a pas le scope `workflow` nécessaire pour créer des f
 
 ---
 
-## 🏷️ Releases Automatiques
+## [TAG] Releases Automatiques
 
 **Pour créer une release avec APK :**
 
@@ -107,13 +107,13 @@ git push origin v0.1.0
 ```
 
 **Résultat automatique :**
-- ✅ Release GitHub créée
-- ✅ APK Release attaché
-- ✅ Notes de release générées
+- [OK] Release GitHub créée
+- [OK] APK Release attaché
+- [OK] Notes de release générées
 
 ---
 
-## 📈 Badges de Statut
+## [UP] Badges de Statut
 
 Les badges suivants sont maintenant dans le README :
 
@@ -122,13 +122,13 @@ Les badges suivants sont maintenant dans le README :
 ![Build Web](https://github.com/Marilin66/QRFlow/workflows/Build%20Web%20App/badge.svg)
 
 **Couleurs :**
-- 🟢 **Vert** : Dernier build réussi
-- 🔴 **Rouge** : Dernier build échoué
-- 🟡 **Jaune** : Build en cours
+- [OK] **Vert** : Dernier build réussi
+- [ERROR] **Rouge** : Dernier build échoué
+- [WAIT] **Jaune** : Build en cours
 
 ---
 
-## 🔧 Configuration Technique
+## [TOOL] Configuration Technique
 
 ### Flutter
 - **Version :** 3.24.0
@@ -145,7 +145,7 @@ Les badges suivants sont maintenant dans le README :
 
 ---
 
-## 📚 Documentation Disponible
+## [DOCS] Documentation Disponible
 
 | Document | Contenu |
 |----------|---------|
@@ -156,13 +156,13 @@ Les badges suivants sont maintenant dans le README :
 
 ---
 
-## ⏭️ Actions Recommandées
+## [NEXT] Actions Recommandées
 
 ### Immédiatement
-1. ✅ Consulter `PUSH_WORKFLOWS_SOLUTION.md`
-2. ✅ Créer les workflows sur GitHub (5-10 minutes)
-3. ✅ Vérifier que les workflows apparaissent dans Actions
-4. ✅ Attendre le premier build automatique
+1. [OK] Consulter `PUSH_WORKFLOWS_SOLUTION.md`
+2. [OK] Créer les workflows sur GitHub (5-10 minutes)
+3. [OK] Vérifier que les workflows apparaissent dans Actions
+4. [OK] Attendre le premier build automatique
 
 ### Plus Tard
 - Installer GitHub CLI pour simplifier les pushes futurs
@@ -171,45 +171,45 @@ Les badges suivants sont maintenant dans le README :
 
 ---
 
-## 🎯 Bénéfices des GitHub Actions
+## [TARGET] Bénéfices des GitHub Actions
 
-✅ **Gain de Temps**
+[OK] **Gain de Temps**
 - Plus besoin de compiler localement
 - APKs toujours disponibles
 - Builds parallèles
 
-✅ **Qualité**
+[OK] **Qualité**
 - Tests automatiques à chaque commit
 - Analyse de code automatique
 - Détection précoce des bugs
 
-✅ **Collaboration**
+[OK] **Collaboration**
 - APKs testables facilement partagés
 - Pull Requests validées automatiquement
 - Historique complet des builds
 
-✅ **Simplicité**
+[OK] **Simplicité**
 - Un push = build automatique
 - Téléchargement en 2 clics
 - Releases automatisées
 
 ---
 
-## ✅ Checklist Finale
+## [OK] Checklist Finale
 
 - [ ] Documentation GitHub Actions pushée sur GitHub
 - [ ] Workflows créés manuellement sur GitHub (à faire)
 - [ ] Premier build automatique exécuté (après création)
 - [ ] APK téléchargé et testé (après build)
 - [ ] Badges affichés dans README
-- [ ] Tout fonctionne ! 🎉
+- [ ] Tout fonctionne ! [SUCCESS]
 
 ---
 
-**📁 Localisation des fichiers :**
+**[FOLDER] Localisation des fichiers :**
 - Workflows : `c:\Users\BADJI\Desktop\QRFlow\.github\workflows\`
 - Documentation : Racine du projet
 
-**🔗 Repository GitHub :** https://github.com/Marilin66/QRFlow
+**[link] Repository GitHub :** https://github.com/Marilin66/QRFlow
 
-**📖 Prochaine étape :** Consultez `PUSH_WORKFLOWS_SOLUTION.md` pour créer les workflows !
+**[BOOK] Prochaine étape :** Consultez `PUSH_WORKFLOWS_SOLUTION.md` pour créer les workflows !

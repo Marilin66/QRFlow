@@ -1,21 +1,21 @@
-# 🐛 Guide de Débogage de la Capture d'Écran
+# [BUG] Guide de Débogage de la Capture d'Écran
 
-## 🔍 Problème identifié
+## [SEARCH] Problème identifié
 
 Les étapes suivantes fonctionnent :
-- ✅ Interface de l'application
-- ✅ Bouton d'activation
-- ✅ Permission de superposition
-- ✅ Bulle Q visible
-- ✅ Retour vers l'application précédente
+- [OK] Interface de l'application
+- [OK] Bouton d'activation
+- [OK] Permission de superposition
+- [OK] Bulle Q visible
+- [OK] Retour vers l'application précédente
 
 Mais ces étapes ne fonctionnent pas :
-- ❌ Récupération de l'image/contenu de l'écran
-- ❌ Détection du QR dans ce contenu
-- ❌ Décodage
-- ❌ Transmission du résultat à QRFlow
+- [X] Récupération de l'image/contenu de l'écran
+- [X] Détection du QR dans ce contenu
+- [X] Décodage
+- [X] Transmission du résultat à QRFlow
 
-## 🔧 Corrections appliquées
+## [TOOL] Corrections appliquées
 
 ### 1. Ajout de logs de débogage (Android)
 
@@ -39,7 +39,7 @@ Mais ces étapes ne fonctionnent pas :
 - Messages d'erreur détaillés
 - Try-catch autour de l'analyse d'image
 
-## 🧪 Comment tester
+## [TEST] Comment tester
 
 ### Étape 1 : Recompiler
 ```bash
@@ -68,7 +68,7 @@ adb logcat -s ScreenCaptureService:D ScreenCaptureChannel:D flutter:I
 6. Acceptez le consentement MediaProjection
 7. **Observez les logs** pour voir où ça bloque
 
-## 📊 Logs attendus (flux normal)
+## [CHART] Logs attendus (flux normal)
 
 ```
 ScreenCaptureChannel: captureScreen appelé, isRunning=false
@@ -85,32 +85,32 @@ ScreenCaptureBridge: Chemin reçu: /data/user/0/...
 [Navigation vers ResultScreen]
 ```
 
-## 🔍 Points de vérification
+## [SEARCH] Points de vérification
 
 ### Si aucun log n'apparaît
-→ Le service de capture ne démarre pas correctement
-→ Vérifier les permissions dans AndroidManifest.xml
+-> Le service de capture ne démarre pas correctement
+-> Vérifier les permissions dans AndroidManifest.xml
 
 ### Si "Capture enregistrée" apparaît mais pas "getPendingCapture"
-→ L'application ne revient pas au premier plan
-→ Ou `didChangeAppLifecycleState` n'est pas appelé
+-> L'application ne revient pas au premier plan
+-> Ou `didChangeAppLifecycleState` n'est pas appelé
 
 ### Si "Chemin reçu: null"
-→ Le fichier n'a pas été enregistré dans SharedPreferences
-→ Ou il a été consommé par un autre appel
+-> Le fichier n'a pas été enregistré dans SharedPreferences
+-> Ou il a été consommé par un autre appel
 
 ### Si "Erreur lors de l'analyse"
-→ Le fichier existe mais mobile_scanner ne peut pas le lire
-→ Vérifier le format de l'image
-→ Vérifier les permissions de lecture
+-> Le fichier existe mais mobile_scanner ne peut pas le lire
+-> Vérifier le format de l'image
+-> Vérifier les permissions de lecture
 
 ### Si "Aucun QR code détecté"
-→ La capture fonctionne mais :
+-> La capture fonctionne mais :
   - Le QR code est trop petit
   - Le QR code est flou
   - L'écran capturé ne contenait pas le QR code au bon moment
 
-## 🛠️ Solutions par scénario
+## [TOOL] Solutions par scénario
 
 ### Scénario 1 : Le service ne capture pas
 ```kotlin
@@ -120,7 +120,7 @@ override fun onNewIntent(intent: Intent) {
     setIntent(intent)
     if (intent.action == ScreenCaptureChannel.ACTION_CAPTURE) {
         intent.action = null
-        requestScreenCapture()  // ← Cette ligne doit être appelée
+        requestScreenCapture()  // <- Cette ligne doit être appelée
     }
 }
 ```
@@ -131,11 +131,11 @@ override fun onNewIntent(intent: Intent) {
 @override
 void didChangeAppLifecycleState(AppLifecycleState state) {
   if (state == AppLifecycleState.resumed) {
-    print('DEBUG: App resumed');  // ← Devrait s'afficher
+    print('DEBUG: App resumed');  // <- Devrait s'afficher
     _refreshState();
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
-        print('DEBUG: Checking pending capture');  // ← Devrait s'afficher
+        print('DEBUG: Checking pending capture');  // <- Devrait s'afficher
         _checkPendingCapture();
       }
     });
@@ -152,7 +152,7 @@ final capture = await controller.analyzeImage(testPath);
 print('Barcodes trouvés: ${capture?.barcodes.length}');
 ```
 
-## 🎯 Checklist de diagnostic
+## [TARGET] Checklist de diagnostic
 
 - [ ] Les logs Android apparaissent quand on appuie sur la bulle
 - [ ] "Capture enregistrée" apparaît dans les logs
@@ -165,7 +165,7 @@ print('Barcodes trouvés: ${capture?.barcodes.length}');
 - [ ] Au moins un QR code est détecté
 - [ ] Le résultat est affiché
 
-## 💡 Test alternatif simple
+## [IDEA] Test alternatif simple
 
 Pour tester si le problème vient de la bulle ou du flux complet, testez d'abord le mode "Depuis une capture" :
 
@@ -175,10 +175,10 @@ Pour tester si le problème vient de la bulle ou du flux complet, testez d'abord
 4. Importez la capture d'écran
 5. Vérifiez si le QR code est détecté
 
-Si ça fonctionne → Le problème est dans le flux de la bulle
-Si ça ne fonctionne pas → Le problème est dans mobile_scanner
+Si ça fonctionne -> Le problème est dans le flux de la bulle
+Si ça ne fonctionne pas -> Le problème est dans mobile_scanner
 
-## 📝 Fichiers modifiés
+## [NOTE] Fichiers modifiés
 
 1. `mobile/lib/features/screen_scan/screen_scan_screen.dart`
    - Ajout délai 500ms

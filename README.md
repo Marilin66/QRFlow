@@ -25,7 +25,7 @@ Android** (contrainte technique des navigateurs, conforme à la spec).
 
 ## Principe de sécurité
 
-> **Détection → Présentation → Confirmation → Action**
+> **Détection -> Présentation -> Confirmation -> Action**
 
 Aucun lien ouvert, appel, SMS, contact, réseau Wi-Fi ou application lancé
 automatiquement. Les URL suspectes sont signalées.

@@ -12,7 +12,7 @@ class HelpScreen extends StatelessWidget {
           padding: const EdgeInsets.all(20),
           children: const [
             _HelpCard(
-              icon: '📷',
+              icon: Icons.photo_library_outlined,
               title: 'Mode 1 — Depuis une capture',
               text: 'Importez une capture d\u2019écran ou une image contenant '
                   'un QR code. L\u2019application détecte, décode et analyse '
@@ -20,7 +20,7 @@ class HelpScreen extends StatelessWidget {
                   'celui qui vous intéresse.',
             ),
             _HelpCard(
-              icon: '📱',
+              icon: Icons.smartphone,
               title: 'Mode 2 — Scanner l\u2019écran',
               text: 'Activez la bulle flottante, ouvrez l\u2019application où '
                   'le QR code est affiché, puis appuyez sur la bulle. Android '
@@ -28,7 +28,7 @@ class HelpScreen extends StatelessWidget {
                   'QR code est analysé automatiquement.',
             ),
             _HelpCard(
-              icon: '🔒',
+              icon: Icons.lock_outline,
               title: 'Sécurité avant tout',
               text: 'QRFlow ne fait jamais rien automatiquement : aucun lien '
                   'ouvert, aucun appel, aucun SMS, aucune connexion Wi-Fi '
@@ -36,14 +36,14 @@ class HelpScreen extends StatelessWidget {
                   'déclenchent un avertissement.',
             ),
             _HelpCard(
-              icon: '🕵️',
+              icon: Icons.privacy_tip_outlined,
               title: 'Vie privée',
               text: 'Toutes les analyses sont effectuées sur votre appareil. '
                   'Aucune donnée n\u2019est envoyée sur Internet. '
                   'L\u2019historique est stocké localement.',
             ),
             _HelpCard(
-              icon: '🤔',
+              icon: Icons.help_outline,
               title: 'Pourquoi un consentement à chaque session ?',
               text: 'Depuis Android 14, le jeton de capture d\u2019écran '
                   '(MediaProjection) est à usage unique : Android l\u2019exige '
@@ -51,7 +51,7 @@ class HelpScreen extends StatelessWidget {
                   'sécurité du système, pas une limitation de l\u2019application.',
             ),
             _HelpCard(
-              icon: '🚫',
+              icon: Icons.block,
               title: 'Capture bloquée ?',
               text: 'Certaines applications (banque, vidéos DRM…) empêchent '
                   'volontairement la capture d\u2019écran. Dans ce cas, '
@@ -59,7 +59,7 @@ class HelpScreen extends StatelessWidget {
                   'mode « Depuis une capture ».',
             ),
             _HelpCard(
-              icon: '📶',
+              icon: Icons.wifi,
               title: 'Réseau Wi-Fi',
               text: 'QRFlow n\u2019a pas la permission système de rejoindre un '
                   'réseau à votre place. Il affiche les informations (nom, '
@@ -79,7 +79,7 @@ class _HelpCard extends StatelessWidget {
     required this.text,
   });
 
-  final String icon;
+  final IconData icon;
   final String title;
   final String text;
 
@@ -93,7 +93,8 @@ class _HelpCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(icon, style: const TextStyle(fontSize: 26)),
+            Icon(icon, size: 26, color: theme.colorScheme.primary),
+
             const SizedBox(width: 14),
             Expanded(
               child: Column(

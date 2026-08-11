@@ -157,8 +157,8 @@ Pour confirmer que tout fonctionne :
 
 1. **Push réussi**
    ```
-   ✓ Pas d'erreur de permission
-   ✓ Les fichiers sont sur GitHub
+   [OK] Pas d'erreur de permission
+   [OK] Les fichiers sont sur GitHub
    ```
 
 2. **Workflows visibles**

@@ -1,4 +1,4 @@
-# 🤖 GitHub Actions - Guide Complet
+# [BOT] GitHub Actions - Guide Complet
 
 ## [LIST] Vue d'ensemble
 
@@ -65,7 +65,7 @@ Ce projet utilise **GitHub Actions** pour automatiser les builds et les tests à
 
 ---
 
-## 📥 Comment Télécharger les APKs Buildés
+## [INBOX] Comment Télécharger les APKs Buildés
 
 ### Méthode 1 : Via l'Interface GitHub
 
@@ -172,9 +172,9 @@ Les badges suivants sont affichés dans le README.md :
 6. Cliquez sur un step pour voir ses logs détaillés
 
 **Les erreurs communes :**
-- Tests qui échouent → Vérifier `Run tests`
-- Problème de dépendances → Vérifier `Get dependencies`
-- Problème de compilation → Vérifier `Build APK Release`
+- Tests qui échouent -> Vérifier `Run tests`
+- Problème de dépendances -> Vérifier `Get dependencies`
+- Problème de compilation -> Vérifier `Build APK Release`
 
 ---
 
@@ -188,7 +188,7 @@ Dans `.github/workflows/build-android.yml` :
 - name: Setup Flutter
   uses: subosito/flutter-action@v2
   with:
-    flutter-version: '3.24.0'  # ← Changez ici
+    flutter-version: '3.24.0'  # <- Changez ici
     channel: 'stable'
 ```
 
@@ -212,7 +212,7 @@ Dans `.github/workflows/build-android.yml` :
   with:
     name: qrflow-release-apk
     path: mobile/build/app/outputs/flutter-apk/app-release.apk
-    retention-days: 90  # ← Changez ici (max 90 jours)
+    retention-days: 90  # <- Changez ici (max 90 jours)
 ```
 
 ### Builder sur Plus de Branches
@@ -222,7 +222,7 @@ Dans `.github/workflows/build-android.yml` :
 ```yaml
 on:
   push:
-    branches: [ main, develop, feature/* ]  # ← Ajoutez vos branches
+    branches: [ main, develop, feature/* ]  # <- Ajoutez vos branches
 ```
 
 ---

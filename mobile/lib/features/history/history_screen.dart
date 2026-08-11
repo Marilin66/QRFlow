@@ -167,9 +167,9 @@ class _HistoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final typeEmoji = QrContentType.values
+    final typeIcon = QrContentType.values
         .where((t) => t.label == entry.type)
-        .map((t) => t.emoji)
+        .map((t) => t.icon)
         .firstOrNull;
 
     return Card(
@@ -187,7 +187,8 @@ class _HistoryTile extends StatelessWidget {
           child: Icon(Icons.delete, color: theme.colorScheme.error),
         ),
         child: ListTile(
-          leading: Text(typeEmoji ?? '❓', style: const TextStyle(fontSize: 26)),
+          leading: Icon(typeIcon ?? Icons.help_outline, size: 26),
+
           title: Text(
             entry.summary ?? entry.raw,
             maxLines: 1,

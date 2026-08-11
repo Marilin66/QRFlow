@@ -1,16 +1,16 @@
-# ✅ Solution au problème de permission "Afficher par-dessus les applications"
+# [OK] Solution au problème de permission "Afficher par-dessus les applications"
 
-## 🔍 Problème identifié
+## [SEARCH] Problème identifié
 
 L'application QRFlow n'apparaissait pas dans la liste des applications dans les paramètres Android pour accorder la permission "Afficher par-dessus les autres applications".
 
-## ⚠️ Cause
+## [!] Cause
 
 La permission `SYSTEM_ALERT_WINDOW` était **manquante** dans le fichier `AndroidManifest.xml`.
 
 Sans cette permission déclarée dans le manifest, Android ne propose pas l'application dans la liste des paramètres, même si le code demande correctement la permission.
 
-## ✅ Solution appliquée
+## [OK] Solution appliquée
 
 J'ai ajouté la ligne suivante dans `mobile/android/app/src/main/AndroidManifest.xml` :
 
@@ -20,12 +20,12 @@ J'ai ajouté la ligne suivante dans `mobile/android/app/src/main/AndroidManifest
 
 Cette permission a été placée **avant** les permissions de services au premier plan.
 
-## 🔧 Prochaines étapes pour tester
+## [TOOL] Prochaines étapes pour tester
 
 ### 1. Désinstaller l'ancienne version
 Sur votre téléphone Android :
 ```
-Paramètres → Applications → QRFlow → Désinstaller
+Paramètres -> Applications -> QRFlow -> Désinstaller
 ```
 
 OU utilisez adb :
@@ -57,24 +57,24 @@ adb install build/app/outputs/flutter-apk/app-release.apk
 2. Appuyez sur **"Scanner l'écran"**
 3. Appuyez sur **"Accorder la permission"**
 4. Android devrait maintenant vous rediriger vers les paramètres système
-5. **Votre application "QRFlow" devrait maintenant apparaître dans la liste** ✅
+5. **Votre application "QRFlow" devrait maintenant apparaître dans la liste** [OK]
 6. Activez la permission
 7. Revenez dans l'application
 8. Appuyez sur **"Activer la bulle flottante"**
 
-## 📱 Vérification manuelle (alternative)
+## [MOBILE] Vérification manuelle (alternative)
 
 Si vous voulez vérifier manuellement que l'application apparaît maintenant :
 
 ```
 Paramètres Android
-  → Applications
-    → Accès spécial
-      → Afficher par-dessus les autres applications
-        → QRFlow devrait maintenant être dans la liste ✅
+  -> Applications
+    -> Accès spécial
+      -> Afficher par-dessus les autres applications
+        -> QRFlow devrait maintenant être dans la liste [OK]
 ```
 
-## 🎯 Pourquoi cette permission est nécessaire
+## [TARGET] Pourquoi cette permission est nécessaire
 
 La permission `SYSTEM_ALERT_WINDOW` est **obligatoire** pour :
 - Afficher une bulle flottante par-dessus les autres applications
@@ -83,7 +83,7 @@ La permission `SYSTEM_ALERT_WINDOW` est **obligatoire** pour :
 
 Sans cette déclaration dans le manifest, l'application ne peut pas demander cette permission, même si le code Kotlin est correct.
 
-## 📝 Code modifié
+## [NOTE] Code modifié
 
 **Fichier modifié** : `mobile/android/app/src/main/AndroidManifest.xml`
 
@@ -93,13 +93,13 @@ Sans cette déclaration dans le manifest, l'application ne peut pas demander cet
 <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 ```
 
-## ✅ Résultat attendu
+## [OK] Résultat attendu
 
 Après cette modification et la réinstallation :
-1. ✅ QRFlow apparaît dans la liste des applications dans les paramètres système
-2. ✅ L'utilisateur peut accorder la permission "Afficher par-dessus les autres applications"
-3. ✅ La bulle flottante peut être activée
-4. ✅ La fonctionnalité de scan d'écran fonctionne complètement
+1. [OK] QRFlow apparaît dans la liste des applications dans les paramètres système
+2. [OK] L'utilisateur peut accorder la permission "Afficher par-dessus les autres applications"
+3. [OK] La bulle flottante peut être activée
+4. [OK] La fonctionnalité de scan d'écran fonctionne complètement
 
 ---
 

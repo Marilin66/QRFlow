@@ -1,5 +1,12 @@
 import { Link } from 'react-router-dom';
 import FinderMark from '../components/FinderMark';
+import { Icon, type IconName } from '../components/icons';
+
+const SECONDARY_LINKS: Array<{ to: string; icon: IconName; label: string }> = [
+  { to: '/history', icon: 'history', label: 'Historique' },
+  { to: '/settings', icon: 'settings', label: 'Paramètres' },
+  { to: '/help', icon: 'help', label: 'Aide' },
+];
 
 export default function Home() {
   return (
@@ -29,7 +36,9 @@ export default function Home() {
         >
           <span className="corner corner-tl opacity-0 transition group-hover:opacity-100" />
           <span className="corner corner-br opacity-0 transition group-hover:opacity-100" />
-          <div className="text-3xl">🖼️</div>
+          <div className="grid size-12 place-items-center rounded-2xl bg-electric-500/10 text-electric-500 dark:text-electric-400">
+            <Icon name="image" className="size-7" />
+          </div>
           <h2 className="font-display mt-4 text-lg font-bold">Depuis une capture</h2>
           <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
             Importez une capture d’écran ou une image : le QR code est détecté
@@ -37,7 +46,7 @@ export default function Home() {
           </p>
           <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-electric-500">
             Importer une image
-            <span className="transition group-hover:translate-x-1">→</span>
+            <Icon name="chevron-right" className="size-4 transition group-hover:translate-x-1" />
           </span>
         </Link>
 
@@ -47,7 +56,9 @@ export default function Home() {
         >
           <span className="corner corner-tl opacity-0 transition group-hover:opacity-100" />
           <span className="corner corner-br opacity-0 transition group-hover:opacity-100" />
-          <div className="text-3xl">📷</div>
+          <div className="grid size-12 place-items-center rounded-2xl bg-electric-500/10 text-electric-500 dark:text-electric-400">
+            <Icon name="camera" className="size-7" />
+          </div>
           <h2 className="font-display mt-4 text-lg font-bold">Caméra</h2>
           <p className="mt-1.5 text-sm text-slate-500 dark:text-slate-400">
             Pointez la caméra du navigateur : la détection est continue et
@@ -55,14 +66,14 @@ export default function Home() {
           </p>
           <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-electric-500">
             Démarrer le scan
-            <span className="transition group-hover:translate-x-1">→</span>
+            <Icon name="chevron-right" className="size-4 transition group-hover:translate-x-1" />
           </span>
         </Link>
       </section>
 
       {/* ── Note sur le mode « Scanner l'écran » ─────────────────── */}
       <section className="card flex gap-4 border-safety-500/30 bg-safety-500/5 p-5 dark:border-safety-500/20">
-        <span className="text-2xl">📱</span>
+        <Icon name="smartphone" className="mt-0.5 size-6 shrink-0 text-safety-500" />
         <div className="text-sm leading-relaxed">
           <p className="font-semibold text-safety-500">
             À propos du mode « Scanner l’écran »
@@ -78,18 +89,14 @@ export default function Home() {
 
       {/* ── Accès secondaires ────────────────────────────────────── */}
       <section className="grid gap-3 sm:grid-cols-3">
-        {[
-          { to: '/history', icon: '◷', label: 'Historique' },
-          { to: '/settings', icon: '⚙', label: 'Paramètres' },
-          { to: '/help', icon: '？', label: 'Aide' },
-        ].map((item) => (
+        {SECONDARY_LINKS.map((item) => (
           <Link
             key={item.to}
             to={item.to}
             className="card flex items-center gap-3 px-4 py-3.5 transition hover:border-electric-400 dark:hover:border-electric-500"
           >
-            <span className="grid size-9 place-items-center rounded-lg bg-electric-500/10 text-base text-electric-500">
-              {item.icon}
+            <span className="grid size-9 place-items-center rounded-lg bg-electric-500/10 text-electric-500">
+              <Icon name={item.icon} className="size-5" />
             </span>
             <span className="text-sm font-semibold">{item.label}</span>
           </Link>

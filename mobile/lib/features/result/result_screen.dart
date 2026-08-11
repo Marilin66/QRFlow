@@ -134,7 +134,7 @@ class _ResultScreenState extends State<ResultScreen> {
                   ),
                   child: Row(
                     children: [
-                      Text(content.type.emoji, style: const TextStyle(fontSize: 18)),
+                      Icon(content.type.icon, size: 18, color: theme.colorScheme.primary),
                       const SizedBox(width: 6),
                       Text(
                         content.typeLabel,

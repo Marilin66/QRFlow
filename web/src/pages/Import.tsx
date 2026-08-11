@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import QrBadge from '../components/QrBadge';
+import { Icon } from '../components/icons';
 import { analyze } from '../lib/analyzer';
 import { decodeImageFile } from '../lib/decode';
 import { useApp } from '../lib/store';
@@ -73,7 +74,7 @@ export default function Import() {
         </div>
       ) : phase === 'error' ? (
         <div className="card border-red-300/60 bg-red-500/5 p-6 dark:border-red-900">
-          <div className="text-3xl">😕</div>
+          <Icon name="alert" className="size-10 text-red-500" />
           <p className="mt-2 whitespace-pre-line text-sm leading-relaxed text-red-700 dark:text-red-300">
             {error}
           </p>
@@ -127,8 +128,8 @@ export default function Import() {
             if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
           }}
         >
-          <div className="grid size-16 place-items-center rounded-2xl bg-electric-500/10 text-3xl">
-            🖼️
+          <div className="grid size-16 place-items-center rounded-2xl bg-electric-500/10 text-electric-500">
+            <Icon name="image" className="size-8" />
           </div>
           <p className="font-display text-lg font-bold">
             Glissez votre image ici
@@ -153,8 +154,9 @@ export default function Import() {
         </div>
       )}
 
-      <p className="text-center text-xs text-slate-400 dark:text-slate-500">
-        🔒 L’analyse est 100 % locale : l’image n’est jamais envoyée sur Internet.
+      <p className="flex items-center justify-center gap-1.5 text-center text-xs text-slate-400 dark:text-slate-500">
+        <Icon name="lock" className="size-3.5" />
+        L’analyse est 100 % locale : l’image n’est jamais envoyée sur Internet.
       </p>
     </div>
   );

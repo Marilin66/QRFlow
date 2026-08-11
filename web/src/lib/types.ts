@@ -1,3 +1,5 @@
+import type { IconName } from '../components/icons';
+
 export type QrContentType =
   | 'url'
   | 'text'
@@ -11,18 +13,18 @@ export type QrContentType =
   | 'app'
   | 'unknown';
 
-export const TYPE_META: Record<QrContentType, { label: string; emoji: string }> = {
-  url: { label: 'URL', emoji: '🌐' },
-  text: { label: 'Texte', emoji: '📄' },
-  phone: { label: 'Numéro de téléphone', emoji: '📞' },
-  email: { label: 'Adresse e-mail', emoji: '✉️' },
-  sms: { label: 'SMS', emoji: '💬' },
-  vcard: { label: 'Contact', emoji: '👤' },
-  wifi: { label: 'Réseau Wi-Fi', emoji: '📶' },
-  geo: { label: 'Géolocalisation', emoji: '📍' },
-  calendar: { label: 'Événement', emoji: '📅' },
-  app: { label: 'Application', emoji: '📱' },
-  unknown: { label: 'Contenu inconnu', emoji: '❓' },
+export const TYPE_META: Record<QrContentType, { label: string; icon: IconName }> = {
+  url: { label: 'URL', icon: 'globe' },
+  text: { label: 'Texte', icon: 'file' },
+  phone: { label: 'Numéro de téléphone', icon: 'phone' },
+  email: { label: 'Adresse e-mail', icon: 'mail' },
+  sms: { label: 'SMS', icon: 'chat' },
+  vcard: { label: 'Contact', icon: 'user' },
+  wifi: { label: 'Réseau Wi-Fi', icon: 'wifi' },
+  geo: { label: 'Géolocalisation', icon: 'map-pin' },
+  calendar: { label: 'Événement', icon: 'calendar' },
+  app: { label: 'Application', icon: 'smartphone' },
+  unknown: { label: 'Contenu inconnu', icon: 'question' },
 };
 
 export interface QrResult {

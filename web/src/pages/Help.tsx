@@ -1,3 +1,5 @@
+import { Icon, type IconName } from '../components/icons';
+
 const PIPELINE = [
   {
     title: 'Détecter',
@@ -17,37 +19,37 @@ const PIPELINE = [
   },
 ];
 
-const ITEMS = [
+const ITEMS: Array<{ icon: IconName; title: string; text: string }> = [
   {
-    icon: '🖼️',
+    icon: 'image',
     title: 'Mode 1 — Depuis une capture',
     text: 'Importez une capture d’écran ou une image contenant un QR code. '
       + 'L’application détecte, décode et analyse le contenu. Si plusieurs QR '
       + 'codes sont présents, choisissez celui qui vous intéresse.',
   },
   {
-    icon: '📷',
+    icon: 'camera',
     title: 'Mode 2 — Scan caméra',
     text: 'Le navigateur demande l’accès à la caméra, puis les images sont '
       + 'analysées en continu jusqu’à la détection d’un QR code. Nécessite une '
       + 'connexion sécurisée (HTTPS) ou localhost.',
   },
   {
-    icon: '🔒',
+    icon: 'lock',
     title: 'Sécurité avant tout',
     text: 'QRFlow ne fait jamais rien automatiquement : aucun lien ouvert, '
       + 'aucun appel, aucun SMS sans votre confirmation. Les URL suspectes '
       + 'déclenchent un avertissement.',
   },
   {
-    icon: '🕵️',
+    icon: 'eye',
     title: 'Vie privée',
     text: 'Toutes les analyses sont effectuées dans votre navigateur. '
       + 'Aucune donnée n’est envoyée sur Internet. L’historique est stocké '
       + 'localement.',
   },
   {
-    icon: '📱',
+    icon: 'smartphone',
     title: 'Pourquoi pas de bulle flottante sur le web ?',
     text: 'Les navigateurs ne permettent pas d’afficher une fenêtre par-dessus '
       + 'les autres onglets ni de capturer l’écran d’une autre application. '
@@ -55,7 +57,7 @@ const ITEMS = [
       + 'l’application QRFlow (Flutter).',
   },
   {
-    icon: '📶',
+    icon: 'wifi',
     title: 'Réseau Wi-Fi',
     text: 'Le navigateur ne peut pas rejoindre un réseau à votre place. '
       + 'QRFlow affiche les informations (nom, sécurité, mot de passe) et '
@@ -95,8 +97,8 @@ export default function Help() {
       <section className="space-y-3">
         {ITEMS.map((item) => (
           <div key={item.title} className="card flex gap-4 p-4">
-            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-electric-500/10 text-xl">
-              {item.icon}
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-electric-500/10 text-electric-500">
+              <Icon name={item.icon} className="size-5" />
             </span>
             <div>
               <p className="text-sm font-bold">{item.title}</p>

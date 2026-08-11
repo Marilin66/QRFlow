@@ -1,24 +1,24 @@
-# ✅ Résumé des Correctifs Appliqués
+# [OK] Résumé des Correctifs Appliqués
 
-## 📋 Problèmes Identifiés
+## [LIST] Problèmes Identifiés
 
 ### Problème 1 : Permission SYSTEM_ALERT_WINDOW manquante
 **Symptôme :** L'application n'apparaissait pas dans la liste Android pour accorder la permission "Afficher par-dessus les autres applications"
 
 **Cause :** La déclaration de permission manquait dans `AndroidManifest.xml`
 
-**Statut :** ✅ **RÉSOLU**
+**Statut :** [OK] **RÉSOLU**
 
 ---
 
 ### Problème 2 : Flux de capture d'écran incomplet
 **Symptômes :**
-- ✅ Bulle Q affichée et fonctionnelle
-- ✅ Consentement MediaProjection obtenu
-- ✅ Retour dans l'application
-- ❌ Pas de récupération de l'image capturée
-- ❌ Pas de détection du QR code
-- ❌ Pas d'affichage du résultat
+- [OK] Bulle Q affichée et fonctionnelle
+- [OK] Consentement MediaProjection obtenu
+- [OK] Retour dans l'application
+- [X] Pas de récupération de l'image capturée
+- [X] Pas de détection du QR code
+- [X] Pas d'affichage du résultat
 
 **Causes potentielles identifiées :**
 1. Problème de timing entre capture et lecture
@@ -26,13 +26,13 @@
 3. Erreur silencieuse dans l'analyse
 4. Problème de cycle de vie de l'application
 
-**Statut :** 🔧 **CORRECTIONS APPLIQUÉES - À TESTER**
+**Statut :** [TOOL] **CORRECTIONS APPLIQUÉES - À TESTER**
 
 ---
 
-## 🛠️ Correctifs Appliqués
+## [TOOL] Correctifs Appliqués
 
-### Correctif 1 : Ajout Permission Overlay (✅ Complet)
+### Correctif 1 : Ajout Permission Overlay ([OK] Complet)
 
 **Fichier :** `mobile/android/app/src/main/AndroidManifest.xml`
 
@@ -46,7 +46,7 @@
 
 ---
 
-### Correctif 2 : Amélioration du Timing (🔧 À tester)
+### Correctif 2 : Amélioration du Timing ([TOOL] À tester)
 
 #### 2.1 Délai avant capture (Android)
 **Fichier :** `ScreenCaptureService.kt`
@@ -73,7 +73,7 @@ Future.delayed(const Duration(milliseconds: 500), () {
 
 ---
 
-### Correctif 3 : Logs de Débogage (🔍 Diagnostic)
+### Correctif 3 : Logs de Débogage ([SEARCH] Diagnostic)
 
 **Fichiers modifiés :**
 1. `ScreenCaptureService.kt` - Logs lors de la sauvegarde PNG
@@ -89,7 +89,7 @@ adb logcat -s ScreenCaptureService:D ScreenCaptureChannel:D flutter:I
 
 ---
 
-### Correctif 4 : Gestion d'Erreurs Améliorée (🛡️ Robustesse)
+### Correctif 4 : Gestion d'Erreurs Améliorée ([SHIELD] Robustesse)
 
 **Fichier :** `screen_scan_screen.dart`
 
@@ -115,9 +115,9 @@ if (!file.existsSync()) {
 
 ---
 
-## 📊 État du Projet
+## [CHART] État du Projet
 
-### ✅ Fonctionnel et Testé
+### [OK] Fonctionnel et Testé
 - Architecture Flutter (Material 3)
 - Interface utilisateur complète
 - Navigation entre écrans
@@ -128,21 +128,21 @@ if (!file.existsSync()) {
 - Paramètres (thème, bulle)
 - Gestion des permissions
 
-### 🔧 Corrections Appliquées (À Tester)
+### [TOOL] Corrections Appliquées (À Tester)
 - Permission SYSTEM_ALERT_WINDOW
 - Flux de capture d'écran complet
 - Timing amélioré
 - Logs de débogage
 - Gestion d'erreurs robuste
 
-### 📝 Documentation Ajoutée
+### [NOTE] Documentation Ajoutée
 - `SOLUTION_PERMISSION.md` - Guide de la permission overlay
 - `DEBUG_CAPTURE.md` - Guide complet de débogage avec checklist
 - `CORRECTIFS_APPLIQUES.md` - Ce fichier
 
 ---
 
-## 🚀 Prochaines Étapes
+## [=>] Prochaines Étapes
 
 ### 1. Recompiler l'Application
 ```bash
@@ -171,7 +171,7 @@ adb logcat -s ScreenCaptureService:D ScreenCaptureChannel:D flutter:I
 ### 5. Tester le Flux Complet
 1. Ouvrir QRFlow
 2. Aller dans "Scanner l'écran"
-3. **Vérifier** : QRFlow apparaît maintenant dans les paramètres ✅
+3. **Vérifier** : QRFlow apparaît maintenant dans les paramètres [OK]
 4. Activer la permission
 5. Activer la bulle flottante
 6. Ouvrir une app avec un QR code
@@ -182,7 +182,7 @@ adb logcat -s ScreenCaptureService:D ScreenCaptureChannel:D flutter:I
 
 ---
 
-## 🐛 Si le Problème Persiste
+## [BUG] Si le Problème Persiste
 
 ### Checklist de Diagnostic
 
@@ -203,12 +203,12 @@ Suivre le guide dans `DEBUG_CAPTURE.md` :
 Pour isoler le problème :
 1. Faire une capture d'écran normale (Power + Volume -)
 2. Tester le mode "Depuis une capture"
-3. Si ça fonctionne → Problème dans le flux de la bulle
-4. Si ça ne fonctionne pas → Problème dans mobile_scanner
+3. Si ça fonctionne -> Problème dans le flux de la bulle
+4. Si ça ne fonctionne pas -> Problème dans mobile_scanner
 
 ---
 
-## 📦 Commits Git
+## [PACKAGE] Commits Git
 
 ### Commit 1 : `07f381a`
 **Message :** "fix: ajout permission SYSTEM_ALERT_WINDOW pour bulle flottante"
@@ -227,7 +227,7 @@ Pour isoler le problème :
 
 ---
 
-## 📞 Points de Contact pour le Débogage
+## [PHONE] Points de Contact pour le Débogage
 
 Si après test le problème persiste, fournir :
 

@@ -1,21 +1,23 @@
+import 'package:flutter/material.dart';
+
 /// Types de contenu reconnus dans un QR code.
 enum QrContentType {
-  url('URL', '🌐'),
-  text('Texte', '📄'),
-  phone('Numéro de téléphone', '📞'),
-  email('Adresse e-mail', '✉️'),
-  sms('SMS', '💬'),
-  vcard('Contact', '👤'),
-  wifi('Réseau Wi-Fi', '📶'),
-  geo('Géolocalisation', '📍'),
-  calendar('Événement', '📅'),
-  app('Application', '📱'),
-  unknown('Contenu inconnu', '❓');
+  url('URL', Icons.public),
+  text('Texte', Icons.description_outlined),
+  phone('Numéro de téléphone', Icons.phone_outlined),
+  email('Adresse e-mail', Icons.mail_outline),
+  sms('SMS', Icons.sms_outlined),
+  vcard('Contact', Icons.person_outline),
+  wifi('Réseau Wi-Fi', Icons.wifi),
+  geo('Géolocalisation', Icons.place_outlined),
+  calendar('Événement', Icons.event_outlined),
+  app('Application', Icons.phone_android),
+  unknown('Contenu inconnu', Icons.help_outline);
 
-  const QrContentType(this.label, this.emoji);
+  const QrContentType(this.label, this.icon);
 
   final String label;
-  final String emoji;
+  final IconData icon;
 }
 
 /// Contenu analysé d'un QR code.

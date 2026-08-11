@@ -69,7 +69,7 @@ flutter pub get
 flutter run
 ```
 
-> ℹ️ Si `flutter create .` signale que des fichiers existent, c'est normal :
+> ℹ Si `flutter create .` signale que des fichiers existent, c'est normal :
 > il ajoute uniquement les fichiers manquants.
 
 ## Compilation de l'APK

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Icon } from '../components/icons';
 import Viewfinder from '../components/Viewfinder';
 import { analyze } from '../lib/analyzer';
 import { decodeVideoFrame } from '../lib/decode';
@@ -108,15 +109,17 @@ export default function Scan() {
         />
 
         {state === 'running' && (
-          <p className="absolute bottom-4 left-0 right-0 text-center font-mono text-xs uppercase tracking-widest text-laser-400">
-            ◉ recherche d’un QR code…
+          <p className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-1.5 font-mono text-xs uppercase tracking-widest text-laser-400">
+            <Icon name="search" className="size-3.5" />
+            recherche d’un QR code…
           </p>
         )}
 
         {state === 'idle' && (
           <div className="absolute inset-0 grid place-items-center">
-            <button onClick={() => void start()} className="btn btn-primary">
-              ◉ Démarrer la caméra
+            <button onClick={() => void start()} className="btn btn-primary inline-flex items-center gap-2">
+              <Icon name="camera" className="size-4" />
+              Démarrer la caméra
             </button>
           </div>
         )}
@@ -143,13 +146,15 @@ export default function Scan() {
       )}
 
       {state === 'running' && (
-        <button onClick={stop} className="btn btn-ghost w-full">
-          ■ Arrêter la caméra
+        <button onClick={stop} className="btn btn-ghost w-full inline-flex items-center justify-center gap-2">
+          <Icon name="stop" className="size-4" />
+          Arrêter la caméra
         </button>
       )}
 
-      <p className="text-center text-xs text-slate-400 dark:text-slate-500">
-        💡 Le flux vidéo est traité localement, image par image. Rien n’est
+      <p className="flex items-center justify-center gap-1.5 text-center text-xs text-slate-400 dark:text-slate-500">
+        <Icon name="bulb" className="size-3.5" />
+        Le flux vidéo est traité localement, image par image. Rien n’est
         envoyé sur Internet.
       </p>
     </div>

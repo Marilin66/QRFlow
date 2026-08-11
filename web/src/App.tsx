@@ -1,5 +1,6 @@
 import { NavLink, Route, Routes } from 'react-router-dom';
 import FinderMark from './components/FinderMark';
+import { Icon, type IconName } from './components/icons';
 import { useApp } from './lib/store';
 import Home from './pages/Home';
 import Scan from './pages/Scan';
@@ -9,12 +10,12 @@ import History from './pages/History';
 import Settings from './pages/Settings';
 import Help from './pages/Help';
 
-const NAV = [
-  { to: '/', label: 'Accueil', icon: '⌂', end: true },
-  { to: '/scan', label: 'Caméra', icon: '◉' },
-  { to: '/import', label: 'Capture', icon: '▣' },
-  { to: '/history', label: 'Historique', icon: '◷' },
-  { to: '/settings', label: 'Réglages', icon: '⚙' },
+const NAV: Array<{ to: string; label: string; icon: IconName; end?: boolean }> = [
+  { to: '/', label: 'Accueil', icon: 'home', end: true },
+  { to: '/scan', label: 'Caméra', icon: 'camera' },
+  { to: '/import', label: 'Capture', icon: 'image' },
+  { to: '/history', label: 'Historique', icon: 'history' },
+  { to: '/settings', label: 'Réglages', icon: 'settings' },
 ];
 
 export default function App() {
@@ -57,7 +58,7 @@ export default function App() {
             aria-label="Changer de thème"
             title="Changer de thème"
           >
-            {dark ? '☀️' : '🌙'}
+            {dark ? <Icon name="sun" className="size-5" /> : <Icon name="moon" className="size-5" />}
           </button>
         </div>
       </header>
@@ -91,7 +92,7 @@ export default function App() {
                 }`
               }
             >
-              <span className="text-base leading-none">{item.icon}</span>
+              <Icon name={item.icon} className="size-5" />
               {item.label}
             </NavLink>
           ))}

@@ -1,28 +1,28 @@
-# 🧪 Scénario de Test Complet - QRFlow Mobile
+# [TEST] Scénario de Test Complet - QRFlow Mobile
 
-## 📋 Vue d'ensemble
+## [LIST] Vue d'ensemble
 
 Ce document décrit tous les scénarios de test pour valider le fonctionnement complet de l'application QRFlow Mobile.
 
 ---
 
-## ✅ Tests Unitaires (Automatisés)
+## [OK] Tests Unitaires (Automatisés)
 
 ### Test 1 : Analyse de Contenu QR
 
 **Fichier :** `test/content_analyzer_test.dart`
 
 **Tests couverts :**
-- ✅ URLs (https, http, www, IP, extensions suspectes)
-- ✅ Texte simple
-- ✅ Numéros de téléphone (libre, tel:)
-- ✅ E-mails (simple, mailto:, MATMSG)
-- ✅ SMS (SMSTO:, sms:)
-- ✅ Wi-Fi (WPA, WPA2, ouvert)
-- ✅ Géolocalisation (geo:, GEO:)
-- ✅ Contacts (vCard, MECARD)
-- ✅ Calendrier (VEVENT)
-- ✅ Applications (market://)
+- [OK] URLs (https, http, www, IP, extensions suspectes)
+- [OK] Texte simple
+- [OK] Numéros de téléphone (libre, tel:)
+- [OK] E-mails (simple, mailto:, MATMSG)
+- [OK] SMS (SMSTO:, sms:)
+- [OK] Wi-Fi (WPA, WPA2, ouvert)
+- [OK] Géolocalisation (geo:, GEO:)
+- [OK] Contacts (vCard, MECARD)
+- [OK] Calendrier (VEVENT)
+- [OK] Applications (market://)
 
 **Commande :**
 ```bash
@@ -34,7 +34,7 @@ flutter test test/content_analyzer_test.dart
 
 ---
 
-## 📱 Tests d'Interface (Manuels)
+## [MOBILE] Tests d'Interface (Manuels)
 
 ### Test 2 : Écran d'Accueil
 
@@ -42,17 +42,17 @@ flutter test test/content_analyzer_test.dart
 1. Lancer l'application
 2. Vérifier que l'écran d'accueil s'affiche
 3. Vérifier la présence de 2 options principales :
-   - 📷 "Depuis une capture"
-   - 📱 "Scanner l'écran"
+   - [CAMERA] "Depuis une capture"
+   - [MOBILE] "Scanner l'écran"
 4. Vérifier la présence des boutons :
    - Historique
    - Paramètres
    - Aide
 
 **Résultat attendu :**
-- ✅ Interface Material 3 affichée
-- ✅ Tous les boutons visibles et cliquables
-- ✅ Navigation fluide
+- [OK] Interface Material 3 affichée
+- [OK] Tous les boutons visibles et cliquables
+- [OK] Navigation fluide
 
 ---
 
@@ -67,11 +67,11 @@ flutter test test/content_analyzer_test.dart
 4. Attendre l'analyse
 
 **Résultat attendu :**
-- ✅ Sélecteur de fichiers s'ouvre
-- ✅ Image chargée
-- ✅ QR code détecté
-- ✅ Contenu analysé et affiché
-- ✅ Navigation vers écran de résultat
+- [OK] Sélecteur de fichiers s'ouvre
+- [OK] Image chargée
+- [OK] QR code détecté
+- [OK] Contenu analysé et affiché
+- [OK] Navigation vers écran de résultat
 
 #### Test 3.2 : Image sans QR Code
 
@@ -80,8 +80,8 @@ flutter test test/content_analyzer_test.dart
 2. Attendre l'analyse
 
 **Résultat attendu :**
-- ✅ Message "Aucun QR code détecté" affiché
-- ✅ Proposition de réessayer
+- [OK] Message "Aucun QR code détecté" affiché
+- [OK] Proposition de réessayer
 
 #### Test 3.3 : Annulation de l'Import
 
@@ -90,8 +90,8 @@ flutter test test/content_analyzer_test.dart
 2. Appuyer sur retour dans le sélecteur
 
 **Résultat attendu :**
-- ✅ Retour à l'écran précédent
-- ✅ Pas de crash
+- [OK] Retour à l'écran précédent
+- [OK] Pas de crash
 
 ---
 
@@ -104,11 +104,11 @@ flutter test test/content_analyzer_test.dart
 4. Attendre la détection automatique
 
 **Résultat attendu :**
-- ✅ Demande de permission caméra
-- ✅ Aperçu caméra affiché
-- ✅ Détection automatique du QR code
-- ✅ Navigation vers écran de résultat
-- ✅ Pas de crash si permission refusée
+- [OK] Demande de permission caméra
+- [OK] Aperçu caméra affiché
+- [OK] Détection automatique du QR code
+- [OK] Navigation vers écran de résultat
+- [OK] Pas de crash si permission refusée
 
 ---
 
@@ -125,9 +125,9 @@ flutter test test/content_analyzer_test.dart
 6. Revenir dans l'app
 
 **Résultat attendu :**
-- ✅ QRFlow apparaît dans la liste des applications ⭐ (CORRIGÉ)
-- ✅ Permission accordée
-- ✅ État mis à jour dans l'app
+- [OK] QRFlow apparaît dans la liste des applications [*] (CORRIGÉ)
+- [OK] Permission accordée
+- [OK] État mis à jour dans l'app
 
 #### Test 5.2 : Activation de la Bulle
 
@@ -137,10 +137,10 @@ flutter test test/content_analyzer_test.dart
 3. Vérifier que la bulle "QR" apparaît
 
 **Résultat attendu :**
-- ✅ Bulle "QR" visible (80dp - taille d'icône) ⭐ (AMÉLIORÉ)
-- ✅ Bulle déplaçable
-- ✅ Notification "Bulle QRFlow active" affichée
-- ✅ Message d'instruction affiché
+- [OK] Bulle "QR" visible (80dp - taille d'icône) [*] (AMÉLIORÉ)
+- [OK] Bulle déplaçable
+- [OK] Notification "Bulle QRFlow active" affichée
+- [OK] Message d'instruction affiché
 
 #### Test 5.3 : Capture d'Écran avec la Bulle
 
@@ -154,13 +154,13 @@ flutter test test/content_analyzer_test.dart
 4. Attendre
 
 **Résultat attendu :**
-- ✅ Consentement MediaProjection demandé
-- ✅ Pastille système visible (Android 15+)
-- ✅ Capture effectuée
-- ✅ Retour automatique dans QRFlow ⭐ (CORRIGÉ)
-- ✅ Image analysée ⭐ (CORRIGÉ)
-- ✅ QR code détecté ⭐ (CORRIGÉ)
-- ✅ Résultat affiché ⭐ (CORRIGÉ)
+- [OK] Consentement MediaProjection demandé
+- [OK] Pastille système visible (Android 15+)
+- [OK] Capture effectuée
+- [OK] Retour automatique dans QRFlow [*] (CORRIGÉ)
+- [OK] Image analysée [*] (CORRIGÉ)
+- [OK] QR code détecté [*] (CORRIGÉ)
+- [OK] Résultat affiché [*] (CORRIGÉ)
 
 #### Test 5.4 : Désactivation de la Bulle
 
@@ -168,9 +168,9 @@ flutter test test/content_analyzer_test.dart
 1. Dans "Scanner l'écran", appuyer sur "Désactiver la bulle"
 
 **Résultat attendu :**
-- ✅ Bulle disparaît
-- ✅ Notification disparaît
-- ✅ État mis à jour
+- [OK] Bulle disparaît
+- [OK] Notification disparaît
+- [OK] État mis à jour
 
 ---
 
@@ -181,48 +181,48 @@ flutter test test/content_analyzer_test.dart
 **QR Test :** `https://www.google.com`
 
 **Résultat attendu :**
-- ✅ Type détecté : "URL"
-- ✅ Domaine affiché : "www.google.com"
-- ✅ Icône 🌐
-- ✅ Boutons : "Ouvrir le lien", "Copier", "Partager"
-- ✅ Sécurité : "Sécurisé (HTTPS)"
+- [OK] Type détecté : "URL"
+- [OK] Domaine affiché : "www.google.com"
+- [OK] Icône [WEB]
+- [OK] Boutons : "Ouvrir le lien", "Copier", "Partager"
+- [OK] Sécurité : "Sécurisé (HTTPS)"
 
 **Test d'action :**
-- Appuyer sur "Ouvrir le lien" → ✅ Confirmation puis ouverture navigateur
+- Appuyer sur "Ouvrir le lien" -> [OK] Confirmation puis ouverture navigateur
 
 #### Test 6.2 : Téléphone
 
 **QR Test :** `tel:+33612345678`
 
 **Résultat attendu :**
-- ✅ Type : "Numéro de téléphone"
-- ✅ Numéro affiché : "+33612345678"
-- ✅ Icône 📞
-- ✅ Boutons : "Appeler", "SMS", "Copier"
+- [OK] Type : "Numéro de téléphone"
+- [OK] Numéro affiché : "+33612345678"
+- [OK] Icône [PHONE]
+- [OK] Boutons : "Appeler", "SMS", "Copier"
 
 **Test d'action :**
-- Appuyer sur "Appeler" → ✅ Confirmation puis ouverture téléphone
+- Appuyer sur "Appeler" -> [OK] Confirmation puis ouverture téléphone
 
 #### Test 6.3 : E-mail
 
 **QR Test :** `mailto:contact@example.com?subject=Hello`
 
 **Résultat attendu :**
-- ✅ Type : "Adresse e-mail"
-- ✅ Adresse : "contact@example.com"
-- ✅ Sujet : "Hello"
-- ✅ Boutons : "Composer", "Copier"
+- [OK] Type : "Adresse e-mail"
+- [OK] Adresse : "contact@example.com"
+- [OK] Sujet : "Hello"
+- [OK] Boutons : "Composer", "Copier"
 
 #### Test 6.4 : Wi-Fi
 
 **QR Test :** `WIFI:T:WPA;S:MonReseau;P:MotDePasse123;;`
 
 **Résultat attendu :**
-- ✅ Type : "Réseau Wi-Fi"
-- ✅ SSID : "MonReseau"
-- ✅ Sécurité : "WPA"
-- ✅ Mot de passe affiché
-- ✅ Bouton : "Se connecter"
+- [OK] Type : "Réseau Wi-Fi"
+- [OK] SSID : "MonReseau"
+- [OK] Sécurité : "WPA"
+- [OK] Mot de passe affiché
+- [OK] Bouton : "Se connecter"
 
 #### Test 6.5 : Contact (vCard)
 
@@ -237,31 +237,31 @@ END:VCARD
 ```
 
 **Résultat attendu :**
-- ✅ Type : "Contact"
-- ✅ Nom : "Jean Dupont"
-- ✅ Téléphone : "+33612345678"
-- ✅ E-mail : "jean@example.com"
-- ✅ Bouton : "Ajouter aux contacts"
+- [OK] Type : "Contact"
+- [OK] Nom : "Jean Dupont"
+- [OK] Téléphone : "+33612345678"
+- [OK] E-mail : "jean@example.com"
+- [OK] Bouton : "Ajouter aux contacts"
 
 #### Test 6.6 : Géolocalisation
 
 **QR Test :** `geo:48.8584,2.2945`
 
 **Résultat attendu :**
-- ✅ Type : "Géolocalisation"
-- ✅ Latitude : 48.8584
-- ✅ Longitude : 2.2945
-- ✅ Bouton : "Ouvrir dans Maps"
+- [OK] Type : "Géolocalisation"
+- [OK] Latitude : 48.8584
+- [OK] Longitude : 2.2945
+- [OK] Bouton : "Ouvrir dans Maps"
 
 #### Test 6.7 : SMS
 
 **QR Test :** `SMSTO:+33612345678:Bonjour`
 
 **Résultat attendu :**
-- ✅ Type : "SMS"
-- ✅ Numéro : "+33612345678"
-- ✅ Message : "Bonjour"
-- ✅ Bouton : "Envoyer SMS"
+- [OK] Type : "SMS"
+- [OK] Numéro : "+33612345678"
+- [OK] Message : "Bonjour"
+- [OK] Bouton : "Envoyer SMS"
 
 #### Test 6.8 : Calendrier
 
@@ -276,20 +276,20 @@ END:VEVENT
 ```
 
 **Résultat attendu :**
-- ✅ Type : "Événement"
-- ✅ Titre : "Réunion"
-- ✅ Date et heure affichées
-- ✅ Lieu : "Bureau 3"
-- ✅ Bouton : "Ajouter au calendrier"
+- [OK] Type : "Événement"
+- [OK] Titre : "Réunion"
+- [OK] Date et heure affichées
+- [OK] Lieu : "Bureau 3"
+- [OK] Bouton : "Ajouter au calendrier"
 
 #### Test 6.9 : Texte Simple
 
 **QR Test :** `Ceci est un simple texte`
 
 **Résultat attendu :**
-- ✅ Type : "Texte"
-- ✅ Contenu affiché
-- ✅ Boutons : "Copier", "Partager"
+- [OK] Type : "Texte"
+- [OK] Contenu affiché
+- [OK] Boutons : "Copier", "Partager"
 
 ---
 
@@ -301,23 +301,23 @@ END:VEVENT
 3. Vérifier la liste
 
 **Résultat attendu :**
-- ✅ Tous les scans affichés
-- ✅ Date et heure pour chaque entrée
-- ✅ Type et aperçu du contenu
-- ✅ Méthode de scan indiquée (capture/écran/caméra)
-- ✅ Clic sur une entrée → Ouvre le résultat
-- ✅ Bouton de suppression individuelle
-- ✅ Recherche fonctionnelle
-- ✅ Bouton "Tout supprimer"
+- [OK] Tous les scans affichés
+- [OK] Date et heure pour chaque entrée
+- [OK] Type et aperçu du contenu
+- [OK] Méthode de scan indiquée (capture/écran/caméra)
+- [OK] Clic sur une entrée -> Ouvre le résultat
+- [OK] Bouton de suppression individuelle
+- [OK] Recherche fonctionnelle
+- [OK] Bouton "Tout supprimer"
 
 **Test de suppression :**
 1. Appuyer sur "Tout supprimer"
 2. Confirmer
 
 **Résultat :**
-- ✅ Confirmation demandée
-- ✅ Historique vidé
-- ✅ Message "Aucun historique"
+- [OK] Confirmation demandée
+- [OK] Historique vidé
+- [OK] Message "Aucun historique"
 
 ---
 
@@ -331,16 +331,16 @@ END:VEVENT
 3. Changer le thème
 
 **Résultat attendu :**
-- ✅ Thème système (défaut)
-- ✅ Thème clair
-- ✅ Thème sombre
-- ✅ Changement immédiat
+- [OK] Thème système (défaut)
+- [OK] Thème clair
+- [OK] Thème sombre
+- [OK] Changement immédiat
 
 #### Test 8.2 : Scanner
 
 **Options disponibles :**
-- ✅ Confirmation avant action (activé par défaut)
-- ✅ Détection de plusieurs QR codes (activé par défaut)
+- [OK] Confirmation avant action (activé par défaut)
+- [OK] Détection de plusieurs QR codes (activé par défaut)
 
 #### Test 8.3 : Bulle Flottante
 
@@ -355,26 +355,26 @@ END:VEVENT
 3. Vérifier la taille
 
 **Résultat :**
-- ✅ Bulle plus grande
-- ✅ Changement immédiat
+- [OK] Bulle plus grande
+- [OK] Changement immédiat
 
 #### Test 8.4 : Historique
 
 **Options :**
-- ✅ Conserver l'historique
-- ✅ Durée de conservation (30j/90j/1an/illimité)
-- ✅ Supprimer tout
+- [OK] Conserver l'historique
+- [OK] Durée de conservation (30j/90j/1an/illimité)
+- [OK] Supprimer tout
 
 #### Test 8.5 : Sécurité
 
 **Options :**
-- ✅ Avertir pour les URL suspectes (activé par défaut)
+- [OK] Avertir pour les URL suspectes (activé par défaut)
 
 **Test :**
 1. Scanner un QR avec URL suspecte : `http://192.168.1.1/admin`
 
 **Résultat :**
-- ✅ Avertissement de sécurité affiché
+- [OK] Avertissement de sécurité affiché
 
 ---
 
@@ -385,10 +385,10 @@ END:VEVENT
 2. Lire les sections
 
 **Résultat attendu :**
-- ✅ Instructions claires
-- ✅ Exemples d'utilisation
-- ✅ FAQ
-- ✅ Contact/support
+- [OK] Instructions claires
+- [OK] Exemples d'utilisation
+- [OK] FAQ
+- [OK] Contact/support
 
 ---
 
@@ -401,9 +401,9 @@ END:VEVENT
 2. Essayer d'ouvrir le scan caméra
 
 **Résultat :**
-- ✅ Message d'erreur clair
-- ✅ Instructions pour accorder la permission
-- ✅ Pas de crash
+- [OK] Message d'erreur clair
+- [OK] Instructions pour accorder la permission
+- [OK] Pas de crash
 
 #### Test 10.2 : Permission Overlay Refusée
 
@@ -412,9 +412,9 @@ END:VEVENT
 2. Essayer d'activer la bulle
 
 **Résultat :**
-- ✅ Message d'erreur clair
-- ✅ Redirection vers paramètres
-- ✅ Pas de crash
+- [OK] Message d'erreur clair
+- [OK] Redirection vers paramètres
+- [OK] Pas de crash
 
 ---
 
@@ -425,26 +425,26 @@ END:VEVENT
 **Test :** Scanner un QR code corrompu
 
 **Résultat :**
-- ✅ Message "QR code invalide"
-- ✅ Proposition de réessayer
-- ✅ Pas de crash
+- [OK] Message "QR code invalide"
+- [OK] Proposition de réessayer
+- [OK] Pas de crash
 
 #### Test 11.2 : Image Trop Petite
 
 **Test :** Image avec QR code très petit
 
 **Résultat :**
-- ✅ Message "QR code trop petit"
-- ✅ Conseil d'utiliser une meilleure image
-- ✅ Pas de crash
+- [OK] Message "QR code trop petit"
+- [OK] Conseil d'utiliser une meilleure image
+- [OK] Pas de crash
 
 #### Test 11.3 : Pas de Connexion (Actions Réseau)
 
 **Test :** Tenter d'ouvrir une URL sans connexion
 
 **Résultat :**
-- ✅ Erreur du navigateur (comportement natif)
-- ✅ QRFlow ne crash pas
+- [OK] Erreur du navigateur (comportement natif)
+- [OK] QRFlow ne crash pas
 
 ---
 
@@ -458,9 +458,9 @@ END:VEVENT
 3. Rouvrir QRFlow
 
 **Résultat :**
-- ✅ État préservé
-- ✅ Pas de crash
-- ✅ Retour à l'écran précédent
+- [OK] État préservé
+- [OK] Pas de crash
+- [OK] Retour à l'écran précédent
 
 #### Test 12.2 : Rotation d'Écran
 
@@ -469,20 +469,20 @@ END:VEVENT
 2. Tourner en mode portrait
 
 **Résultat :**
-- ✅ Interface s'adapte
-- ✅ Pas de perte de données
-- ✅ Pas de crash
+- [OK] Interface s'adapte
+- [OK] Pas de perte de données
+- [OK] Pas de crash
 
 ---
 
-## 🎯 Checklist Finale de Validation
+## [TARGET] Checklist Finale de Validation
 
 ### Fonctionnalités Principales
 - [ ] Import de capture d'écran
 - [ ] Scan caméra en direct
-- [ ] Bulle flottante (permission) ⭐
-- [ ] Capture MediaProjection ⭐
-- [ ] Détection QR code ⭐
+- [ ] Bulle flottante (permission) [*]
+- [ ] Capture MediaProjection [*]
+- [ ] Détection QR code [*]
 - [ ] Analyse intelligente du contenu
 - [ ] Actions par type de contenu
 - [ ] Historique SQLite
@@ -531,7 +531,7 @@ END:VEVENT
 
 ---
 
-## 📊 Résultats Attendus
+## [CHART] Résultats Attendus
 
 ### Tests Unitaires
 ```bash
@@ -541,24 +541,24 @@ flutter test
 
 **Résultat attendu :**
 ```
-✓ Tous les tests passent
-✓ 31+ tests
-✓ Couverture > 80% pour core/services
+[OK] Tous les tests passent
+[OK] 31+ tests
+[OK] Couverture > 80% pour core/services
 ```
 
 ### Tests d'Intégration
 
 **Résultat attendu :**
 ```
-✅ 12/12 scénarios principaux validés
-✅ 40+ tests d'interface réussis
-✅ 0 crash détecté
-✅ Toutes les fonctionnalités opérationnelles
+[OK] 12/12 scénarios principaux validés
+[OK] 40+ tests d'interface réussis
+[OK] 0 crash détecté
+[OK] Toutes les fonctionnalités opérationnelles
 ```
 
 ---
 
-## 🚀 Commande de Test Complète
+## [=>] Commande de Test Complète
 
 ```bash
 # 1. Tests unitaires
@@ -577,20 +577,20 @@ adb logcat -s ScreenCaptureService:D ScreenCaptureChannel:D flutter:I
 
 ---
 
-## ✅ Déclaration de Fonctionnalité
+## [OK] Déclaration de Fonctionnalité
 
 **Après avoir suivi tous les scénarios de test ci-dessus, si aucun échec n'est rencontré :**
 
-> ✅ **L'APPLICATION QRFLOW MOBILE EST FONCTIONNELLE**
+> [OK] **L'APPLICATION QRFLOW MOBILE EST FONCTIONNELLE**
 > 
-> - ✅ Toutes les fonctionnalités principales opérationnelles
-> - ✅ Bulle flottante fonctionnelle avec permission corrigée
-> - ✅ Capture et analyse d'écran opérationnelles
-> - ✅ Détection intelligente de tous les types de QR codes
-> - ✅ Interface utilisateur complète et polie
-> - ✅ Aucun crash détecté
-> - ✅ Sécurité respectée
-> - ✅ Prête pour utilisation
+> - [OK] Toutes les fonctionnalités principales opérationnelles
+> - [OK] Bulle flottante fonctionnelle avec permission corrigée
+> - [OK] Capture et analyse d'écran opérationnelles
+> - [OK] Détection intelligente de tous les types de QR codes
+> - [OK] Interface utilisateur complète et polie
+> - [OK] Aucun crash détecté
+> - [OK] Sécurité respectée
+> - [OK] Prête pour utilisation
 
 **Date de validation :** [À compléter après tests]  
 **Version testée :** 0.1.0+1  
@@ -599,4 +599,4 @@ adb logcat -s ScreenCaptureService:D ScreenCaptureChannel:D flutter:I
 
 ---
 
-**Note :** Les éléments marqués ⭐ ont été spécifiquement corrigés dans les derniers commits.
+**Note :** Les éléments marqués [*] ont été spécifiquement corrigés dans les derniers commits.

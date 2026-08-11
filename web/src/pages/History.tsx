@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Icon } from '../components/icons';
 import { formatDateTime } from '../lib/actions';
 import { analyze } from '../lib/analyzer';
 import { clearHistory, deleteHistory, loadHistory } from '../lib/history';
@@ -64,8 +65,8 @@ export default function History() {
 
       {filtered.length === 0 ? (
         <div className="py-16 text-center">
-          <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-electric-500/10 text-3xl">
-            ◷
+          <div className="mx-auto grid size-16 place-items-center rounded-2xl bg-electric-500/10 text-electric-500">
+            <Icon name="history" className="size-7" />
           </div>
           <p className="mt-3 text-slate-500 dark:text-slate-400">
             {query
@@ -76,7 +77,7 @@ export default function History() {
       ) : (
         <ul className="space-y-2">
           {filtered.map((entry) => {
-            const emoji = TYPE_META[entry.type as keyof typeof TYPE_META]?.emoji ?? '❓';
+            const icon = TYPE_META[entry.type as keyof typeof TYPE_META]?.icon ?? 'question';
             return (
               <li
                 key={entry.id}
@@ -86,8 +87,8 @@ export default function History() {
                   onClick={() => openEntry(entry.raw, entry.method)}
                   className="flex min-w-0 flex-1 items-center gap-3 text-left"
                 >
-                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-electric-500/10 text-xl">
-                    {emoji}
+                  <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-electric-500/10 text-electric-500">
+                    <Icon name={icon} className="size-5" />
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold">
@@ -105,7 +106,7 @@ export default function History() {
                   aria-label="Supprimer"
                   title="Supprimer"
                 >
-                  🗑️
+                  <Icon name="trash" className="size-4" />
                 </button>
               </li>
             );

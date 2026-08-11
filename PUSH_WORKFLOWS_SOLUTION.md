@@ -327,9 +327,9 @@ Après avoir créé les workflows sur GitHub :
 4. [OK] Plus besoin de compiler localement !
 
 **Pour télécharger un APK :**
-1. GitHub.com → QRFlow → Actions
-2. "Build Android APK" → Dernière exécution
-3. Artifacts → "qrflow-release-apk"
+1. GitHub.com -> QRFlow -> Actions
+2. "Build Android APK" -> Dernière exécution
+3. Artifacts -> "qrflow-release-apk"
 4. Télécharger et installer sur Android
 
 ---

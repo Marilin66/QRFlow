@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Icon } from '../components/icons';
 import { openUrl, copyText, shareText } from '../lib/actions';
 import { addHistory, updateActionHistory } from '../lib/history';
 import { useApp } from '../lib/store';
@@ -48,7 +49,7 @@ export default function Result() {
         label: 'Ouvrir le lien',
         primary: true,
         confirmMessage: r.url.suspicious
-          ? `${r.url.url}\n\n⚠️ ${r.url.reasons.join('\n• ')}`
+          ? `${r.url.url}\n\nAvertissement : ${r.url.reasons.join('\n• ')}`
           : r.url.url,
         run: () => openUrl(r.url!.url, 'Ouvrir ce lien ?'),
       });
@@ -238,7 +239,9 @@ export default function Result() {
   if (!lastResult) {
     return (
       <div className="page-enter space-y-4 py-16 text-center">
-        <div className="text-5xl">🔍</div>
+        <div className="grid place-items-center">
+          <Icon name="search" className="size-12 text-slate-300 dark:text-slate-600" />
+        </div>
         <p className="text-slate-500 dark:text-slate-400">
           Aucun résultat à afficher. Lancez d’abord un scan.
         </p>
@@ -269,7 +272,10 @@ export default function Result() {
 
       {r.type === 'url' && r.url?.suspicious && (
         <div className="rounded-2xl border border-safety-500/40 bg-safety-500/10 p-4 text-sm text-safety-500 dark:border-safety-500/25">
-          <p className="font-bold">⚠️ Lien potentiellement dangereux</p>
+          <p className="flex items-center gap-2 font-bold">
+            <Icon name="alert" className="size-4" />
+            Lien potentiellement dangereux
+          </p>
           <ul className="mt-1 list-inside list-disc space-y-0.5">
             {r.url.reasons.map((reason, i) => (
               <li key={i}>{reason}</li>
