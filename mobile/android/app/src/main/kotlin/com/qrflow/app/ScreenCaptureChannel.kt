@@ -130,11 +130,11 @@ class ScreenCaptureChannel private constructor(
                 }
 
                 "captureScreen" -> {
-                    // Capture directe via le service d'accessibilité
-                    // (appelé quand l'app est au premier plan).
+                    // Déclenche le scan via le service d'accessibilité
+                    // (lecture directe + repli capture si nécessaire).
                     val service = QRFlowAccessibilityService.instance
                     if (service != null) {
-                        service.captureScreenNow()
+                        service.scanScreenNow()
                         result.success(true)
                     } else {
                         result.success(false)
