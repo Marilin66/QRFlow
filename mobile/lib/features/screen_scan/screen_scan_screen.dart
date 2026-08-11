@@ -128,12 +128,13 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
             _InfoCard(
               icon: Icons.security_outlined,
               color: theme.colorScheme.secondary,
-              title: 'Service d\'accessibilité',
+              title: 'Service d\'accessibilité (Lecture Directe)',
               message:
                   'QRFlow utilise le service d\'accessibilité d\'Android '
-                  'uniquement pour prendre une capture d\'écran rapidement, '
-                  'sans afficher le popup intrusif d\'enregistrement d\'écran '
-                  'à chaque fois. Aucune autre donnée n\'est lue ni collectée.',
+                  'pour analyser directement le contenu textuel et les liens à l\'écran '
+                  'SANS PRENDRE DE CAPTURE D\'ÉCRAN (aucune image enregistrée). '
+                  'Si l\'élément est une simple image, un repli silencieux est effectué. '
+                  'Aucune donnée n\'est envoyée à l\'extérieur.',
             ),
             const SizedBox(height: 16),
 

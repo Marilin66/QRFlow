@@ -185,8 +185,9 @@ class QRFlowAccessibilityService : AccessibilityService() {
         // Signaux forts : préfixes classiques de QR / URL.
         val strongPrefixes = listOf(
             "http://", "https://", "www.", "tel:", "mailto:", "wifi:", "smsto:",
-            "sms:", "geo:", "matmsg:", "mecard:", "begin:vcard", "begin:vevent",
-            "market://", "bitcoin:", "upi://",
+            "sms:", "geo:", "matmsg:", "mecard:", "begin:vcard", "vcard:", "begin:vevent",
+            "market://", "intent://", "bitcoin:", "upi://", "otpauth://", "paytm://",
+            "ethereum:", "solana:", "wa.me/", "t.me/",
         )
         if (strongPrefixes.any { lower.startsWith(it) }) return true
         // Nom de domaine plausible (ex. mon-site.com/chemin).
