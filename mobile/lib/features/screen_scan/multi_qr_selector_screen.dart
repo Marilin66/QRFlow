@@ -141,7 +141,7 @@ class _MultiQRSelectorScreenState extends State<MultiQRSelectorScreen> {
                         ),
                         ..._detectedBarcodes.map((barcode) {
                           final corners = barcode.corners;
-                          if (corners == null || corners.isEmpty) {
+                          if (corners.isEmpty) {
                             return const SizedBox();
                           }
 

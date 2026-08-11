@@ -16,20 +16,26 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        if (intent.action == ScreenCaptureChannel.ACTION_CAPTURE) {
-            val path = intent.getStringExtra(QRFlowAccessibilityService.EXTRA_PATH)
-            intent.action = null
-            // Flutter va récupérer le chemin stocké
-        }
+        handleCaptureIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        if (intent.action == ScreenCaptureChannel.ACTION_CAPTURE) {
+        handleCaptureIntent(intent)
+    }
+
+    /**
+     * Quand l'activité est relancée par la bulle flottante (action CAPTURE),
+     * on prévient Flutter : la capture est en attente dans les préférences et
+     * l'analyse peut démarrer immédiatement (même si l'app est au premier
+     * plan, ce qui ne déclencherait aucun événement de cycle de vie).
+     */
+    private fun handleCaptureIntent(intent: Intent?) {
+        if (intent?.action == ScreenCaptureChannel.ACTION_CAPTURE) {
             val path = intent.getStringExtra(QRFlowAccessibilityService.EXTRA_PATH)
             intent.action = null
-            // Flutter va récupérer le chemin stocké, on peut aussi l'envoyer via le channel si besoin
+            screenCaptureChannel.notifyCaptureReady(path)
         }
     }
 }

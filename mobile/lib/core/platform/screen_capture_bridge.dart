@@ -12,8 +12,26 @@ class ScreenCaptureBridge {
 
   static const MethodChannel _channel = MethodChannel('com.qrflow.app/screen_capture');
 
+  static VoidCallback? _onCaptureReady;
+
   static bool get _isAndroid =>
       !kIsWeb && Platform.isAndroid;
+
+  /// À appeler une seule fois au démarrage de l'application.
+  ///
+  /// Enregistre le gestionnaire des notifications natives « capture prête » :
+  /// quand la bulle flottante déclenche une capture et que l'activité Android
+  /// reçoit l'intent associé, [onCaptureReady] est invoqué pour que Flutter
+  /// récupère immédiatement la capture en attente (même sans événement de
+  /// cycle de vie).
+  static void init({required VoidCallback onCaptureReady}) {
+    _onCaptureReady = onCaptureReady;
+    _channel.setMethodCallHandler((call) async {
+      if (call.method == 'captureReady') {
+        _onCaptureReady?.call();
+      }
+    });
+  }
 
   static Future<Map<String, dynamic>> getPlatformState() async {
     if (!_isAndroid) {
@@ -91,6 +109,19 @@ class ScreenCaptureBridge {
     if (!_isAndroid) return null;
     try {
       return await _channel.invokeMethod<String>('getPendingCapture');
+    } on PlatformException {
+      return null;
+    } on MissingPluginException {
+      return null;
+    }
+  }
+
+  /// Récupère (et consomme) la dernière erreur de capture signalée par le
+  /// natif (échec de screenshot, application bloquant la capture…).
+  static Future<String?> takeCaptureError() async {
+    if (!_isAndroid) return null;
+    try {
+      return await _channel.invokeMethod<String>('getCaptureError');
     } on PlatformException {
       return null;
     } on MissingPluginException {

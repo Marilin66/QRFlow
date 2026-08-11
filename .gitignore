@@ -29,3 +29,7 @@ Nouveau document texte.txt
 
 # Secret : token GitHub (ne jamais committer !)
 token.txt
+
+build_log.txt
+job_log.txt
+*.log

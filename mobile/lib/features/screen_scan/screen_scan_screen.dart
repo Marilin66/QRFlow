@@ -1,13 +1,6 @@
-import 'dart:io' as io;
-
 import 'package:flutter/material.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
 
-import '../../core/models/history_entry.dart';
 import '../../core/platform/screen_capture_bridge.dart';
-import '../../core/services/content_analyzer.dart';
-import '../result/result_screen.dart';
-import 'multi_qr_selector_screen.dart';
 
 /// Mode 2 — « Scanner l'écran ».
 ///
@@ -22,14 +15,11 @@ class ScreenScanScreen extends StatefulWidget {
 
 class _ScreenScanScreenState extends State<ScreenScanScreen>
     with WidgetsBindingObserver {
-  static const _analyzer = ContentAnalyzer();
-
   bool _overlayGranted = false;
   bool _accessibilityGranted = false;
   bool _bubbleActive = false;
   bool _loading = true;
   bool _unsupported = false;
-  bool _checking = false;
 
   @override
   void initState() {
@@ -48,9 +38,6 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _refreshState();
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) _checkPendingCapture();
-      });
     }
   }
 
@@ -58,7 +45,9 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
     final state = await ScreenCaptureBridge.getPlatformState();
     if (!mounted) return;
     setState(() {
-      _unsupported = !(state['supported'] == true || state['isAndroid'] == true);
+      // La capture d'écran via l'accessibilité nécessite Android 11+ : sur
+      // les autres plateformes (ou Android < 11), le mode est indisponible.
+      _unsupported = state['supported'] != true;
       _overlayGranted = state['overlayPermission'] == true;
       _accessibilityGranted = state['accessibilityPermission'] == true;
       _bubbleActive = state['bubbleActive'] == true;
@@ -96,55 +85,6 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
           duration: Duration(seconds: 4),
         ),
       );
-    }
-  }
-
-  Future<void> _checkPendingCapture() async {
-    if (_checking) return;
-    _checking = true;
-    try {
-      final path = await ScreenCaptureBridge.takePendingCapture();
-      if (path == null || path.isEmpty || !mounted) {
-        _checking = false;
-        return;
-      }
-
-      final file = io.File(path);
-      if (!file.existsSync()) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Erreur : fichier de capture introuvable.'),
-            ),
-          );
-        }
-        _checking = false;
-        return;
-      }
-
-      if (!mounted) {
-        _checking = false;
-        return;
-      }
-
-      // Naviguer vers l'écran de sélection de QR codes
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => MultiQRSelectorScreen(imagePath: path),
-        ),
-      );
-
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur inattendue : $e'),
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      }
-    } finally {
-      _checking = false;
     }
   }
 

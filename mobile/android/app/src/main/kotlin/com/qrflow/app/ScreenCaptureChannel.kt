@@ -22,7 +22,11 @@ class ScreenCaptureChannel private constructor(
         const val ACTION_CAPTURE = "com.qrflow.app.CAPTURE"
         const val PREFS = "qrflow_prefs"
         const val KEY_PENDING_CAPTURE = "pending_capture_path"
+        const val KEY_LAST_CAPTURE_ERROR = "last_capture_error"
         const val KEY_BUBBLE_ACTIVE = "bubble_active"
+
+        /** Méthode envoyée côté Dart quand une capture est prête. */
+        const val METHOD_CAPTURE_READY = "captureReady"
 
         fun register(engine: FlutterEngine, activity: MainActivity): ScreenCaptureChannel {
             val channel = MethodChannel(engine.dartExecutor.binaryMessenger, CHANNEL)
@@ -97,7 +101,11 @@ class ScreenCaptureChannel private constructor(
                 }
 
                 "startBubble" -> {
-                    if (Settings.canDrawOverlays(activity) && isAccessibilityServiceEnabled(activity)) {
+                    // La capture d'écran via l'accessibilité nécessite Android 11+.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                        Settings.canDrawOverlays(activity) &&
+                        isAccessibilityServiceEnabled(activity)
+                    ) {
                         BubbleService.start(activity)
                         prefs().edit().putBoolean(KEY_BUBBLE_ACTIVE, true).apply()
                         result.success(true)
@@ -126,6 +134,14 @@ class ScreenCaptureChannel private constructor(
                     result.success(path)
                 }
 
+                "getCaptureError" -> {
+                    val error = prefs().getString(KEY_LAST_CAPTURE_ERROR, null)
+                    if (error != null) {
+                        prefs().edit().remove(KEY_LAST_CAPTURE_ERROR).apply()
+                    }
+                    result.success(error)
+                }
+
                 else -> result.notImplemented()
             }
         }
@@ -133,4 +149,12 @@ class ScreenCaptureChannel private constructor(
 
     private fun prefs(): SharedPreferences =
         activity.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+
+    /**
+     * Préviens Flutter qu'une capture vient d'être prise et est en attente.
+     * Appelé par [MainActivity] quand l'intent [ACTION_CAPTURE] est reçu.
+     */
+    fun notifyCaptureReady(path: String?) {
+        channel.invokeMethod(METHOD_CAPTURE_READY, path, null)
+    }
 }

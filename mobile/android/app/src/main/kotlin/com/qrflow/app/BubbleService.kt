@@ -7,6 +7,7 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.drawable.GradientDrawable
@@ -20,6 +21,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.core.app.NotificationCompat
 import kotlin.math.abs
@@ -42,6 +44,14 @@ class BubbleService : Service() {
         private const val CHANNEL_ID = "qrflow_bubble"
         private const val NOTIF_ID = 1
         private const val FGS_SPECIAL_USE = 0x40000000 // ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+
+        /**
+         * Préfixe utilisé par shared_preferences_android (>= 2.3) pour
+         * stocker les doubles : `putString(key, PREFIX + valeur)`.
+         * Les anciennes versions utilisaient `putFloat`. Les deux formats
+         * doivent être gérés pour ne jamais crasher la bulle.
+         */
+        private const val DOUBLE_PREFIX = "VGhpcyBpcyB0aGUgcHJlZml4IGZvciBEb3VibGUu"
 
         fun start(context: Context) {
             val intent = Intent(context, BubbleService::class.java)
@@ -95,9 +105,22 @@ class BubbleService : Service() {
     }
 
     private fun showBubble() {
+        // Un format de préférence inattendu ne doit jamais empêcher la bulle
+        // de s'afficher : tout le rendu est protégé par try/catch.
+        try {
+            doShowBubble()
+        } catch (e: Exception) {
+            Log.e("QRFlow", "Impossible d'afficher la bulle", e)
+            stopSelf()
+        }
+    }
+
+    private fun doShowBubble() {
         val prefs = getSharedPreferences("FlutterSharedPreferences", MODE_PRIVATE)
-        val size = prefs.getFloat("flutter.bubble_size", 100f).toInt().coerceIn(56, 160)
-        val opacity = prefs.getFloat("flutter.bubble_opacity", 0.90f).coerceIn(0.4f, 1f)
+        val size = readFloatSetting(prefs, "flutter.bubble_size", 100f)
+            .toInt().coerceIn(56, 160)
+        val opacity = readFloatSetting(prefs, "flutter.bubble_opacity", 0.90f)
+            .coerceIn(0.4f, 1f)
 
         val view = ImageView(this).apply {
             setImageResource(R.drawable.ic_bubble_logo)
@@ -134,7 +157,32 @@ class BubbleService : Service() {
             windowManager?.addView(view, params)
             bubbleView = view
         } catch (e: Exception) {
+            Log.e("QRFlow", "Impossible d'ajouter la vue de la bulle", e)
             stopSelf()
+        }
+    }
+
+    /**
+     * Lit une préférence numérique écrite par le plugin shared_preferences.
+     *
+     * Depuis shared_preferences_android 2.3+, les doubles sont stockés comme
+     * `String` préfixée ; avant, ils l'étaient comme `Float`. La lecture
+     * directe par `getFloat` lèverait une ClassCastException sur un appareil
+     * où la valeur a été écrite par la nouvelle version du plugin.
+     */
+    private fun readFloatSetting(
+        prefs: SharedPreferences,
+        key: String,
+        default: Float,
+    ): Float {
+        val raw = prefs.getString(key, null)
+        if (raw != null) {
+            raw.removePrefix(DOUBLE_PREFIX).toFloatOrNull()?.let { return it }
+        }
+        return try {
+            prefs.getFloat(key, default)
+        } catch (_: Exception) {
+            default
         }
     }
 
