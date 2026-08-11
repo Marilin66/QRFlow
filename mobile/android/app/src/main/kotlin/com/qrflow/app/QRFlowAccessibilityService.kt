@@ -159,9 +159,9 @@ class QRFlowAccessibilityService : AccessibilityService() {
             val node = stack.removeLast()
             allNodes.add(node)
             val text = node.text?.toString()?.trim()
-            if (isPlausibleQrText(text)) found.add(text)
+            if (text != null && isPlausibleQrText(text)) found.add(text)
             val desc = node.contentDescription?.toString()?.trim()
-            if (isPlausibleQrText(desc)) found.add(desc)
+            if (desc != null && isPlausibleQrText(desc)) found.add(desc)
             for (i in 0 until node.childCount) {
                 node.getChild(i)?.let { stack.add(it) }
             }
