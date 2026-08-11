@@ -134,8 +134,10 @@ class BubbleService : Service() {
             setOnClickListener {
                 val service = QRFlowAccessibilityService.instance
                 if (service != null) {
-                    Log.i("QRFlow", "Appui sur la bulle : capture demandée")
-                    service.captureScreenNow()
+                    Log.i("QRFlow", "Appui sur la bulle : scan demandé")
+                    // Lecture directe de l'écran d'abord (zéro capture),
+                    // capture d'écran en repli automatique.
+                    service.scanScreenNow()
                 } else {
                     Log.e("QRFlow", "Service d'accessibilité non connecté")
                     recordCaptureError(

@@ -5,6 +5,7 @@ import '../core/platform/screen_capture_bridge.dart';
 import '../core/services/history_service.dart';
 import '../features/home/home_screen.dart';
 import '../features/screen_scan/multi_qr_selector_screen.dart';
+import '../features/screen_scan/screen_text_selector_screen.dart';
 import 'app_state.dart';
 import 'theme.dart';
 
@@ -66,9 +67,24 @@ class _QRFlowAppState extends State<QRFlowApp> with WidgetsBindingObserver {
     try {
       final path = await ScreenCaptureBridge.takePendingCapture();
       if (path != null && path.isNotEmpty) {
+        // Une capture prime sur les textes lus directement : on purge
+        // d'éventuels candidats restants pour éviter un affichage tardif.
+        await ScreenCaptureBridge.takePendingTextCandidates();
         await navigator.push(
           MaterialPageRoute(
             builder: (_) => MultiQRSelectorScreen(imagePath: path),
+          ),
+        );
+        return;
+      }
+
+      // Lecture directe de l'écran (aucune capture) : les contenus textuels
+      // détectés sont proposés à l'utilisateur.
+      final candidates = await ScreenCaptureBridge.takePendingTextCandidates();
+      if (candidates.isNotEmpty) {
+        await navigator.push(
+          MaterialPageRoute(
+            builder: (_) => ScreenTextSelectorScreen(candidates: candidates),
           ),
         );
         return;

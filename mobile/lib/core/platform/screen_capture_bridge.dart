@@ -116,6 +116,20 @@ class ScreenCaptureBridge {
     }
   }
 
+  /// Récupère (et consomme) les contenus textuels détectés à l'écran par
+  /// lecture directe (arbre d'accessibilité, sans capture).
+  static Future<List<String>> takePendingTextCandidates() async {
+    if (!_isAndroid) return const [];
+    try {
+      final list = await _channel.invokeListMethod<String>('getPendingTextCandidates');
+      return list ?? const [];
+    } on PlatformException {
+      return const [];
+    } on MissingPluginException {
+      return const [];
+    }
+  }
+
   /// Récupère (et consomme) la dernière erreur de capture signalée par le
   /// natif (échec de screenshot, application bloquant la capture…).
   static Future<String?> takeCaptureError() async {

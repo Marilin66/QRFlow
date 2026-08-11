@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.text.TextUtils
+import org.json.JSONArray
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
@@ -30,6 +31,7 @@ class ScreenCaptureChannel private constructor(
         const val KEY_PENDING_CAPTURE = "pending_capture_path"
         const val KEY_LAST_CAPTURE_ERROR = "last_capture_error"
         const val KEY_BUBBLE_ACTIVE = "bubble_active"
+        const val KEY_PENDING_TEXT_CANDIDATES = "pending_text_candidates"
 
         /** Méthode envoyée côté Dart quand une capture est prête. */
         const val METHOD_CAPTURE_READY = "captureReady"
@@ -155,6 +157,23 @@ class ScreenCaptureChannel private constructor(
                     result.success(error)
                 }
 
+                "getPendingTextCandidates" -> {
+                    val json = prefs().getString(KEY_PENDING_TEXT_CANDIDATES, null)
+                    if (json != null) {
+                        prefs().edit().remove(KEY_PENDING_TEXT_CANDIDATES).apply()
+                    }
+                    val list = mutableListOf<String>()
+                    if (json != null) {
+                        try {
+                            val arr = JSONArray(json)
+                            for (i in 0 until arr.length()) list.add(arr.getString(i))
+                        } catch (_: Exception) {
+                            // Valeur corrompue : ignorée.
+                        }
+                    }
+                    result.success(list)
+                }
+
                 else -> result.notImplemented()
             }
         }
@@ -194,6 +213,26 @@ fun deliverCaptureToFlutter(context: Context, path: String) {
         action = ScreenCaptureChannel.ACTION_CAPTURE
         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
         putExtra(QRFlowAccessibilityService.EXTRA_PATH, path)
+    }
+    context.startActivity(intent)
+}
+
+/**
+ * Sauvegarde les contenus textuels lus directement à l'écran (sans capture)
+ * puis ramène l'application au premier plan pour les proposer à l'utilisateur.
+ */
+fun deliverTextCandidatesToFlutter(context: Context, texts: List<String>) {
+    val json = JSONArray().apply {
+        texts.forEach { put(it) }
+    }.toString()
+    context.getSharedPreferences(ScreenCaptureChannel.PREFS, Context.MODE_PRIVATE)
+        .edit()
+        .putString(ScreenCaptureChannel.KEY_PENDING_TEXT_CANDIDATES, json)
+        .apply()
+
+    val intent = Intent(context, MainActivity::class.java).apply {
+        action = ScreenCaptureChannel.ACTION_CAPTURE
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
     }
     context.startActivity(intent)
 }

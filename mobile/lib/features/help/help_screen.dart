@@ -23,10 +23,10 @@ class HelpScreen extends StatelessWidget {
               icon: Icons.smartphone,
               title: 'Mode 2 — Scanner l\u2019écran',
               text: 'Activez la bulle flottante, ouvrez l\u2019application où '
-                  'le QR code est affiché, puis appuyez sur la bulle. La '
-                  'capture est prise via le service d\u2019accessibilité '
-                  '(Android 11+), sans popup à chaque fois, puis le QR code '
-                  'est analysé automatiquement.',
+                  'le QR code est affiché, puis appuyez sur la bulle. Le '
+                  'contenu est lu directement à l\u2019écran quand c\u2019est '
+                  'possible (aucune capture) ; sinon une capture invisible est '
+                  'prise via le service d\u2019accessibilité (Android 11+).',
             ),
             _HelpCard(
               icon: Icons.lock_outline,

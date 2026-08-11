@@ -119,7 +119,8 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
                   '1. Accordez les permissions nécessaires.\n'
                   '2. Activez la bulle flottante.\n'
                   '3. Ouvrez l\u2019application où le QR code est affiché.\n'
-                  '4. Appuyez sur la bulle : une capture invisible est prise.\n'
+                  '4. Appuyez sur la bulle : lecture directe du contenu, ou\n'
+                  '   capture invisible si besoin.\n'
                   '5. Sélectionnez le QR code détecté à l\u2019écran.',
             ),
             const SizedBox(height: 16),

@@ -7,8 +7,10 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.util.Log
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
 import java.io.File
 import java.io.FileOutputStream
+import java.util.ArrayDeque
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicBoolean
@@ -32,6 +34,9 @@ class QRFlowAccessibilityService : AccessibilityService() {
 
         /** Délai minimum entre deux captures imposé par Android (~1 s). */
         private const val SCREENSHOT_INTERVAL_MS = 1100L
+
+        /** Domaine plausible (ex. mon-site.com/chemin). */
+        private val DOMAIN_REGEX = Regex("[a-z0-9][a-z0-9.-]*\\.[a-z]{2,}(/.*)?")
 
         /** Instance du service quand il est connecté (null sinon). */
         @Volatile
@@ -117,6 +122,82 @@ class QRFlowAccessibilityService : AccessibilityService() {
                 captureInProgress.set(false)
             }
         }
+    }
+
+    /**
+     * Point d'entrée de la bulle : tente d'abord une lecture directe de
+     * l'écran (arbre d'accessibilité, AUCUNE capture), puis bascule sur la
+     * capture d'écran si aucun contenu exploitable n'est trouvé.
+     */
+    fun scanScreenNow() {
+        // L'extraction de l'arbre d'accessibilité est exécutée hors du thread
+        // principal (grosses hiérarchies de vues possibles, ex. WebView).
+        ioExecutor.execute {
+            val texts = extractScreenTexts()
+            if (texts.isNotEmpty()) {
+                Log.i(TAG, "Lecture directe : ${texts.size} candidat(s), aucune capture")
+                deliverTextCandidatesToFlutter(this, texts)
+            } else {
+                Log.i(TAG, "Aucun texte exploitable, repli sur capture d'écran")
+                captureScreenNow()
+            }
+        }
+    }
+
+    /**
+     * Parcourt l'arbre d'accessibilité de la fenêtre active et collecte les
+     * textes / descriptions qui ressemblent à un contenu de QR code.
+     * Ne prend AUCUNE capture d'écran.
+     */
+    private fun extractScreenTexts(): List<String> {
+        val root = getRootInActiveWindow() ?: return emptyList()
+        val found = LinkedHashSet<String>()
+        val allNodes = ArrayList<AccessibilityNodeInfo>()
+        val stack = ArrayDeque<AccessibilityNodeInfo>()
+        stack.add(root)
+        while (stack.isNotEmpty()) {
+            val node = stack.removeLast()
+            allNodes.add(node)
+            val text = node.text?.toString()?.trim()
+            if (isPlausibleQrText(text)) found.add(text)
+            val desc = node.contentDescription?.toString()?.trim()
+            if (isPlausibleQrText(desc)) found.add(desc)
+            for (i in 0 until node.childCount) {
+                node.getChild(i)?.let { stack.add(it) }
+            }
+        }
+        // Recyclage dans l'ordre inverse (enfants avant parents).
+        for (i in allNodes.indices.reversed()) {
+            try {
+                allNodes[i].recycle()
+            } catch (_: Exception) {
+                // Déjà recyclé.
+            }
+        }
+        return found.take(10).toList()
+    }
+
+    /** Garde les textes qui ressemblent à un contenu de QR (évite le bruit UI). */
+    private fun isPlausibleQrText(s: String?): Boolean {
+        if (s.isNullOrBlank()) return false
+        if (s.length < 2 || s.length > 2000) return false
+        val lower = s.lowercase()
+        // Signaux forts : préfixes classiques de QR / URL.
+        val strongPrefixes = listOf(
+            "http://", "https://", "www.", "tel:", "mailto:", "wifi:", "smsto:",
+            "sms:", "geo:", "matmsg:", "mecard:", "begin:vcard", "begin:vevent",
+            "market://", "bitcoin:", "upi://",
+        )
+        if (strongPrefixes.any { lower.startsWith(it) }) return true
+        // Nom de domaine plausible (ex. mon-site.com/chemin).
+        if (s.length <= 200 && DOMAIN_REGEX.matches(lower)) {
+            return true
+        }
+        // Texte court et simple (pavage QR « texte » typique).
+        if (s.length in 2..60 && !s.contains('\n') && s.count { it.isWhitespace() } <= 8) {
+            return !s.endsWith(".")
+        }
+        return false
     }
 
     private fun handleScreenshot(result: ScreenshotResult) {
