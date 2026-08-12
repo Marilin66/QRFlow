@@ -91,9 +91,6 @@ class _MaterialAppShell extends StatelessWidget {
 
   final GlobalKey<NavigatorState> navigatorKey;
 
-class _MaterialAppShell extends StatelessWidget {
-  const _MaterialAppShell();
-
   @override
   Widget build(BuildContext context) {
     final AppState appState = context.watch<AppState>();
