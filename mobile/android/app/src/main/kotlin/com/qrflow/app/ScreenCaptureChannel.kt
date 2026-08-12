@@ -250,7 +250,16 @@ class ScreenCaptureChannel private constructor(
      * replie alors sur la livraison classique à Flutter (aucun résultat perdu).
      */
     fun analyzeForOverlay(candidates: List<String>, callback: (List<Map<String, Any?>>?) -> Unit) {
-        val timeout = Runnable { callback(null) }
+        // Garde one-shot : le premier résultat (succès, erreur ou timeout)
+        // gagne ; une réponse tardive de Dart après repli est ignorée.
+        var done = false
+        val finish: (List<Map<String, Any?>>?) -> Unit = { result ->
+            if (!done) {
+                done = true
+                callback(result)
+            }
+        }
+        val timeout = Runnable { finish(null) }
         mainHandler.post {
             mainHandler.postDelayed(timeout, OVERLAY_ANALYSIS_TIMEOUT_MS)
             channel.invokeMethod(
@@ -262,17 +271,17 @@ class ScreenCaptureChannel private constructor(
                         @Suppress("UNCHECKED_CAST")
                         val list = result as? List<Map<String, Any?>>
                             ?: emptyList<Map<String, Any?>>()
-                        callback(if (list.isEmpty()) null else list)
+                        finish(if (list.isEmpty()) null else list)
                     }
 
-                    override fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
+                    override fun error(errorCode: String, errorMessage: String?, errorDetails: Any?) {
                         mainHandler.removeCallbacks(timeout)
-                        callback(null)
+                        finish(null)
                     }
 
                     override fun notImplemented() {
                         mainHandler.removeCallbacks(timeout)
-                        callback(null)
+                        finish(null)
                     }
                 },
             )

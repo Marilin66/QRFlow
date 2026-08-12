@@ -157,6 +157,19 @@ object ResultOverlay {
             )
             list.addView(row)
         }
+        if (payloads.size > 5) {
+            list.addView(divider(ctx))
+            list.addView(
+                textView(
+                    ctx,
+                    "… et ${payloads.size - 5} autre(s) QR code(s), consultables dans QRFlow",
+                    11.5f,
+                    mutedColor(),
+                    maxLines = 1,
+                ),
+                vParams(dp(ctx, 8)),
+            )
+        }
         scroll.addView(list)
         root.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
         showWindow(root)
@@ -207,18 +220,32 @@ object ResultOverlay {
             val actionable = primary["uri"] != null ||
                 primary["copyText"] != null ||
                 primary["calendar"] != null
-            root.addView(
-                actionButton(ctx, primaryLabel, filled = true, color = COLOR_PRIMARY, enabled = actionable) {
-                    val confirmMessage = primary["confirmMessage"] as? String
-                    val confirm = readBoolSetting(prefs, "flutter.confirm_actions", true)
-                    if (confirm && !confirmMessage.isNullOrEmpty()) {
-                        showConfirm(payload, confirmMessage)
-                    } else {
-                        performPrimaryAction(payload)
-                    }
-                },
-                vParams(dp(ctx, 12)),
-            )
+            // Copie pure (texte, mot de passe Wi-Fi…) : feedback sans fermer
+            // la carte, pour rester disponible immédiatement.
+            val copyOnly = primary["copyText"] != null &&
+                primary["uri"] == null &&
+                primary["calendar"] == null
+            val primaryButton = actionButton(
+                ctx,
+                primaryLabel,
+                filled = true,
+                color = COLOR_PRIMARY,
+                enabled = actionable,
+            ) {
+                if (copyOnly) {
+                    val text = primary["copyText"] as? String ?: ""
+                    copyWithFeedback(primaryButton, primaryLabel, text)
+                    return@actionButton
+                }
+                val confirmMessage = primary["confirmMessage"] as? String
+                val confirm = readBoolSetting(prefs, "flutter.confirm_actions", true)
+                if (confirm && !confirmMessage.isNullOrEmpty()) {
+                    showConfirm(payload, confirmMessage)
+                } else {
+                    performPrimaryAction(payload)
+                }
+            }
+            root.addView(primaryButton, vParams(dp(ctx, 12)))
         }
 
         // Ligne secondaire : Copier + Voir dans QRFlow.
@@ -228,16 +255,7 @@ object ResultOverlay {
             val copyLabel = (copy["label"] as? String) ?: "Copier"
             val copyTextValue = (copy["copyText"] as? String) ?: ""
             val copyButton = actionButton(ctx, copyLabel, filled = false, color = COLOR_PRIMARY) {
-                if (copy(ctx, copyTextValue)) {
-                    copyButton.text = "Copié ✓"
-                    copyButton.setTextColor(COLOR_SUCCESS)
-                    copyButton.isEnabled = false
-                    mainHandler.postDelayed({
-                        copyButton.text = copyLabel
-                        copyButton.setTextColor(COLOR_PRIMARY)
-                        copyButton.isEnabled = true
-                    }, 1400L)
-                }
+                copyWithFeedback(copyButton, copyLabel, copyTextValue)
             }
             row.addView(copyButton, LinearLayout.LayoutParams(0, dp(ctx, 48), 1f))
         }
@@ -350,6 +368,20 @@ object ResultOverlay {
         true
     } catch (_: Exception) {
         false
+    }
+
+    /** Copie avec retour visuel « Copié ✓ » (1,4 s) sans fermer la carte. */
+    private fun copyWithFeedback(button: Button, label: String, text: String) {
+        if (copy(requireContext(), text)) {
+            button.text = "Copié ✓"
+            button.setTextColor(COLOR_SUCCESS)
+            button.isEnabled = false
+            mainHandler.postDelayed({
+                button.text = label
+                button.setTextColor(COLOR_PRIMARY)
+                button.isEnabled = true
+            }, 1400L)
+        }
     }
 
     /** Ouvre le résultat complet dans QRFlow (l'écran de résultat habituel). */

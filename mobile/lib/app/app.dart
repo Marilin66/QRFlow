@@ -117,6 +117,11 @@ class _QRFlowAppState extends State<QRFlowApp> with WidgetsBindingObserver {
         return;
       }
 
+      // Purge un éventuel flag overlay restant (carte fermée avant
+      // livraison) pour ne pas marquer le prochain scan comme déjà
+      // enregistré dans l'historique.
+      await ScreenCaptureBridge.takeFromOverlayFlag();
+
       final error = await ScreenCaptureBridge.takeCaptureError();
       if (error != null && error.isNotEmpty) {
         messenger.showSnackBar(
