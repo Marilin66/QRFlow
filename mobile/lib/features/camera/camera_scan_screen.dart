@@ -4,7 +4,6 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/app_state.dart';
-import '../../app/theme.dart';
 import '../../core/models/content_presentation.dart';
 import '../../core/models/qr_content.dart';
 import '../../core/services/content_analyzer.dart';
@@ -79,8 +78,8 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
           IgnorePointer(
             child: Container(
               color: Colors.black.withValues(alpha: 0.35),
-              child: Center(
-                child: const SizedBox(
+              child: const Center(
+                child: SizedBox(
                   width: 260,
                   height: 260,
                   child: Stack(

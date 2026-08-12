@@ -56,7 +56,7 @@ class ScreenCaptureProjectionService : Service() {
         /** Capture la dernière image de l'écran et la décode (ML Kit). */
         fun captureNow(callback: (values: List<String>, failed: Boolean) -> Unit) {
             val service = instance ?: run { callback(emptyList(), true); return }
-            val ex = service.executor ?: run { callback(emptyList(), true); return }
+            val ex = executor ?: run { callback(emptyList(), true); return }
             ex.execute { service.scanLastFrame(callback) }
         }
     }
@@ -105,17 +105,21 @@ class ScreenCaptureProjectionService : Service() {
         executor = Executors.newSingleThreadExecutor()
         createChannel()
         startForeground(NOTIFICATION_ID, buildNotification())
+    }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        super.onStartCommand(intent, flags, startId)
         val resultCode = intent?.getIntExtra("resultCode", 0) ?: 0
         @Suppress("DEPRECATION")
         val data = intent?.getParcelableExtra("data") as? Intent
         if (resultCode == 0 || data == null) {
             stopSelf()
-            return
+            return START_NOT_STICKY
         }
         val manager = getSystemService(MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         mediaProjection = manager.getMediaProjection(resultCode, data)
         setupVirtualDisplay()
+        return START_NOT_STICKY
     }
 
     private fun setupVirtualDisplay() {

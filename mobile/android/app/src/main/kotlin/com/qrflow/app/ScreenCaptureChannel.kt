@@ -70,7 +70,7 @@ object ScreenCaptureChannel {
                     override fun success(result: Any?) {
                         @Suppress("UNCHECKED_CAST")
                         val payloads = result as? List<Map<String, Any?>>
-                        if (payloads != null && payloads.isNotEmpty) {
+                        if (payloads != null && payloads.isNotEmpty()) {
                             ResultOverlay.show(context, payloads)
                         } else {
                             deliverToFlutter(values)

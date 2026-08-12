@@ -51,11 +51,12 @@ class ResultOverlay private constructor(private val context: Context) {
         (context.resources.configuration.uiMode and
             android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
             android.content.res.Configuration.UI_MODE_NIGHT_YES
-    private val bg = if (isDark) "#12131A" else "#F7F8FC"
-    private val card = if (isDark) "#1B1C26" else "#FFFFFF"
-    private val text = if (isDark) "#F2F3FA" else "#1C1D2E"
-    private val muted = if (isDark) "#9A9DB4" else "#6B6E85"
-    private val border = if (isDark) "#2A2C3C" else "#E4E6F2"
+    private val bg = hex(if (isDark) "#12131A" else "#F7F8FC")
+    private val ink = hex(if (isDark) "#F2F3FA" else "#1C1D2E")
+    private val muted = hex(if (isDark) "#9A9DB4" else "#6B6E85")
+    private val border = hex(if (isDark) "#2A2C3C" else "#E4E6F2")
+
+    private fun hex(value: String): Int = Color.parseColor(value)
 
     private fun showInternal(payloads: List<Map<String, Any?>>): ResultOverlay {
         val width = displayWidth() - dp(32)
@@ -125,7 +126,7 @@ class ResultOverlay private constructor(private val context: Context) {
                 text = label
                 textSize = 14f
                 setTypeface(null, Typeface.BOLD)
-                setTextColor(Color.parseColor(text))
+                setTextColor(ink)
             },
         )
         textCol.addView(
@@ -133,7 +134,7 @@ class ResultOverlay private constructor(private val context: Context) {
                 text = display
                 textSize = 12f
                 maxLines = 2
-                setTextColor(Color.parseColor(muted))
+                setTextColor(muted)
                 typeface = Typeface.MONOSPACE
             },
         )
@@ -174,7 +175,7 @@ class ResultOverlay private constructor(private val context: Context) {
                 text = label
                 textSize = 14f
                 setTypeface(null, Typeface.BOLD)
-                setTextColor(Color.parseColor(if (suspicious) alert else primary))
+                setTextColor(if (suspicious) alert else primary)
             },
         )
 
@@ -184,7 +185,7 @@ class ResultOverlay private constructor(private val context: Context) {
                 TextView(context).apply {
                     text = "Domaine : $domain"
                     textSize = 12f
-                    setTextColor(Color.parseColor(if (suspicious) alert else success))
+                    setTextColor(if (suspicious) alert else success)
                     setPadding(0, dp(4), 0, 0)
                 },
             )
@@ -196,7 +197,7 @@ class ResultOverlay private constructor(private val context: Context) {
                 text = display
                 textSize = 15f
                 typeface = Typeface.MONOSPACE
-                setTextColor(Color.parseColor(text))
+                setTextColor(ink)
                 setPadding(0, dp(10), 0, 0)
             },
         )
@@ -207,7 +208,7 @@ class ResultOverlay private constructor(private val context: Context) {
                 TextView(context).apply {
                     text = line
                     textSize = 12f
-                    setTextColor(Color.parseColor(muted))
+                    setTextColor(muted)
                     setPadding(0, dp(2), 0, 0)
                 },
             )
@@ -220,9 +221,8 @@ class ResultOverlay private constructor(private val context: Context) {
                     text = "⚠ Lien potentiellement dangereux : vérifiez avant d'ouvrir."
                     textSize = 12f
                     setPadding(dp(10), dp(10), dp(10), dp(10))
-                    background = rounded("#3E1F1B", dp(10), "#3E1F1B")
+                    background = rounded(hex("#3E1F1B"), dp(10), hex("#3E1F1B"))
                     setTextColor(Color.parseColor("#F5C6C2"))
-                    setPadding(0, dp(10), 0, 0)
                 },
             )
         }
@@ -247,7 +247,7 @@ class ResultOverlay private constructor(private val context: Context) {
                 text = "Fermer"
                 gravity = Gravity.CENTER
                 textSize = 13f
-                setTextColor(Color.parseColor(muted))
+                setTextColor(muted)
                 setPadding(0, dp(8), 0, dp(2))
                 setOnClickListener { dismiss() }
             },
@@ -304,7 +304,7 @@ class ResultOverlay private constructor(private val context: Context) {
             text = label
             setTextColor(primary)
             background = rounded(
-                if (isDark) "#2A2B5E" else "#E9E9FF",
+                hex(if (isDark) "#2A2B5E" else "#E9E9FF"),
                 dp(24),
                 null,
             )
@@ -415,7 +415,7 @@ class ResultOverlay private constructor(private val context: Context) {
             text = title
             textSize = 14f
             setTypeface(null, Typeface.BOLD)
-            setTextColor(Color.parseColor(text))
+            setTextColor(ink)
             setPadding(0, 0, 0, dp(4))
         }
 
@@ -431,13 +431,13 @@ class ResultOverlay private constructor(private val context: Context) {
     private fun weight(weight: Float): LinearLayout.LayoutParams =
         LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, weight)
 
-    private fun rounded(colorHex: String, radiusDp: Int, strokeHex: String?): android.graphics.drawable.GradientDrawable =
+    private fun rounded(color: Int, radiusDp: Int, stroke: Int?): android.graphics.drawable.GradientDrawable =
         android.graphics.drawable.GradientDrawable().apply {
             shape = android.graphics.drawable.GradientDrawable.RECTANGLE
             cornerRadius = dp(radiusDp).toFloat()
-            setColor(Color.parseColor(colorHex))
-            if (strokeHex != null) {
-                setStroke(dp(1), Color.parseColor(strokeHex))
+            setColor(color)
+            if (stroke != null) {
+                setStroke(dp(1), stroke)
             }
         }
 
