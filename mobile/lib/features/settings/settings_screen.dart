@@ -26,11 +26,11 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Container(
-            decoration: BoxDecoration(
-              color: scheme.surface,
+          Material(
+            color: scheme.surface,
+            shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(QrTokens.radiusCard),
-              border: Border.all(color: scheme.outlineVariant),
+              side: BorderSide(color: scheme.outlineVariant),
             ),
             child: Column(
               children: [
