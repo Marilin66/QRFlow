@@ -41,15 +41,15 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 36),
-            Center(
+            const Center(
               child: SizedBox(
                 width: 120,
                 height: 120,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    const FinderMark(size: 120, color: QrTokens.primary),
-                    const ScanLine(size: 120, color: QrTokens.primary),
+                    FinderMark(size: 120, color: QrTokens.primary),
+                    ScanLine(size: 120, color: QrTokens.primary),
                   ],
                 ),
               ),
