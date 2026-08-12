@@ -7,6 +7,7 @@ import '../../widgets/scan_line.dart';
 import '../camera/camera_scan_screen.dart';
 import '../history/history_screen.dart';
 import '../import/import_screen.dart';
+import '../screen_scan/screen_scan_screen.dart';
 import '../settings/settings_screen.dart';
 
 /// Écran d'accueil : la marque et le hub des modes.
@@ -71,11 +72,11 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            const ModeCard(
+            ModeCard(
               icon: Icons.flash_on,
               title: 'Scanner l’écran',
               description: 'Bulle flottante par-dessus les autres apps',
-              badge: 'Bientôt',
+              onTap: () => _push(context, const ScreenScanScreen()),
             ),
             const SizedBox(height: 12),
             ModeCard(

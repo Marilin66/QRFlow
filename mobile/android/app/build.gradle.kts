@@ -39,3 +39,8 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // Décodage ML Kit natif pour la capture d'écran (bulle).
+    implementation("com.google.mlkit:barcode-scanning:17.3.0")
+}

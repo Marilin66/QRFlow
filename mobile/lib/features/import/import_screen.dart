@@ -53,13 +53,13 @@ class _ImportScreenState extends State<ImportScreen> {
       final List<QrContent> contents =
           result.values.map(ContentAnalyzer.analyze).toList();
 
-      final QrContent? picked = contents.length == 1
+      final QrContent? chosen = contents.length == 1
           ? contents.first
           : await _chooseOne(contents);
-      if (picked == null || !mounted) return;
+      if (chosen == null || !mounted) return;
       // Final non-nullable : la promotion de type ne survit pas à une
       // capture dans la closure du builder ci-dessous.
-      final QrContent content = picked;
+      final QrContent content = chosen;
 
       context.read<AppState>().recordScan(
             type: typeLabel(content),
