@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
+import '../../app/app_state.dart';
 import '../../app/theme.dart';
+import '../../core/models/content_presentation.dart';
 import '../../core/models/qr_content.dart';
 import '../../core/services/content_analyzer.dart';
 import '../../core/services/qr_decoder.dart';
@@ -50,13 +53,19 @@ class _ImportScreenState extends State<ImportScreen> {
       final List<QrContent> contents =
           result.values.map(ContentAnalyzer.analyze).toList();
 
-      QrContent? content;
-      if (contents.length == 1) {
-        content = contents.first;
-      } else {
-        content = await _chooseOne(contents);
-      }
-      if (content == null || !mounted) return;
+      final QrContent? picked = contents.length == 1
+          ? contents.first
+          : await _chooseOne(contents);
+      if (picked == null || !mounted) return;
+      // Final non-nullable : la promotion de type ne survit pas à une
+      // capture dans la closure du builder ci-dessous.
+      final QrContent content = picked;
+
+      context.read<AppState>().recordScan(
+            type: typeLabel(content),
+            source: 'Import',
+            raw: content.raw,
+          );
 
       // L'écran de résultat s'ouvre : on relâche l'état « Décodage… » pour
       // que le sélecteur soit immédiatement visible au retour.
@@ -96,14 +105,15 @@ class _ImportScreenState extends State<ImportScreen> {
             ),
             for (final QrContent c in contents)
               ListTile(
-                leading: Icon(_typeIcon(c), color: theme.colorScheme.primary),
+                leading:
+                    Icon(typeIcon(c), color: theme.colorScheme.primary),
                 title: Text(
                   _preview(c.raw),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(fontFamily: QrTokens.monoFamily),
                 ),
-                subtitle: Text(_typeLabel(c)),
+                subtitle: Text(typeLabel(c)),
                 onTap: () => Navigator.pop(context, c),
               ),
           ],
@@ -131,32 +141,6 @@ class _ImportScreenState extends State<ImportScreen> {
 
   String _preview(String raw) =>
       raw.length > 64 ? '${raw.substring(0, 64)}…' : raw;
-
-  String _typeLabel(QrContent c) => switch (c) {
-        QrUrl() => 'Lien web',
-        QrText() => 'Texte',
-        QrPhone() => 'Téléphone',
-        QrEmail() => 'E-mail',
-        QrSms() => 'SMS',
-        QrWifi() => 'Wi-Fi',
-        QrGeo() => 'GPS',
-        QrVcard() => 'Contact',
-        QrCalendar() => 'Événement',
-        QrUnknown() => 'Contenu inconnu',
-      };
-
-  IconData _typeIcon(QrContent c) => switch (c) {
-        QrUrl() => Icons.link,
-        QrText() => Icons.notes,
-        QrPhone() => Icons.phone_outlined,
-        QrEmail() => Icons.mail_outline,
-        QrSms() => Icons.chat_bubble_outline,
-        QrWifi() => Icons.wifi,
-        QrGeo() => Icons.place_outlined,
-        QrVcard() => Icons.person_outline,
-        QrCalendar() => Icons.event_outlined,
-        QrUnknown() => Icons.help_outline,
-      };
 
   @override
   Widget build(BuildContext context) {

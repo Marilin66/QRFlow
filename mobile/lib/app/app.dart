@@ -13,7 +13,7 @@ class QrFlowApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AppState(),
+      create: (_) => AppState()..init(),
       child: const _MaterialAppShell(),
     );
   }

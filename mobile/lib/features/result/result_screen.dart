@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
+import '../../core/models/content_presentation.dart';
 import '../../core/models/qr_content.dart';
 import '../../core/services/action_manager.dart';
 
@@ -339,31 +340,9 @@ class ResultScreen extends StatelessWidget {
   }
 
   // ── Étiquettes / icônes / couleurs par type ──────────────────────────
-  String _typeLabel() => switch (content) {
-        QrUrl() => 'Lien web',
-        QrText() => 'Texte',
-        QrPhone() => 'Numéro de téléphone',
-        QrEmail() => 'Adresse e-mail',
-        QrSms() => 'Message SMS',
-        QrWifi() => 'Réseau Wi-Fi',
-        QrGeo() => 'Coordonnées GPS',
-        QrVcard() => 'Contact',
-        QrCalendar() => 'Événement',
-        QrUnknown() => 'Contenu inconnu',
-      };
+  String _typeLabel() => typeLabel(content);
 
-  IconData _typeIcon() => switch (content) {
-        QrUrl() => Icons.link,
-        QrText() => Icons.notes,
-        QrPhone() => Icons.phone_outlined,
-        QrEmail() => Icons.mail_outline,
-        QrSms() => Icons.chat_bubble_outline,
-        QrWifi() => Icons.wifi,
-        QrGeo() => Icons.place_outlined,
-        QrVcard() => Icons.person_outline,
-        QrCalendar() => Icons.event_outlined,
-        QrUnknown() => Icons.help_outline,
-      };
+  IconData _typeIcon() => typeIcon(content);
 
   Color _typeColor(ColorScheme scheme) => switch (content) {
         QrUrl() => scheme.primary,

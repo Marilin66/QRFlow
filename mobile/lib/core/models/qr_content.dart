@@ -54,7 +54,7 @@ class QrSms extends QrContent {
 }
 
 class QrWifi extends QrContent {
-  const QrWifi(super.raw, {required this.ssid, this.password, this.security});
+  const QrWifi(super.raw, {required this.ssid, this.password, this.security = ''});
 
   final String ssid;
   final String? password;

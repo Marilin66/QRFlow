@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:qrflow_mobile/app/app.dart';
 
@@ -13,6 +14,10 @@ Future<void> _settle(WidgetTester tester) async {
 }
 
 void main() {
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   testWidgets("La marque QRFlow s'affiche sur l'accueil",
       (WidgetTester tester) async {
     await tester.pumpWidget(const QrFlowApp());

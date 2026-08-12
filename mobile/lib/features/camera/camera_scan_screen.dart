@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:provider/provider.dart';
 
+import '../../app/app_state.dart';
 import '../../app/theme.dart';
+import '../../core/models/content_presentation.dart';
 import '../../core/models/qr_content.dart';
 import '../../core/services/content_analyzer.dart';
 import '../../widgets/finder_mark.dart';
@@ -42,6 +45,11 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
       HapticFeedback.mediumImpact();
       _controller.stop();
       final QrContent content = ContentAnalyzer.analyze(raw);
+      context.read<AppState>().recordScan(
+            type: typeLabel(content),
+            source: 'Caméra',
+            raw: content.raw,
+          );
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => ResultScreen(content: content, source: 'Caméra'),
@@ -72,15 +80,15 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
             child: Container(
               color: Colors.black.withValues(alpha: 0.35),
               child: Center(
-                child: SizedBox(
+                child: const SizedBox(
                   width: 260,
                   height: 260,
                   child: Stack(
                     alignment: Alignment.center,
                     children: [
-                      const FinderMark(
+                      FinderMark(
                           size: 260, color: Colors.white, strokeRatio: 0.06),
-                      const ScanLine(size: 260, color: Colors.white),
+                      ScanLine(size: 260, color: Colors.white),
                     ],
                   ),
                 ),
