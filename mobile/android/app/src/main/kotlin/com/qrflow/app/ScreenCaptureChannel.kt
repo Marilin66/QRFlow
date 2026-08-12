@@ -8,6 +8,8 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.text.TextUtils
 import org.json.JSONArray
@@ -33,15 +35,35 @@ class ScreenCaptureChannel private constructor(
         const val KEY_BUBBLE_ACTIVE = "bubble_active"
         const val KEY_PROJECTION_ACTIVE = "projection_active"
         const val KEY_PENDING_TEXT_CANDIDATES = "pending_text_candidates"
+        const val KEY_FROM_OVERLAY = "from_overlay"
 
         /** Méthode envoyée côté Dart quand une capture est prête. */
         const val METHOD_CAPTURE_READY = "captureReady"
 
+        /** Méthode Dart appelée pour produire le payload de la carte overlay. */
+        const val METHOD_PREPARE_OVERLAY_RESULT = "prepareOverlayResult"
+
+        /** Délai avant repli si Dart ne répond pas (moteur Flutter arrêté). */
+        private const val OVERLAY_ANALYSIS_TIMEOUT_MS = 2000L
+
+        /**
+         * Instance vivante tant que MainActivity (et son moteur Flutter)
+         * existent : c'est le test de disponibilité de Dart pour l'overlay.
+         */
+        @Volatile
+        var instance: ScreenCaptureChannel? = null
+            private set
+
         fun register(engine: FlutterEngine, activity: MainActivity): ScreenCaptureChannel {
             val channel = MethodChannel(engine.dartExecutor.binaryMessenger, CHANNEL)
-            return ScreenCaptureChannel(activity, channel).also { it.attach() }
+            return ScreenCaptureChannel(activity, channel).also {
+                instance = it
+                it.attach()
+            }
         }
     }
+
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     private fun isAccessibilityServiceEnabled(context: Context): Boolean {
         val expectedComponentName = ComponentName(context, QRFlowAccessibilityService::class.java)
@@ -195,6 +217,14 @@ class ScreenCaptureChannel private constructor(
                     result.success(list)
                 }
 
+                "getFromOverlayFlag" -> {
+                    val flag = prefs().getBoolean(KEY_FROM_OVERLAY, false)
+                    if (flag) {
+                        prefs().edit().remove(KEY_FROM_OVERLAY).apply()
+                    }
+                    result.success(flag)
+                }
+
                 else -> result.notImplemented()
             }
         }
@@ -209,6 +239,44 @@ class ScreenCaptureChannel private constructor(
      */
     fun notifyCaptureReady(path: String?) {
         channel.invokeMethod(METHOD_CAPTURE_READY, path, null)
+    }
+
+    /**
+     * Demande à Dart d'analyser les contenus décodés et de produire les
+     * payloads de la carte overlay (Mode Flash).
+     *
+     * Doit être appelé sur le thread principal. Si Dart ne répond pas dans
+     * un délai raisonnable (moteur arrêté), [callback] reçoit null : l'appelant
+     * replie alors sur la livraison classique à Flutter (aucun résultat perdu).
+     */
+    fun analyzeForOverlay(candidates: List<String>, callback: (List<Map<String, Any?>>?) -> Unit) {
+        val timeout = Runnable { callback(null) }
+        mainHandler.post {
+            mainHandler.postDelayed(timeout, OVERLAY_ANALYSIS_TIMEOUT_MS)
+            channel.invokeMethod(
+                METHOD_PREPARE_OVERLAY_RESULT,
+                candidates,
+                object : MethodChannel.Result {
+                    override fun success(result: Any?) {
+                        mainHandler.removeCallbacks(timeout)
+                        @Suppress("UNCHECKED_CAST")
+                        val list = result as? List<Map<String, Any?>>
+                            ?: emptyList<Map<String, Any?>>()
+                        callback(if (list.isEmpty()) null else list)
+                    }
+
+                    override fun error(errorCode: String?, errorMessage: String?, errorDetails: Any?) {
+                        mainHandler.removeCallbacks(timeout)
+                        callback(null)
+                    }
+
+                    override fun notImplemented() {
+                        mainHandler.removeCallbacks(timeout)
+                        callback(null)
+                    }
+                },
+            )
+        }
     }
 }
 

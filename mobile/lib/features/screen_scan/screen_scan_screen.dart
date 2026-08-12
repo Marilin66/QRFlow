@@ -126,7 +126,8 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
                   '3. Ouvrez l\u2019application où le QR code est affiché.\n'
                   '4. Appuyez sur la bulle : l\u2019écran est capturé et analysé\n'
                   '   instantanément.\n'
-                  '5. Sélectionnez le QR code détecté à l\u2019écran.',
+                  '5. Le résultat s\u2019affiche en carte flottante par-dessus votre\n'
+                  '   application : agissez ou fermez, sans jamais la quitter.',
             ),
             const SizedBox(height: 16),
 

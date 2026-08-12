@@ -24,12 +24,28 @@ class ScreenCaptureBridge {
   /// reçoit l'intent associé, [onCaptureReady] est invoqué pour que Flutter
   /// récupère immédiatement la capture en attente (même sans événement de
   /// cycle de vie).
-  static void init({required VoidCallback onCaptureReady}) {
+  ///
+  /// [onPrepareOverlayResult] est appelé par le natif pour analyser les
+  /// contenus décodés à l'écran (Mode Flash) et produire le payload de rendu
+  /// de la fenêtre de résultat overlay. Retourner une liste vide indique au
+  /// natif qu'il doit replier sur la livraison à Flutter.
+  static void init({
+    required VoidCallback onCaptureReady,
+    Future<List<Map<String, dynamic>>> Function(List<String> candidates)?
+        onPrepareOverlayResult,
+  }) {
     _onCaptureReady = onCaptureReady;
     _channel.setMethodCallHandler((call) async {
       if (call.method == 'captureReady') {
         _onCaptureReady?.call();
+      } else if (call.method == 'prepareOverlayResult') {
+        final candidates =
+            (call.arguments as List<dynamic>?)?.cast<String>() ?? const [];
+        if (onPrepareOverlayResult != null) {
+          return await onPrepareOverlayResult(candidates);
+        }
       }
+      return null;
     });
   }
 
@@ -150,6 +166,23 @@ class ScreenCaptureBridge {
       await _channel.invokeMethod('ensureNotificationPermission');
     } on PlatformException {
       // Silencieux
+    }
+  }
+
+  /// Récupère (et consomme) l'indicateur « résultat livré depuis l'overlay ».
+  ///
+  /// Quand l'utilisateur ouvre les détails depuis la fenêtre de résultat
+  /// native, l'analyse a déjà été enregistrée dans l'historique : l'écran de
+  /// résultat ne doit pas l'enregistrer une seconde fois.
+  static Future<bool> takeFromOverlayFlag() async {
+    if (!_isAndroid) return false;
+    try {
+      final flag = await _channel.invokeMethod<bool>('getFromOverlayFlag');
+      return flag ?? false;
+    } on PlatformException {
+      return false;
+    } on MissingPluginException {
+      return false;
     }
   }
 }

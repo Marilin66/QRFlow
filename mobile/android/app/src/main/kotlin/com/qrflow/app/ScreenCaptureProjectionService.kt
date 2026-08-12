@@ -355,7 +355,9 @@ fun analyzeBitmapAndDeliver(context: Context, bitmap: Bitmap) {
                 val qrValues = barcodes.mapNotNull { it.rawValue?.takeIf { v -> v.isNotBlank() } }
                 if (qrValues.isNotEmpty()) {
                     bitmap.recycle()
-                    deliverTextCandidatesToFlutter(context, qrValues)
+                    // Mode Flash : le résultat est affiché en carte flottante
+                    // AU-DESSUS de l'application en cours, sans la quitter.
+                    ResultOverlay.showForCandidates(context, qrValues)
                 } else {
                     val path = saveBitmapPng(context, bitmap)
                     bitmap.recycle()
