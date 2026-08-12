@@ -1,0 +1,59 @@
+name: qrflow_mobile
+description: "QRFlow — décodez et comprenez les QR codes déjà affichés à l'écran."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.4.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  # Scan caméra en direct
+  mobile_scanner: ^7.4.0
+  # Décodage d'image statique (import)
+  google_mlkit_barcode_scanning: ^0.13.0
+  # Import d'images depuis la galerie
+  image_picker: ^1.1.2
+  # Historique local (SQLite)
+  sqflite: ^2.4.1
+  path: ^1.9.0
+  path_provider: ^2.1.4
+  # Paramètres locaux
+  shared_preferences: ^2.3.2
+  # Actions (ouvrir lien, téléphoner, SMS, e-mail, maps…)
+  url_launcher: ^6.3.1
+  # Partage
+  share_plus: ^11.0.0
+  # Ajout au calendrier
+  add_2_calendar: ^3.1.1
+  # État de l'application
+  provider: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/fonts/
+  fonts:
+    - family: SpaceGrotesk
+      fonts:
+        - asset: assets/fonts/space-grotesk-v22-latin-500.ttf
+          weight: 500
+        - asset: assets/fonts/space-grotesk-v22-latin-700.ttf
+          weight: 700
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter-v20-latin-regular.ttf
+          weight: 400
+        - asset: assets/fonts/inter-v20-latin-500.ttf
+          weight: 500
+        - asset: assets/fonts/inter-v20-latin-600.ttf
+          weight: 600

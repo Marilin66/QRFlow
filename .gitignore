@@ -25,3 +25,14 @@ build_log.txt
 job_log.txt
 *.log
 .autocomplete.jsonl
+
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/build/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/android/local.properties
+mobile/android/.gradle/
+mobile/android/app/.cxx/
+mobile/android/app/build/
+mobile/.idea/
