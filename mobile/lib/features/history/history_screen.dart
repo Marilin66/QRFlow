@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../widgets/screen_placeholder.dart';
 
 /// Mode Historique — liste des scans passés (prochain niveau).

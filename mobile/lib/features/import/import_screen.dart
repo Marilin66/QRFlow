@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../widgets/screen_placeholder.dart';
 
 /// Mode Import — décodage d'une image importée (prochain niveau).

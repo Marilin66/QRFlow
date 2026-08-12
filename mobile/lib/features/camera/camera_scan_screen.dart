@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../widgets/screen_placeholder.dart';
 
 /// Mode Caméra — scan en direct (prochain niveau).
