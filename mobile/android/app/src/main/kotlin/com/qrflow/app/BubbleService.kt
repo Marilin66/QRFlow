@@ -132,18 +132,27 @@ class BubbleService : Service() {
             elevation = 8f
             setOnTouchListener(dragListener)
             setOnClickListener {
+                // Méthode principale : capture d'écran par MediaProjection
+                // (projection démarrée à l'activation de la bulle).
+                val projection = ScreenCaptureProjectionService.instance
+                if (projection != null) {
+                    Log.i("QRFlow", "Appui sur la bulle : capture via projection")
+                    projection.captureNow()
+                    return@setOnClickListener
+                }
+
+                // Repli : lecture directe / capture via le service
+                // d'accessibilité (si activé par l'utilisateur).
                 val service = QRFlowAccessibilityService.instance
                 if (service != null) {
-                    Log.i("QRFlow", "Appui sur la bulle : scan demandé")
-                    // Lecture directe de l'écran d'abord (zéro capture),
-                    // capture d'écran en repli automatique.
+                    Log.i("QRFlow", "Appui sur la bulle : scan via accessibilité")
                     service.scanScreenNow()
                 } else {
-                    Log.e("QRFlow", "Service d'accessibilité non connecté")
+                    Log.e("QRFlow", "Aucun service de capture actif")
                     recordCaptureError(
                         this@BubbleService,
-                        "Le service de capture n'est pas connecté. Vérifiez que QRFlow " +
-                            "est activé dans les paramètres d'accessibilité, puis réessayez."
+                        "La capture d'écran n'est pas active. Réactivez la bulle dans QRFlow " +
+                            "(autorisation de capture d'écran requise), puis réessayez."
                     )
                     launchAppForFeedback(this@BubbleService)
                 }

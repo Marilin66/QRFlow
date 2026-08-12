@@ -12,6 +12,8 @@
     <!-- Services au premier plan (bulle flottante) -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <!-- Capture d'écran par MediaProjection (Android 14+) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <!-- Visibilité des intents utilisés par les actions -->
@@ -80,6 +82,12 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="floating_qr_scanner_bubble" />
         </service>
+
+        <!-- Capture d'écran par MediaProjection (méthode principale) -->
+        <service
+            android:name=".ScreenCaptureProjectionService"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
 
         <!-- Capture d'écran via Accessibilité (Android 11+) -->
         <service

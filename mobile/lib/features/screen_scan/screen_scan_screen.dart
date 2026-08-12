@@ -18,6 +18,7 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
   bool _overlayGranted = false;
   bool _accessibilityGranted = false;
   bool _bubbleActive = false;
+  bool _projectionActive = false;
   bool _loading = true;
   bool _unsupported = false;
 
@@ -45,12 +46,13 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
     final state = await ScreenCaptureBridge.getPlatformState();
     if (!mounted) return;
     setState(() {
-      // La capture d'écran via l'accessibilité nécessite Android 11+ : sur
-      // les autres plateformes (ou Android < 11), le mode est indisponible.
+      // La capture par MediaProjection fonctionne dès Android 5 : le mode
+      // est disponible sur toutes les versions supportées.
       _unsupported = state['supported'] != true;
       _overlayGranted = state['overlayPermission'] == true;
       _accessibilityGranted = state['accessibilityPermission'] == true;
       _bubbleActive = state['bubbleActive'] == true;
+      _projectionActive = state['projectionActive'] == true;
       _loading = false;
     });
   }
@@ -58,7 +60,10 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
   Future<void> _toggleBubble() async {
     if (_bubbleActive) {
       await ScreenCaptureBridge.stopBubble();
-      setState(() => _bubbleActive = false);
+      setState(() {
+        _bubbleActive = false;
+        _projectionActive = false;
+      });
       return;
     }
 
@@ -67,10 +72,9 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
       return;
     }
 
-    if (!_accessibilityGranted) {
-      await ScreenCaptureBridge.requestAccessibilityPermission();
-      return;
-    }
+    // Android 13+ : la notification du service foreground nécessite
+    // l'autorisation POST_NOTIFICATIONS.
+    await ScreenCaptureBridge.ensureNotificationPermission();
 
     final ok = await ScreenCaptureBridge.startBubble();
     if (!mounted) return;
@@ -79,10 +83,10 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'Bulle activée. Ouvrez l\u2019application contenant le QR code, '
-            'puis appuyez sur la bulle.',
+            'Autorisation de capture d\u2019écran demandée : acceptez-la pour '
+            'activer la bulle.',
           ),
-          duration: Duration(seconds: 4),
+          duration: Duration(seconds: 5),
         ),
       );
     }
@@ -116,11 +120,12 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
               color: theme.colorScheme.primary,
               title: 'Comment ça marche',
               message:
-                  '1. Accordez les permissions nécessaires.\n'
-                  '2. Activez la bulle flottante.\n'
+                  '1. Accordez la permission « Afficher par-dessus les applications ».\n'
+                  '2. Activez la bulle : QRFlow demande une autorisation de\n'
+                  '   capture d\u2019écran (une seule fois, à l\u2019activation).\n'
                   '3. Ouvrez l\u2019application où le QR code est affiché.\n'
-                  '4. Appuyez sur la bulle : lecture directe du contenu, ou\n'
-                  '   capture invisible si besoin.\n'
+                  '4. Appuyez sur la bulle : l\u2019écran est capturé et analysé\n'
+                  '   instantanément.\n'
                   '5. Sélectionnez le QR code détecté à l\u2019écran.',
             ),
             const SizedBox(height: 16),
@@ -128,13 +133,15 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
             _InfoCard(
               icon: Icons.security_outlined,
               color: theme.colorScheme.secondary,
-              title: 'Service d\'accessibilité (Lecture Directe)',
+              title: 'Confidentialité & repli accessibilité',
               message:
-                  'QRFlow utilise le service d\'accessibilité d\'Android '
-                  'pour analyser directement le contenu textuel et les liens à l\'écran '
-                  'SANS PRENDRE DE CAPTURE D\'ÉCRAN (aucune image enregistrée). '
-                  'Si l\'élément est une simple image, un repli silencieux est effectué. '
-                  'Aucune donnée n\'est envoyée à l\'extérieur.',
+                  'Toute l\u2019analyse est locale, aucune donnée n\u2019est envoyée à '
+                  'l\u2019extérieur. Si le service d\u2019accessibilité d\u2019Android est '
+                  'activé, QRFlow peut lire directement le texte à l\u2019écran '
+                  '(sans capture). Sinon, la capture d\u2019écran par projection '
+                  'prend le relais automatiquement. Certaines applications '
+                  '(banque, DRM…) bloquent la capture : importez alors une '
+                  'capture classique.',
             ),
             const SizedBox(height: 16),
 
@@ -144,12 +151,16 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
                 granted: _overlayGranted,
               ),
               _PermissionRow(
-                label: 'Service d\'accessibilité (Capture)',
-                granted: _accessibilityGranted,
+                label: 'Capture d\u2019écran (projection)',
+                granted: _projectionActive,
               ),
               _PermissionRow(
                 label: 'Bulle flottante',
                 granted: _bubbleActive,
+              ),
+              _PermissionRow(
+                label: 'Accessibilité (optionnel, lecture directe)',
+                granted: _accessibilityGranted,
               ),
               const SizedBox(height: 20),
 
@@ -160,12 +171,6 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
                   onPressed: _toggleBubble,
                   icon: const Icon(Icons.tune),
                   label: const Text('Accorder Superposition'),
-                )
-              else if (!_accessibilityGranted)
-                FilledButton.icon(
-                  onPressed: _toggleBubble,
-                  icon: const Icon(Icons.accessibility_new),
-                  label: const Text('Accorder Accessibilité'),
                 )
               else if (!_bubbleActive)
                 FilledButton.icon(

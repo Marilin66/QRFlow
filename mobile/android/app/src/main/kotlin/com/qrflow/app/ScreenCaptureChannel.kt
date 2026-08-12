@@ -31,6 +31,7 @@ class ScreenCaptureChannel private constructor(
         const val KEY_PENDING_CAPTURE = "pending_capture_path"
         const val KEY_LAST_CAPTURE_ERROR = "last_capture_error"
         const val KEY_BUBBLE_ACTIVE = "bubble_active"
+        const val KEY_PROJECTION_ACTIVE = "projection_active"
         const val KEY_PENDING_TEXT_CANDIDATES = "pending_text_candidates"
 
         /** Méthode envoyée côté Dart quand une capture est prête. */
@@ -67,10 +68,13 @@ class ScreenCaptureChannel private constructor(
                 "getPlatformState" -> result.success(
                     mapOf(
                         "isAndroid" to true,
-                        "supported" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R),
+                        // La capture MediaProjection fonctionne dès API 21 ;
+                        // l'accessibilité (repli) reste limitée à Android 11+.
+                        "supported" to (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP),
                         "overlayPermission" to Settings.canDrawOverlays(activity),
                         "accessibilityPermission" to isAccessibilityServiceEnabled(activity),
                         "bubbleActive" to prefs().getBoolean(KEY_BUBBLE_ACTIVE, false),
+                        "projectionActive" to prefs().getBoolean(KEY_PROJECTION_ACTIVE, false),
                     )
                 )
 
@@ -109,35 +113,52 @@ class ScreenCaptureChannel private constructor(
                 }
 
                 "startBubble" -> {
-                    // La capture via l'accessibilité nécessite Android 11+,
-                    // la superposition et le service d'accessibilité activé.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
-                        Settings.canDrawOverlays(activity) &&
-                        isAccessibilityServiceEnabled(activity)
-                    ) {
-                        BubbleService.start(activity)
-                        prefs().edit().putBoolean(KEY_BUBBLE_ACTIVE, true).apply()
+                    // Nouvelle méthode : la superposition est requise, puis
+                    // le consentement MediaProjection est demandé UNE FOIS
+                    // (depuis QRFlow, au premier plan). Le service de capture
+                    // démarre à la réception du résultat (MainActivity).
+                    // L'accessibilité n'est plus requise.
+                    // On ne considère la bulle comme active que si le service
+                    // de capture tourne réellement : un flag périmé (mise à
+                    // jour depuis l'ancienne version, processus tué) doit
+                    // déclencher à nouveau le consentement.
+                    val bubbleReallyActive = prefs().getBoolean(KEY_BUBBLE_ACTIVE, false) &&
+                        ScreenCaptureProjectionService.instance != null
+                    if (!Settings.canDrawOverlays(activity)) {
+                        result.success(false)
+                    } else if (bubbleReallyActive) {
                         result.success(true)
                     } else {
-                        result.success(false)
+                        activity.launchProjectionConsent()
+                        result.success(true)
                     }
                 }
 
                 "stopBubble" -> {
                     BubbleService.stop(activity)
-                    prefs().edit().putBoolean(KEY_BUBBLE_ACTIVE, false).apply()
+                    ScreenCaptureProjectionService.stop(activity)
+                    prefs().edit()
+                        .putBoolean(KEY_BUBBLE_ACTIVE, false)
+                        .putBoolean(KEY_PROJECTION_ACTIVE, false)
+                        .apply()
                     result.success(null)
                 }
 
                 "captureScreen" -> {
-                    // Déclenche le scan via le service d'accessibilité
-                    // (lecture directe + repli capture si nécessaire).
-                    val service = QRFlowAccessibilityService.instance
-                    if (service != null) {
-                        service.scanScreenNow()
+                    // Capture via la projection MediaProjection d'abord
+                    // (fiable), repli sur le service d'accessibilité sinon.
+                    val projection = ScreenCaptureProjectionService.instance
+                    if (projection != null) {
+                        projection.captureNow()
                         result.success(true)
                     } else {
-                        result.success(false)
+                        val service = QRFlowAccessibilityService.instance
+                        if (service != null) {
+                            service.scanScreenNow()
+                            result.success(true)
+                        } else {
+                            result.success(false)
+                        }
                     }
                 }
 
