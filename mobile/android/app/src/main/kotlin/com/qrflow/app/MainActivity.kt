@@ -4,40 +4,16 @@ import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.result.contract.ActivityResultContracts
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 
 class MainActivity : FlutterActivity() {
 
-    private var screenCaptureChannel: ScreenCaptureChannel? = null
-
-    /**
-     * Résultat du consentement MediaProjection demandé à l'activation de la
-     * bulle. S'il est accordé, on démarre le service de capture par
-     * projection + la bulle flottante.
-     */
-    private val projectionLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val data = result.data
-        if (result.resultCode == RESULT_OK && data != null) {
-            Log.i("QRFlow", "Consentement MediaProjection accordé")
-            ScreenCaptureProjectionService.start(this, result.resultCode, data)
-            BubbleService.start(this)
-            getSharedPreferences(ScreenCaptureChannel.PREFS, MODE_PRIVATE)
-                .edit()
-                .putBoolean(ScreenCaptureChannel.KEY_BUBBLE_ACTIVE, true)
-                .putBoolean(ScreenCaptureChannel.KEY_PROJECTION_ACTIVE, true)
-                .apply()
-        } else {
-            Log.w("QRFlow", "Consentement MediaProjection refusé")
-            recordCaptureError(
-                this,
-                "Autorisation de capture d'écran refusée. Réactivez la bulle pour réessayer."
-            )
-        }
+    companion object {
+        private const val REQ_PROJECTION_CONSENT = 1002
     }
+
+    private var screenCaptureChannel: ScreenCaptureChannel? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -58,11 +34,34 @@ class MainActivity : FlutterActivity() {
     /**
      * Demande le consentement de capture d'écran (MediaProjection). Appelé
      * par le canal natif quand l'utilisateur active la bulle. Le résultat est
-     * traité dans [projectionLauncher].
+     * traité dans [onActivityResult].
      */
     fun launchProjectionConsent() {
         val manager = getSystemService(MediaProjectionManager::class.java)
-        projectionLauncher.launch(manager.createScreenCaptureIntent())
+        startActivityForResult(manager.createScreenCaptureIntent(), REQ_PROJECTION_CONSENT)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQ_PROJECTION_CONSENT) {
+            if (resultCode == RESULT_OK && data != null) {
+                Log.i("QRFlow", "Consentement MediaProjection accordé")
+                ScreenCaptureProjectionService.start(this, resultCode, data)
+                BubbleService.start(this)
+                getSharedPreferences(ScreenCaptureChannel.PREFS, MODE_PRIVATE)
+                    .edit()
+                    .putBoolean(ScreenCaptureChannel.KEY_BUBBLE_ACTIVE, true)
+                    .putBoolean(ScreenCaptureChannel.KEY_PROJECTION_ACTIVE, true)
+                    .apply()
+            } else {
+                Log.w("QRFlow", "Consentement MediaProjection refusé")
+                recordCaptureError(
+                    this,
+                    "Autorisation de capture d'écran refusée. Réactivez la bulle pour réessayer."
+                )
+            }
+        }
     }
 
     /**
