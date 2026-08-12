@@ -1,12 +1,3 @@
-# Flutter / Dart
-mobile/.dart_tool/
-mobile/build/
-mobile/.flutter-plugins
-mobile/.flutter-plugins-dependencies
-mobile/android/local.properties
-mobile/android/app/.cxx/
-mobile/android/.gradle/
-
 # Node / web
 web/node_modules/
 web/dist/
@@ -33,3 +24,4 @@ token.txt
 build_log.txt
 job_log.txt
 *.log
+.autocomplete.jsonl

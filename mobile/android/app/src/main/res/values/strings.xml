@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="accessibility_service_description">Service d\'accessibilité QRFlow permettant de capturer l\'écran instantanément depuis la bulle pour analyser les QR codes affichés.</string>
-</resources>
