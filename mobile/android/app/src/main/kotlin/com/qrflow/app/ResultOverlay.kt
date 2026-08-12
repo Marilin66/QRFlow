@@ -132,7 +132,7 @@ object ResultOverlay {
         val root = cardRoot(ctx)
         headerRow(root, "Plusieurs QR codes détectés") { dismiss() }
 
-        val scroll = ScrollView(ctx).apply { maxHeight = dp(ctx, 260) }
+        val scroll = ScrollView(ctx)
         val list = LinearLayout(ctx).apply { orientation = LinearLayout.VERTICAL }
         payloads.take(5).forEachIndexed { index, payload ->
             if (index > 0) list.addView(divider(ctx))
@@ -171,7 +171,13 @@ object ResultOverlay {
             )
         }
         scroll.addView(list)
-        root.addView(scroll, LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT))
+        // Hauteur bornée quand la liste est longue (petits écrans).
+        val scrollParams = if (payloads.size > 3) {
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, dp(ctx, 260))
+        } else {
+            LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        }
+        root.addView(scroll, scrollParams)
         showWindow(root)
     }
 
@@ -225,7 +231,8 @@ object ResultOverlay {
             val copyOnly = primary["copyText"] != null &&
                 primary["uri"] == null &&
                 primary["calendar"] == null
-            val primaryButton = actionButton(
+            lateinit var primaryButton: Button
+            primaryButton = actionButton(
                 ctx,
                 primaryLabel,
                 filled = true,
@@ -233,8 +240,7 @@ object ResultOverlay {
                 enabled = actionable,
             ) {
                 if (copyOnly) {
-                    val text = primary["copyText"] as? String ?: ""
-                    copyWithFeedback(primaryButton, primaryLabel, text)
+                    copyWithFeedback(primaryButton, primaryLabel, (primary["copyText"] as? String) ?: "")
                     return@actionButton
                 }
                 val confirmMessage = primary["confirmMessage"] as? String
@@ -254,7 +260,8 @@ object ResultOverlay {
         if (copy != null) {
             val copyLabel = (copy["label"] as? String) ?: "Copier"
             val copyTextValue = (copy["copyText"] as? String) ?: ""
-            val copyButton = actionButton(ctx, copyLabel, filled = false, color = COLOR_PRIMARY) {
+            lateinit var copyButton: Button
+            copyButton = actionButton(ctx, copyLabel, filled = false, color = COLOR_PRIMARY) {
                 copyWithFeedback(copyButton, copyLabel, copyTextValue)
             }
             row.addView(copyButton, LinearLayout.LayoutParams(0, dp(ctx, 48), 1f))
@@ -604,7 +611,7 @@ object ResultOverlay {
         LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT,
-        ).apply { topMargin = topMargin }
+        ).apply { this.topMargin = topMargin }
 
     private fun roundedBackground(color: Int, radius: Int): GradientDrawable =
         GradientDrawable().apply {
