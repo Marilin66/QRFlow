@@ -18,6 +18,8 @@ object ScreenCaptureChannel {
     private const val CHANNEL = "qrflow/screen_capture"
     private const val ANALYZE_METHOD = "prepareOverlayResult"
     private const val OPEN_IN_APP = "openInApp"
+    private const val START_FAILED = "startBubbleFailed"
+    private const val PROJECTION_STOPPED = "projectionStopped"
 
     private var channel: MethodChannel? = null
     private var context: Context? = null
@@ -37,6 +39,7 @@ object ScreenCaptureChannel {
             }
             "stopBubble" -> {
                 BubbleService.requestStop(context)
+                ScreenCaptureProjectionService.stop(context)
                 result.success(true)
             }
             "isBubbleActive" -> result.success(BubbleService.isActive)
@@ -93,10 +96,23 @@ object ScreenCaptureChannel {
         }
     }
 
+    /** Préviens Dart d'un échec de démarrage (message clair, pas de crash). */
+    fun notifyStartFailed(message: String) {
+        val ch = channel ?: return
+        mainHandler.post { ch.invokeMethod(START_FAILED, message) }
+    }
+
+    /** La session MediaProjection a été arrêtée par le système. */
+    fun notifyProjectionStopped() {
+        val ch = channel ?: return
+        mainHandler.post { ch.invokeMethod(PROJECTION_STOPPED, null) }
+    }
+
     /** Repli ou « Voir dans QRFlow » : ouvre QRFlow et livre le contenu. */
     fun deliverToFlutter(values: List<String>) {
         val ctx = context ?: return
         BubbleService.requestStop(ctx)
+        ScreenCaptureProjectionService.stop(ctx)
         val intent = ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)
             ?: return
         intent.addFlags(

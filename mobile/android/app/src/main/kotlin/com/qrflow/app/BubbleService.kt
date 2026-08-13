@@ -57,9 +57,16 @@ class BubbleService : Service() {
     override fun onCreate() {
         super.onCreate()
         createChannel()
-        startForeground(NOTIFICATION_ID, buildNotification())
+        startAsForeground()
         isActive = true
-        if (Settings.canDrawOverlays(this)) addBubble()
+        if (Settings.canDrawOverlays(this)) {
+            runCatching { addBubble() }.onFailure {
+                // Fenêtre refusée par le système : on s'arrête proprement
+                // plutôt que de faire planter l'application.
+                isActive = false
+                stopSelf()
+            }
+        }
     }
 
     override fun onDestroy() {
@@ -69,6 +76,21 @@ class BubbleService : Service() {
     }
 
     // ── Notification obligatoire (Android 8+) ─────────────────────────────
+
+    /** Démarre le service avant-plan avec le type explicite `specialUse`. */
+    private fun startAsForeground() {
+        val notification = buildNotification()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val type = if (Build.VERSION.SDK_INT >= 34) {
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
+            } else {
+                0 // types du manifest (aucun type explicite avant API 34)
+            }
+            startForeground(NOTIFICATION_ID, notification, type)
+        } else {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+    }
 
     private fun createChannel() {
         if (Build.VERSION.SDK_INT >= 26) {

@@ -51,10 +51,25 @@ class _ScreenScanScreenState extends State<ScreenScanScreen>
 
   Future<void> _toggle() async {
     HapticFeedback.mediumImpact();
-    if (_active) {
-      await ScreenCaptureBridge.instance.stopBubble();
-    } else {
-      await ScreenCaptureBridge.instance.startBubble();
+    try {
+      if (_active) {
+        await ScreenCaptureBridge.instance.stopBubble();
+      } else {
+        await ScreenCaptureBridge.instance.startBubble();
+      }
+    } on PlatformException {
+      // Le natif a refusé le démarrage (restrictions Android sur les
+      // services avant-plan) : message clair, pas de crash.
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'Impossible de démarrer la bulle. Réessayez depuis l’écran « Scanner l’écran ».'),
+            ),
+          );
+      }
     }
     _refresh();
   }

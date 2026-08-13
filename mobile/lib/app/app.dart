@@ -31,8 +31,27 @@ class _QrFlowAppState extends State<QrFlowApp> {
     ScreenCaptureBridge.instance.init(
       onPrepareOverlayResult: _prepareOverlayResults,
       onOpenInApp: _openInApp,
+      onStartFailed: _onStartFailed,
+      onProjectionStopped: _onProjectionStopped,
     );
   }
+
+  /// Échec de démarrage de la bulle (Android refuse le service avant-plan
+  /// hors premier plan) : message clair au lieu d'un crash.
+  void _onStartFailed(String message) {
+    final BuildContext? context = _navigatorKey.currentState?.context;
+    if (context != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
+  /// La session de capture a été arrêtée par le système (verrouillage,
+  /// chip d'état…) : la bulle a déjà été retirée côté natif ; l'écran
+  /// « Scanner l'écran » relit l'état au prochain retour au premier plan.
+  void _onProjectionStopped() {}
+
 
   /// Analyse les contenus décodés par la bulle et produit les payloads de
   /// l'overlay natif. Enregistre aussi le scan dans l'historique.

@@ -71,10 +71,32 @@ class MainActivity : FlutterActivity() {
             }
             REQ_PROJECTION -> {
                 if (resultCode == RESULT_OK && data != null) {
-                    ScreenCaptureProjectionService.start(this, resultCode, data)
-                    BubbleService.requestStart(this)
+                    startFlashServices(resultCode, data)
                 }
             }
+        }
+    }
+
+    /**
+     * Démarre les deux services avant-plan de la capture (MediaProjection)
+     * et de la bulle. Toute exception — en particulier
+     * ForegroundServiceStartNotAllowedException, lancée par Android 12+ quand
+     * un service avant-plan démarre alors que l'application n'est pas
+     * considérée comme étant au premier plan (et Android 15+, restriction
+     * renforcée pour les apps tenant SYSTEM_ALERT_WINDOW) — est interceptée
+     * et remontée à l'interface : un message clair plutôt qu'un crash
+     * « QRFlow s'arrête systématiquement ».
+     */
+    private fun startFlashServices(resultCode: Int, data: Intent) {
+        try {
+            ScreenCaptureProjectionService.start(this, resultCode, data)
+            BubbleService.requestStart(this)
+        } catch (e: Exception) {
+            ScreenCaptureChannel.notifyStartFailed(
+                "Impossible de démarrer la bulle : Android l'a refusé car " +
+                    "QRFlow n'était pas au premier plan. Réessayez depuis " +
+                    "l'écran « Scanner l'écran ».",
+            )
         }
     }
 }

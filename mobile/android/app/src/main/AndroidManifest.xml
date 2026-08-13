@@ -60,11 +60,14 @@
             </intent-filter>
         </activity>
 
-        <!-- Bulle flottante (Mode Flash) -->
+        <!-- Bulle flottante (Mode Flash) : type specialUse uniquement —
+             contrairement à la capture, la bulle n'utilise pas MediaProjection.
+             Déclarer mediaProjection ici imposerait au système des contrôles
+             supplémentaires inutiles et risqués (Android 14+). -->
         <service
             android:name=".BubbleService"
             android:exported="false"
-            android:foregroundServiceType="mediaProjection|specialUse" />
+            android:foregroundServiceType="specialUse" />
         <service
             android:name=".ScreenCaptureProjectionService"
             android:exported="false"

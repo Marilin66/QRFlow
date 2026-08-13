@@ -18,13 +18,25 @@ class ScreenCaptureBridge {
   /// « Voir dans QRFlow » dans l'overlay.
   void Function(String raw)? _onOpenInApp;
 
+  /// Échec de démarrage de la bulle (restrictions Android sur les services
+  /// avant-plan) : affiché comme message clair, jamais comme crash.
+  void Function(String message)? _onStartFailed;
+
+  /// La session de capture a été arrêtée par le système (verrouillage,
+  /// chip d'état…) : l'interface repasse à l'état inactif.
+  VoidCallback? _onProjectionStopped;
+
   void init({
     required Future<List<Map<String, dynamic>>> Function(List<String>)
         onPrepareOverlayResult,
     required void Function(String raw) onOpenInApp,
+    void Function(String message)? onStartFailed,
+    VoidCallback? onProjectionStopped,
   }) {
     _prepareOverlay = onPrepareOverlayResult;
     _onOpenInApp = onOpenInApp;
+    _onStartFailed = onStartFailed;
+    _onProjectionStopped = onProjectionStopped;
     _channel.setMethodCallHandler(_handle);
   }
 
@@ -44,6 +56,12 @@ class ScreenCaptureBridge {
       case 'openInApp':
         final String raw = call.arguments as String? ?? '';
         _onOpenInApp?.call(raw);
+        return null;
+      case 'startBubbleFailed':
+        _onStartFailed?.call(call.arguments as String? ?? '');
+        return null;
+      case 'projectionStopped':
+        _onProjectionStopped?.call();
         return null;
       default:
         return null;
