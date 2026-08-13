@@ -13,8 +13,8 @@ export default function Home() {
     <div className="page-enter space-y-8">
       {/* ── Héro : le QR comme sujet ─────────────────────────────── */}
       <section className="hero-glow relative overflow-hidden rounded-3xl border border-slate-200/70 bg-white px-6 py-12 text-center dark:border-ink-800 dark:bg-ink-900">
-        <div className="relative mx-auto grid size-24 place-items-center text-electric-500 dark:text-electric-400">
-          <FinderMark size={72} />
+        <div className="relative mx-auto grid size-24 place-items-center">
+          <img src="/logo.png" alt="QRFlow Logo" className="size-20 object-contain drop-shadow-md" />
         </div>
         <span className="scanline" />
         <h1 className="font-display mx-auto mt-6 max-w-lg text-3xl font-bold leading-tight tracking-tight sm:text-4xl">

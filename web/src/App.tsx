@@ -26,9 +26,7 @@ export default function App() {
       <header className="sticky top-0 z-20 border-b border-slate-200/70 bg-paper/80 backdrop-blur dark:border-ink-800 dark:bg-ink-950/80">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-3">
           <NavLink to="/" className="flex items-center gap-2.5">
-            <span className="grid size-10 place-items-center rounded-xl bg-ink-900 text-electric-400 shadow-lg shadow-electric-500/20 dark:bg-electric-500 dark:text-white">
-              <FinderMark size={26} />
-            </span>
+            <img src="/logo.png" alt="QRFlow Logo" className="size-10 rounded-xl object-contain shadow-md" />
             <span className="font-display text-xl font-bold tracking-tight">
               QRFlow
             </span>

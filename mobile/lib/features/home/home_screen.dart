@@ -25,7 +25,10 @@ class HomeScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                const FinderMark(size: 28, color: QrTokens.primary),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset('assets/logo.png', width: 32, height: 32, fit: BoxFit.cover),
+                ),
                 const SizedBox(width: 10),
                 Text('QRFlow', style: theme.textTheme.titleLarge),
                 const Spacer(),
@@ -41,15 +44,15 @@ class HomeScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 36),
-            const Center(
+            Center(
               child: SizedBox(
-                width: 120,
-                height: 120,
+                width: 130,
+                height: 130,
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-                    FinderMark(size: 120, color: QrTokens.primary),
-                    ScanLine(size: 120, color: QrTokens.primary),
+                    Image.asset('assets/logo.png', width: 120, height: 120, fit: BoxFit.contain),
+                    const ScanLine(size: 130, color: QrTokens.primary),
                   ],
                 ),
               ),
