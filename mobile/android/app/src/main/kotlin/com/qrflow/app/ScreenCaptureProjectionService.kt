@@ -73,6 +73,8 @@ class ScreenCaptureProjectionService : Service() {
 
     // ── Cycle de vie du service avant-plan ──────────────────────────────
 
+    override fun onBind(intent: Intent?): IBinder? = null
+
     override fun onCreate() {
         super.onCreate()
         instance = this
