@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import FinderMark from '../components/FinderMark';
 import { Icon, type IconName } from '../components/icons';
 
 const SECONDARY_LINKS: Array<{ to: string; icon: IconName; label: string }> = [

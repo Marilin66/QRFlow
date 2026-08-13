@@ -1,5 +1,4 @@
 import { NavLink, Route, Routes } from 'react-router-dom';
-import FinderMark from './components/FinderMark';
 import { Icon, type IconName } from './components/icons';
 import { useApp } from './lib/store';
 import Home from './pages/Home';
