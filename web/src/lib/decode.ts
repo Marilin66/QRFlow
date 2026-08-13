@@ -22,8 +22,8 @@ export async function decodeImageFile(file: File): Promise<string[]> {
 
     for (let i = 0; i < maxIterations; i++) {
       const imageData = ctx.getImageData(0, 0, w, h);
-      const code = jsQR(imageData.data, w, h, { inversionAttempts: 'dontInvert' });
-      if (!code || !code.data) break;
+      const code = jsQR(imageData.data, w, h, { inversionAttempts: 'dontInvert' } as any);
+      if (!code || !code.data || !code.location) break;
 
       if (!results.includes(code.data)) {
         results.push(code.data);
@@ -43,7 +43,7 @@ export async function decodeImageFile(file: File): Promise<string[]> {
     // Seconde passe (si aucun QR code standard trouvé) pour les QR inversés
     if (results.length === 0) {
       const imageData = ctx.getImageData(0, 0, w, h);
-      const code = jsQR(imageData.data, w, h, { inversionAttempts: 'onlyInvert' });
+      const code = jsQR(imageData.data, w, h, { inversionAttempts: 'onlyInvert' } as any);
       if (code && code.data && !results.includes(code.data)) {
         results.push(code.data);
       }
