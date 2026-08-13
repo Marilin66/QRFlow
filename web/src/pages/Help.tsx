@@ -49,14 +49,6 @@ const ITEMS: Array<{ icon: IconName; title: string; text: string }> = [
       + 'localement.',
   },
   {
-    icon: 'smartphone',
-    title: 'Pourquoi pas de bulle flottante sur le web ?',
-    text: 'Les navigateurs ne permettent pas d’afficher une fenêtre par-dessus '
-      + 'les autres onglets ni de capturer l’écran d’une autre application. '
-      + 'Ces fonctionnalités sont exclusivement Android : elles sont dans '
-      + 'l’application QRFlow (Flutter).',
-  },
-  {
     icon: 'wifi',
     title: 'Réseau Wi-Fi',
     text: 'Le navigateur ne peut pas rejoindre un réseau à votre place. '

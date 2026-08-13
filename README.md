@@ -8,15 +8,15 @@
 > sans utiliser un autre appareil. »**
 
 QRFlow détecte, décode et interprète intelligemment les QR codes **déjà
-affichés à l'écran** — depuis une bulle flottante (Mode Flash, Android), une
-image importée ou un scan caméra. Toutes les analyses sont **locales** :
+affichés à l'écran** — depuis une image importée (capture d'écran ou photo)
+ou un scan caméra. Toutes les analyses sont **locales** :
 aucun backend, aucune donnée envoyée sur Internet.
 
 ## L'application
 
 | Dossier | Techno | Fonctionnalités |
 |---|---|---|
-| [`mobile/`](mobile/) | Flutter + Kotlin natif | **Mode Flash** (bulle flottante, MediaProjection, overlay sans quitter l'app), Import d'image, Scan caméra, Historique SQLite, thème clair/sombre |
+| [`mobile/`](mobile/) | Flutter + Android | Import d'image, Scan caméra, Historique SQLite, thème clair/sombre |
 | [`web/`](web/) | React + Vite | Import d'image, analyse intelligente, historique local, paramètres (le web n'accède pas à l'écran d'une autre app : Mode Import uniquement) |
 
 ## Principe de sécurité
@@ -53,12 +53,12 @@ npm run dev
 
 ## Documentation technique
 
-- [`mobile/README.md`](mobile/README.md) : architecture, Mode Flash natif,
-  design system, tests, permissions.
+- [`mobile/README.md`](mobile/README.md) : architecture, design system,
+  tests, permissions.
 
 ## Historique du projet
 
 - Spec : `Nouveau document texte.txt` (cahier des charges complet).
 - Roadmap livrée niveau par niveau (CI verte à chaque étape) : socle &
   design system → identité → analyse & import → caméra → historique &
-  réglages → **Mode Flash** → déploiement.
+  réglages → déploiement.

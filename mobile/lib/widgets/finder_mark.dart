@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Les trois cornières du motif de détection QR — la signature visuelle de
-/// QRFlow. Réutilisée sur l'accueil, l'écran de résultat et la bulle flottante.
+/// QRFlow. Réutilisée sur l'accueil et l'écran de résultat.
 class FinderMark extends StatelessWidget {
   const FinderMark({
     super.key,

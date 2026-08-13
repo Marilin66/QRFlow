@@ -20,8 +20,6 @@ android {
 
     defaultConfig {
         applicationId = "com.qrflow.app"
-        // API 26 minimum : TYPE_APPLICATION_OVERLAY (bulle + fenêtre de
-        // résultat) et icône adaptative ne sont disponibles qu'à partir de là.
         minSdk = 26
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -38,9 +36,4 @@ android {
 
 flutter {
     source = "../.."
-}
-
-dependencies {
-    // Décodage ML Kit natif pour la capture d'écran (bulle).
-    implementation("com.google.mlkit:barcode-scanning:17.3.0")
 }

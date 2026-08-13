@@ -149,10 +149,7 @@ export default function Settings() {
 
       <div className="flex items-center justify-center gap-2.5 pt-2 text-xs text-slate-400 dark:text-slate-500">
         <FinderMark size={18} className="text-electric-500" />
-        <span>
-          Le mode « Scanner l’écran » (bulle flottante) vit dans l’application
-          Android.
-        </span>
+        <span>QRFlow — tout reste sur votre téléphone.</span>
       </div>
     </div>
   );

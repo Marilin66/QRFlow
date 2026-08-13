@@ -63,10 +63,9 @@ export interface QrResult {
   text?: { text: string };
 }
 
-export type ScanMethod = 'screenshot' | 'screen_scan' | 'camera';
+export type ScanMethod = 'screenshot' | 'camera';
 
 export const METHOD_LABEL: Record<ScanMethod, string> = {
   screenshot: 'Capture d’écran',
-  screen_scan: 'Scanner l’écran',
   camera: 'Caméra',
 };

@@ -16,7 +16,7 @@ class HistoryEntry {
   /// Type de contenu (étiquette : « Lien web », « Wi-Fi »…).
   final String type;
 
-  /// Origine du scan : « Import », « Caméra » ou « Écran » (Mode Flash).
+  /// Origine du scan : « Import » ou « Caméra ».
   final String source;
 
   /// Contenu brut décodé.

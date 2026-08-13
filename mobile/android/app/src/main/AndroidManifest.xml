@@ -5,13 +5,6 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
-    <!-- Mode Flash : bulle par-dessus les apps -->
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
     <!-- Visibilité des intents utilisés par les actions -->
     <queries>
         <intent>
@@ -59,19 +52,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Bulle flottante (Mode Flash) : type specialUse uniquement —
-             contrairement à la capture, la bulle n'utilise pas MediaProjection.
-             Déclarer mediaProjection ici imposerait au système des contrôles
-             supplémentaires inutiles et risqués (Android 14+). -->
-        <service
-            android:name=".BubbleService"
-            android:exported="false"
-            android:foregroundServiceType="specialUse" />
-        <service
-            android:name=".ScreenCaptureProjectionService"
-            android:exported="false"
-            android:foregroundServiceType="mediaProjection|specialUse" />
 
         <meta-data
             android:name="flutterEmbedding"

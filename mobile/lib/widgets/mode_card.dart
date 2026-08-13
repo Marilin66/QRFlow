@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../app/theme.dart';
 
-/// Carte d'un mode (Import, Caméra, Flash, Historique) sur l'accueil.
+/// Carte d'un mode (Import, Caméra, Historique) sur l'accueil.
 class ModeCard extends StatelessWidget {
   const ModeCard({
     super.key,

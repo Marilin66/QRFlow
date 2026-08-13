@@ -3,9 +3,6 @@
 Version navigateur de QRFlow : import d'une capture d'écran + scan caméra,
 analyse intelligente du contenu, historique local.
 
-> Le web ne peut pas afficher de bulle flottante ni capturer l'écran d'une
-> autre application : ces fonctions sont réservées à l'appli Android.
-
 ## Stack
 
 - **React 18 + TypeScript** (Vite)

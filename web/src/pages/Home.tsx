@@ -71,22 +71,6 @@ export default function Home() {
         </Link>
       </section>
 
-      {/* ── Note sur le mode « Scanner l'écran » ─────────────────── */}
-      <section className="card flex gap-4 border-safety-500/30 bg-safety-500/5 p-5 dark:border-safety-500/20">
-        <Icon name="smartphone" className="mt-0.5 size-6 shrink-0 text-safety-500" />
-        <div className="text-sm leading-relaxed">
-          <p className="font-semibold text-safety-500">
-            À propos du mode « Scanner l’écran »
-          </p>
-          <p className="mt-1 text-slate-500 dark:text-slate-400">
-            La bulle flottante et la capture directe de l’écran demandent des
-            autorisations Android : elles vivent dans l’application{' '}
-            <strong>QRFlow Android</strong>. Sur le web, QRFlow propose
-            l’import de capture et le scan caméra.
-          </p>
-        </div>
-      </section>
-
       {/* ── Accès secondaires ────────────────────────────────────── */}
       <section className="grid gap-3 sm:grid-cols-3">
         {SECONDARY_LINKS.map((item) => (

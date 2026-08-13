@@ -2,13 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
-import '../core/models/content_presentation.dart';
-import '../core/models/qr_content.dart';
-import '../core/platform/screen_capture_bridge.dart';
-import '../core/services/content_analyzer.dart';
-import '../core/services/overlay_payload.dart';
 import '../features/home/home_screen.dart';
-import '../features/result/result_screen.dart';
 import 'app_state.dart';
 import 'theme.dart';
 
@@ -28,72 +22,6 @@ class _QrFlowAppState extends State<QrFlowApp> {
   void initState() {
     super.initState();
     _appState.init();
-    ScreenCaptureBridge.instance.init(
-      onPrepareOverlayResult: _prepareOverlayResults,
-      onOpenInApp: _openInApp,
-      onStartFailed: _onStartFailed,
-      onProjectionStopped: _onProjectionStopped,
-    );
-  }
-
-  /// Échec de démarrage de la bulle (Android refuse le service avant-plan
-  /// hors premier plan) : message clair au lieu d'un crash.
-  void _onStartFailed(String message) {
-    final BuildContext? context = _navigatorKey.currentState?.context;
-    if (context != null) {
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(message)));
-    }
-  }
-
-  /// La session de capture a été arrêtée par le système (verrouillage,
-  /// chip d'état…) : la bulle a déjà été retirée côté natif ; l'écran
-  /// « Scanner l'écran » relit l'état au prochain retour au premier plan.
-  void _onProjectionStopped() {}
-
-
-  /// Analyse les contenus décodés par la bulle et produit les payloads de
-  /// l'overlay natif. Enregistre aussi le scan dans l'historique.
-  Future<List<Map<String, dynamic>>> _prepareOverlayResults(
-      List<String> candidates) async {
-    final List<Map<String, dynamic>> payloads = [];
-    for (final String raw in candidates) {
-      final QrContent content = ContentAnalyzer.analyze(raw);
-      await _appState.recordScan(
-        type: typeLabel(content),
-        source: 'Écran',
-        raw: content.raw,
-      );
-      payloads.add(buildOverlayPayload(content));
-    }
-    return payloads;
-  }
-
-  /// « Voir dans QRFlow » depuis l'overlay natif : ouvre l'app sur le
-  /// résultat complet. Un contenu vide (écran protégé ou sans QR) affiche
-  /// un message clair plutôt qu'un résultat vide.
-  void _openInApp(String raw) {
-    final String trimmed = raw.trim();
-    if (trimmed.isEmpty) {
-      final BuildContext? context = _navigatorKey.currentState?.context;
-      if (context != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-                'Aucun QR code détecté — écran protégé ou image illisible. '
-                'Essayez le Mode Import.'),
-          ),
-        );
-      }
-      return;
-    }
-    final QrContent content = ContentAnalyzer.analyze(trimmed);
-    _navigatorKey.currentState?.push(
-      MaterialPageRoute<void>(
-        builder: (_) => ResultScreen(content: content, source: 'Écran'),
-      ),
-    );
   }
 
   @override
