@@ -33,7 +33,9 @@ export type IconName =
   | 'alert'
   | 'chevron-right'
   | 'stop'
-  | 'video';
+  | 'video'
+  | 'close'
+  | 'menu';
 
 const HELP_PATH = (
   <>
@@ -206,6 +208,19 @@ const PATHS: Record<IconName, ReactNode> = {
   ),
   'chevron-right': <path d="m9 18 6-6-6-6" />,
   stop: <rect x="6" y="6" width="12" height="12" rx="1" fill="currentColor" stroke="none" />,
+  close: (
+    <>
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </>
+  ),
+  menu: (
+    <>
+      <line x1="4" x2="20" y1="12" y2="12" />
+      <line x1="4" x2="20" y1="6" y2="6" />
+      <line x1="4" x2="20" y1="18" y2="18" />
+    </>
+  ),
 };
 
 export function Icon({
