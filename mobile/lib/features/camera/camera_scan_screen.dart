@@ -111,8 +111,10 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
       BarcodeFormat.dataBar => 'GS1 DataBar',
       BarcodeFormat.dataBarExpanded => 'GS1 DataBar Expanded',
       BarcodeFormat.dataBarLimited => 'GS1 DataBar Limited',
+      BarcodeFormat.itf2of5WithChecksum => 'ITF',
       BarcodeFormat.all => null,
       BarcodeFormat.unknown => null,
+      _ => null,
     };
   }
 
