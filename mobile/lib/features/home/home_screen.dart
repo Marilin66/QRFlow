@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme.dart';
-import '../../widgets/finder_mark.dart';
 import '../../widgets/mode_card.dart';
 import '../../widgets/scan_line.dart';
 import '../camera/camera_scan_screen.dart';

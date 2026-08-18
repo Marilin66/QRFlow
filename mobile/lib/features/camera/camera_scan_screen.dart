@@ -104,13 +104,14 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
       BarcodeFormat.codabar => 'Codabar',
       BarcodeFormat.ean8 => 'EAN-8',
       BarcodeFormat.ean13 => 'EAN-13',
-      BarcodeFormat.itf => 'ITF',
+      BarcodeFormat.itf2of5 => 'ITF',
       BarcodeFormat.upcA => 'UPC-A',
       BarcodeFormat.upcE => 'UPC-E',
       BarcodeFormat.maxiCode => 'MaxiCode',
       BarcodeFormat.dataBar => 'GS1 DataBar',
       BarcodeFormat.dataBarExpanded => 'GS1 DataBar Expanded',
       BarcodeFormat.dataBarLimited => 'GS1 DataBar Limited',
+      BarcodeFormat.all => null,
       BarcodeFormat.unknown => null,
     };
   }

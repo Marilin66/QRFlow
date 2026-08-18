@@ -63,6 +63,7 @@ class QrDecoder {
         BarcodeFormat.itf => 'ITF',
         BarcodeFormat.upca => 'UPC-A',
         BarcodeFormat.upce => 'UPC-E',
+        BarcodeFormat.all => 'Tous formats',
         BarcodeFormat.unknown => 'Inconnu',
       };
 
