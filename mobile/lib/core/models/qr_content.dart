@@ -3,15 +3,20 @@
 /// Tous les types dérivent de [QrContent] et conservent le contenu brut
 /// décodé ([QrContent.raw]), source de vérité pour copier/partager.
 sealed class QrContent {
-  const QrContent(this.raw);
+  const QrContent(this.raw, {this.barcodeFormat});
 
   /// Contenu brut exactement tel que décodé dans le QR code.
   final String raw;
+
+  /// Format du code-barres détecté (ex: "QR Code", "Data Matrix",
+  /// "Code 128", etc.). Null si non disponible.
+  final String? barcodeFormat;
 }
 
 class QrUrl extends QrContent {
   const QrUrl(
     super.raw, {
+    super.barcodeFormat,
     required this.url,
     required this.uri,
     required this.host,
@@ -29,17 +34,17 @@ class QrUrl extends QrContent {
 }
 
 class QrText extends QrContent {
-  const QrText(super.raw);
+  const QrText(super.raw, {super.barcodeFormat});
 }
 
 class QrPhone extends QrContent {
-  const QrPhone(super.raw, {required this.number});
+  const QrPhone(super.raw, {super.barcodeFormat, required this.number});
 
   final String number;
 }
 
 class QrEmail extends QrContent {
-  const QrEmail(super.raw, {required this.address, this.subject, this.body});
+  const QrEmail(super.raw, {super.barcodeFormat, required this.address, this.subject, this.body});
 
   final String address;
   final String? subject;
@@ -47,14 +52,14 @@ class QrEmail extends QrContent {
 }
 
 class QrSms extends QrContent {
-  const QrSms(super.raw, {required this.number, this.message});
+  const QrSms(super.raw, {super.barcodeFormat, required this.number, this.message});
 
   final String number;
   final String? message;
 }
 
 class QrWifi extends QrContent {
-  const QrWifi(super.raw, {required this.ssid, this.password, this.security = ''});
+  const QrWifi(super.raw, {super.barcodeFormat, required this.ssid, this.password, this.security = ''});
 
   final String ssid;
   final String? password;
@@ -62,7 +67,7 @@ class QrWifi extends QrContent {
 }
 
 class QrGeo extends QrContent {
-  const QrGeo(super.raw, {required this.latitude, required this.longitude, this.label});
+  const QrGeo(super.raw, {super.barcodeFormat, required this.latitude, required this.longitude, this.label});
 
   final double latitude;
   final double longitude;
@@ -70,7 +75,7 @@ class QrGeo extends QrContent {
 }
 
 class QrVcard extends QrContent {
-  const QrVcard(super.raw, {this.name, this.phones = const [], this.emails = const []});
+  const QrVcard(super.raw, {super.barcodeFormat, this.name, this.phones = const [], this.emails = const []});
 
   final String? name;
   final List<String> phones;
@@ -78,7 +83,7 @@ class QrVcard extends QrContent {
 }
 
 class QrCalendar extends QrContent {
-  const QrCalendar(super.raw, {this.title, this.start, this.end, this.location});
+  const QrCalendar(super.raw, {super.barcodeFormat, this.title, this.start, this.end, this.location});
 
   final String? title;
   final DateTime? start;
@@ -88,5 +93,5 @@ class QrCalendar extends QrContent {
 
 /// Repli générique : contenu reconnu comme QR mais d'aucun type connu.
 class QrUnknown extends QrContent {
-  const QrUnknown(super.raw);
+  const QrUnknown(super.raw, {super.barcodeFormat});
 }

@@ -17,9 +17,9 @@ class ContentAnalyzer {
     'online', 'site', 'icu', 'cam', 'fun', 'vip', 'bid', 'loan',
   ];
 
-  static QrContent analyze(String raw) {
+  static QrContent analyze(String raw, {String? barcodeFormat}) {
     final String text = raw.trim();
-    if (text.isEmpty) return QrUnknown(raw);
+    if (text.isEmpty) return QrUnknown(raw, barcodeFormat: barcodeFormat);
 
     // ── URL ────────────────────────────────────────────────────────────
     final String lower = text.toLowerCase();
@@ -29,6 +29,7 @@ class ContentAnalyzer {
         final String host = uri.host.toLowerCase();
         return QrUrl(
           text,
+          barcodeFormat: barcodeFormat,
           url: text,
           uri: uri,
           host: host,
@@ -39,14 +40,14 @@ class ContentAnalyzer {
 
     // ── Téléphone ──────────────────────────────────────────────────────
     if (lower.startsWith('tel:')) {
-      return QrPhone(text, number: text.substring(4).trim());
+      return QrPhone(text, barcodeFormat: barcodeFormat, number: text.substring(4).trim());
     }
 
     // ── E-mail ─────────────────────────────────────────────────────────
     if (lower.startsWith('mailto:')) {
       final String rest = text.substring(7);
       final int q = rest.indexOf('?');
-      return QrEmail(text, address: (q >= 0 ? rest.substring(0, q) : rest).trim());
+      return QrEmail(text, barcodeFormat: barcodeFormat, address: (q >= 0 ? rest.substring(0, q) : rest).trim());
     }
 
     // ── SMS ────────────────────────────────────────────────────────────
@@ -58,7 +59,7 @@ class ContentAnalyzer {
           message = p.substring(5);
         }
       }
-      return QrSms(text, number: parts.first.trim(), message: message);
+      return QrSms(text, barcodeFormat: barcodeFormat, number: parts.first.trim(), message: message);
     }
 
     // ── Wi-Fi ──────────────────────────────────────────────────────────
@@ -80,6 +81,7 @@ class ContentAnalyzer {
       }
       return QrWifi(
         text,
+        barcodeFormat: barcodeFormat,
         ssid: ssid,
         password: password.isEmpty ? null : password,
         security: security,
@@ -97,7 +99,7 @@ class ContentAnalyzer {
           String? label;
           final int q = text.indexOf('?q=');
           if (q >= 0) label = text.substring(q + 3);
-          return QrGeo(text, latitude: lat, longitude: lng, label: label);
+          return QrGeo(text, barcodeFormat: barcodeFormat, latitude: lat, longitude: lng, label: label);
         }
       }
     }
@@ -124,7 +126,7 @@ class ContentAnalyzer {
           }
         }
       }
-      return QrVcard(text, name: name, phones: phones, emails: emails);
+      return QrVcard(text, barcodeFormat: barcodeFormat, name: name, phones: phones, emails: emails);
     }
 
     // ── Événement calendrier ───────────────────────────────────────────
@@ -144,24 +146,24 @@ class ContentAnalyzer {
           end = _parseCalDate(t.substring(6).trim());
         }
       }
-      return QrCalendar(text, title: title, start: start, end: end, location: location);
+      return QrCalendar(text, barcodeFormat: barcodeFormat, title: title, start: start, end: end, location: location);
     }
 
     // ── E-mail brut (adresse seule) ────────────────────────────────────
     final RegExp emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
     if (emailPattern.hasMatch(text)) {
-      return QrEmail(text, address: text);
+      return QrEmail(text, barcodeFormat: barcodeFormat, address: text);
     }
 
     // ── Numéro de téléphone brut ───────────────────────────────────────
     final RegExp phonePattern = RegExp(r'^\+?[0-9][0-9\s.\-()]{5,19}$');
     if (phonePattern.hasMatch(text) &&
         RegExp(r'\d').allMatches(text).length >= 6) {
-      return QrPhone(text, number: text);
+      return QrPhone(text, barcodeFormat: barcodeFormat, number: text);
     }
 
     // ── Texte libre ────────────────────────────────────────────────────
-    return QrText(text);
+    return QrText(text, barcodeFormat: barcodeFormat);
   }
 
   /// Détection d'un lien suspect : IP brute, '@' trompeur, raccourcisseur

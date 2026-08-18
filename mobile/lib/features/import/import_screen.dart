@@ -37,28 +37,32 @@ class _ImportScreenState extends State<ImportScreen> {
       if (result.failed) {
         _showInfo(
           'Image illisible',
-          'Impossible de lire cette image. Essayez-en une autre.',
+          'L\'image a été chargée mais son contenu n\'a pas pu être décodé.\n'
+          'Le fichier semble corrompu ou dans un format non supporté.',
         );
         return;
       }
       if (result.values.isEmpty) {
         _showInfo(
-          'Aucun QR code détecté',
-          'Ce QR code semble flou, trop petit ou partiellement masqué. '
-          'Essayez une image plus nette.',
+          'Aucun QR Code détecté',
+          'Le fichier est valide mais aucun code QR n\'a été trouvé.\n'
+          'Essayez avec une image où le QR code est plus net ou plus proche.',
         );
         return;
       }
 
-      final List<QrContent> contents =
-          result.values.map(ContentAnalyzer.analyze).toList();
+      final List<QrContent> contents = [
+        for (int i = 0; i < result.values.length; i++)
+          ContentAnalyzer.analyze(
+            result.values[i],
+            barcodeFormat: i < result.formats.length ? result.formats[i] : null,
+          ),
+      ];
 
       final QrContent? chosen = contents.length == 1
           ? contents.first
           : await _chooseOne(contents);
       if (chosen == null || !mounted) return;
-      // Final non-nullable : la promotion de type ne survit pas à une
-      // capture dans la closure du builder ci-dessous.
       final QrContent content = chosen;
 
       context.read<AppState>().recordScan(
@@ -67,19 +71,17 @@ class _ImportScreenState extends State<ImportScreen> {
             raw: content.raw,
           );
 
-      // L'écran de résultat s'ouvre : on relâche l'état « Décodage… » pour
-      // que le sélecteur soit immédiatement visible au retour.
       setState(() => _busy = false);
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => ResultScreen(content: content, source: 'Import'),
         ),
       );
-    } catch (_) {
+    } catch (e) {
       if (mounted) {
         _showInfo(
           'Erreur de décodage',
-          'Un problème est survenu pendant l’analyse de l’image.',
+          'Une erreur inattendue est survenue lors de l\'analyse de l\'image.',
         );
       }
     } finally {
@@ -173,7 +175,7 @@ class _ImportScreenState extends State<ImportScreen> {
           Text('Décodage…', style: theme.textTheme.titleLarge),
           const SizedBox(height: 8),
           Text(
-            'Analyse locale : l’image ne quitte pas votre téléphone.',
+            'Analyse locale : l\'image ne quitte pas votre téléphone.',
             style: theme.textTheme.bodyMedium?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -213,7 +215,7 @@ class _ImportScreenState extends State<ImportScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Capture d’écran ou photo de la galerie\navec un QR code visible',
+                    'Capture d\'écran ou photo de la galerie\navec un QR code visible',
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: scheme.onSurfaceVariant,

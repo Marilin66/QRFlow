@@ -16,6 +16,9 @@ String typeLabel(QrContent content) => switch (content) {
       QrUnknown() => 'Contenu inconnu',
     };
 
+/// Label du format du code-barres, ou null si non disponible.
+String? formatLabel(QrContent content) => content.barcodeFormat;
+
 /// Icône d'un type de contenu (partagée entre écrans).
 IconData typeIcon(QrContent content) => switch (content) {
       QrUrl() => Icons.link,

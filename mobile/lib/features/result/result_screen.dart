@@ -83,7 +83,7 @@ class ResultScreen extends StatelessWidget {
                   children: [
                     Text(_typeLabel(), style: theme.textTheme.titleMedium),
                     Text(
-                      'Via : $source',
+                      _formatAndSource(),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: scheme.onSurfaceVariant,
                       ),
@@ -335,6 +335,15 @@ class ResultScreen extends StatelessWidget {
           ),
       ],
     );
+  }
+
+  /// Affiche le format du code-barres et la source.
+  String _formatAndSource() {
+    final String? fmt = formatLabel(content);
+    final List<String> parts = [];
+    if (fmt != null) parts.add(fmt);
+    parts.add('Via : $source');
+    return parts.join(' • ');
   }
 
   // ── Étiquettes / icônes / couleurs par type ──────────────────────────

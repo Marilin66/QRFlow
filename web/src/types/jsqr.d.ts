@@ -23,10 +23,14 @@ declare module 'jsqr' {
       | undefined;
   }
 
+  export interface JsQROptions {
+    inversionAttempts?: 'attemptBoth' | 'dontInvert' | 'onlyInvert' | 'invertFirst';
+  }
+
   export default function jsQR(
     imageData: Uint8ClampedArray,
     width: number,
     height: number,
-    inversionAttempts?: 'attemptBoth' | 'dontInvert' | 'onlyInvert' | 'invertFirst',
+    options?: JsQROptions,
   ): QRCode | null;
 }

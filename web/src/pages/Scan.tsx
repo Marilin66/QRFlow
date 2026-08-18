@@ -8,12 +8,20 @@ import { useApp } from '../lib/store';
 
 type CamState = 'idle' | 'starting' | 'running' | 'error';
 
+// ── Detection stability ────────────────────────────────────────────────────
+// Require the same result on multiple consecutive frames before accepting.
+const REQUIRED_CONFIRMATIONS = 3;
+const FRAME_INTERVAL_MS = 200; // ~5 fps analysis (balanced performance/accuracy)
+
 export default function Scan() {
   const navigate = useNavigate();
   const { setLastResult } = useApp();
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const rafRef = useRef(0);
+  const lastDecodeTime = useRef(0);
+  const confirmedValue = useRef<string | null>(null);
+  const confirmCount = useRef(0);
   const [state, setState] = useState<CamState>('idle');
   const [error, setError] = useState('');
 
@@ -21,14 +29,17 @@ export default function Scan() {
     cancelAnimationFrame(rafRef.current);
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
+    confirmedValue.current = null;
+    confirmCount.current = 0;
     setState('idle');
   };
 
   const start = async () => {
     setState('starting');
+    setError('');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
+        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: false,
       });
       streamRef.current = stream;
@@ -37,19 +48,23 @@ export default function Scan() {
       video.srcObject = stream;
       await video.play();
       setState('running');
+      lastDecodeTime.current = 0;
+      confirmedValue.current = null;
+      confirmCount.current = 0;
       rafRef.current = requestAnimationFrame(loop);
     } catch (e) {
       const name = e instanceof DOMException ? e.name : '';
       if (name === 'NotAllowedError') {
         setError(
-          'Autorisation caméra refusée.\nActivez la caméra pour ce site dans '
+          'Autorisation caméra refusée.\n'
+          + 'Activez la caméra pour ce site dans '
           + 'les paramètres de votre navigateur, puis réessayez.',
         );
       } else if (name === 'NotFoundError') {
         setError('Aucune caméra détectée sur cet appareil.');
       } else {
         setError(
-          'Impossible d’accéder à la caméra.\n'
+          'Impossible d\'accéder à la caméra.\n'
           + 'La caméra exige une connexion sécurisée (HTTPS) ou localhost.',
         );
       }
@@ -59,10 +74,33 @@ export default function Scan() {
 
   const loop = () => {
     const video = videoRef.current;
-    if (video && video.readyState >= 2) {
-      try {
-        const raw = decodeVideoFrame(video);
-        if (raw) {
+    if (!video || video.readyState < 2) {
+      rafRef.current = requestAnimationFrame(loop);
+      return;
+    }
+
+    // ── Frame throttling: don't analyze more than ~5 fps ──
+    const now = performance.now();
+    if (now - lastDecodeTime.current < FRAME_INTERVAL_MS) {
+      rafRef.current = requestAnimationFrame(loop);
+      return;
+    }
+    lastDecodeTime.current = now;
+
+    try {
+      const raw = decodeVideoFrame(video);
+
+      if (raw) {
+        // ── Multi-frame confirmation ──
+        if (raw === confirmedValue.current) {
+          confirmCount.current++;
+        } else {
+          confirmedValue.current = raw;
+          confirmCount.current = 1;
+        }
+
+        if (confirmCount.current >= REQUIRED_CONFIRMATIONS) {
+          // Stable detection confirmed
           setLastResult({
             result: analyze(raw),
             raw,
@@ -73,10 +111,15 @@ export default function Scan() {
           navigate('/result');
           return;
         }
-      } catch {
-        // Frame illisible, on continue.
+      } else {
+        // No QR found this frame — reset confirmation counter
+        confirmedValue.current = null;
+        confirmCount.current = 0;
       }
+    } catch {
+      // Frame illisible, on continue.
     }
+
     rafRef.current = requestAnimationFrame(loop);
   };
 
@@ -111,7 +154,7 @@ export default function Scan() {
         {state === 'running' && (
           <p className="absolute bottom-4 left-0 right-0 flex items-center justify-center gap-1.5 font-mono text-xs uppercase tracking-widest text-laser-400">
             <Icon name="search" className="size-3.5" />
-            recherche d’un QR code…
+            recherche d'un QR code…
           </p>
         )}
 
@@ -154,7 +197,7 @@ export default function Scan() {
 
       <p className="flex items-center justify-center gap-1.5 text-center text-xs text-slate-400 dark:text-slate-500">
         <Icon name="bulb" className="size-3.5" />
-        Le flux vidéo est traité localement, image par image. Rien n’est
+        Le flux vidéo est traité localement, image par image. Rien n'est
         envoyé sur Internet.
       </p>
     </div>

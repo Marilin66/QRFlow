@@ -12,6 +12,13 @@ import '../../widgets/scan_line.dart';
 import '../result/result_screen.dart';
 
 /// Mode Caméra : scan de QR codes en direct.
+///
+/// Stratégie de détection :
+/// - `DetectionSpeed.normal` pour ne jamais manquer un QR code.
+/// - Pas de filtre de format : le moteur détecte QR_CODE, AZTEC, DATA_MATRIX,
+///   CODE_128, etc. Le type exact est affiché dans le résultat.
+/// - Confirmation multi-frame : le même résultat doit apparaître sur plusieurs
+///   frames avant d'être accepté (réduit les faux positifs).
 class CameraScanScreen extends StatefulWidget {
   const CameraScanScreen({super.key});
 
@@ -21,12 +28,24 @@ class CameraScanScreen extends StatefulWidget {
 
 class _CameraScanScreenState extends State<CameraScanScreen> {
   final MobileScannerController _controller = MobileScannerController(
-    formats: const [BarcodeFormat.qrCode],
-    detectionSpeed: DetectionSpeed.noDuplicates,
+    // DetectionSpeed.normal : analyse chaque frame. Plus fiable que
+    // noDuplicates qui peut ignorer des QR valides.
+    detectionSpeed: DetectionSpeed.normal,
+    // Pas de filtre de format : on détecte tout pour pouvoir afficher
+    // le type exact (QR Code, Data Matrix, Code 128, etc.)
+    // La limite de détection est à 256 pour éviter la surcharge.
+    detectionTimeoutMs: 250,
+    returnImage: false,
   );
 
   bool _handled = false;
   bool _torchOn = false;
+
+  // ── Multi-frame confirmation ──────────────────────────────────────────────
+  // Le même résultat brut doit apparaître au moins 2 fois avant d'être accepté.
+  String? _lastRaw;
+  int _confirmCount = 0;
+  static const int _requiredConfirmations = 2;
 
   @override
   void dispose() {
@@ -36,26 +55,64 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
 
   void _onDetect(BarcodeCapture capture) {
     if (_handled) return;
+
     for (final Barcode b in capture.barcodes) {
       final String? raw = b.rawValue;
       if (raw == null || raw.trim().isEmpty) continue;
 
-      _handled = true;
-      HapticFeedback.mediumImpact();
-      _controller.stop();
-      final QrContent content = ContentAnalyzer.analyze(raw);
-      context.read<AppState>().recordScan(
-            type: typeLabel(content),
-            source: 'Caméra',
-            raw: content.raw,
-          );
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => ResultScreen(content: content, source: 'Caméra'),
-        ),
-      );
-      return;
+      // ── Confirmation multi-frame ──
+      if (raw == _lastRaw) {
+        _confirmCount++;
+      } else {
+        _lastRaw = raw;
+        _confirmCount = 1;
+      }
+
+      if (_confirmCount >= _requiredConfirmations) {
+        _handled = true;
+        HapticFeedback.mediumImpact();
+        _controller.stop();
+        final String? formatName = _barcodeFormatLabel(b.format);
+        final QrContent content = ContentAnalyzer.analyze(raw, barcodeFormat: formatName);
+        context.read<AppState>().recordScan(
+              type: typeLabel(content),
+              source: 'Caméra',
+              raw: content.raw,
+            );
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => ResultScreen(content: content, source: 'Caméra'),
+          ),
+        );
+        return;
+      }
     }
+  }
+
+  /// Convertit un BarcodeFormat enum en nom lisible.
+  String? _barcodeFormatLabel(BarcodeFormat? format) {
+    if (format == null) return null;
+    return switch (format) {
+      BarcodeFormat.qrCode => 'QR Code',
+      BarcodeFormat.microQrCode => 'Micro QR',
+      BarcodeFormat.aztec => 'Aztec',
+      BarcodeFormat.dataMatrix => 'Data Matrix',
+      BarcodeFormat.pdf417 => 'PDF417',
+      BarcodeFormat.code128 => 'Code 128',
+      BarcodeFormat.code39 => 'Code 39',
+      BarcodeFormat.code93 => 'Code 93',
+      BarcodeFormat.codabar => 'Codabar',
+      BarcodeFormat.ean8 => 'EAN-8',
+      BarcodeFormat.ean13 => 'EAN-13',
+      BarcodeFormat.itf => 'ITF',
+      BarcodeFormat.upcA => 'UPC-A',
+      BarcodeFormat.upcE => 'UPC-E',
+      BarcodeFormat.maxiCode => 'MaxiCode',
+      BarcodeFormat.dataBar => 'GS1 DataBar',
+      BarcodeFormat.dataBarExpanded => 'GS1 DataBar Expanded',
+      BarcodeFormat.dataBarLimited => 'GS1 DataBar Limited',
+      BarcodeFormat.unknown => null,
+    };
   }
 
   @override
@@ -72,7 +129,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
             controller: _controller,
             onDetect: _onDetect,
             errorBuilder: (BuildContext context, MobileScannerException error) =>
-                _buildError(theme, scheme),
+                _buildError(theme, scheme, error),
           ),
           // Voile + signature du viseur
           IgnorePointer(
@@ -155,7 +212,8 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
     );
   }
 
-  Widget _buildError(ThemeData theme, ColorScheme scheme) {
+  Widget _buildError(
+      ThemeData theme, ColorScheme scheme, MobileScannerException error) {
     return Container(
       color: Colors.black,
       child: Center(
@@ -174,7 +232,7 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Vérifiez que l’autorisation caméra est accordée, puis réessayez.',
+                'Vérifiez que l\'autorisation caméra est accordée, puis réessayez.',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium
                     ?.copyWith(color: Colors.white70),

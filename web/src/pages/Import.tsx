@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import QrBadge from '../components/QrBadge';
 import { Icon } from '../components/icons';
 import { analyze } from '../lib/analyzer';
-import { decodeImageFile } from '../lib/decode';
+import { decodeImageFile, ImageDecodeError } from '../lib/decode';
 import { useApp } from '../lib/store';
 
 type Phase = 'idle' | 'analyzing' | 'multiple' | 'error';
@@ -19,31 +19,74 @@ export default function Import() {
 
   const handleFile = useCallback(
     async (file: File) => {
+      // ── Step 1: Validate file type ──
       if (!file.type.startsWith('image/')) {
         setPhase('error');
-        setError('Ce fichier n’est pas une image. Choisissez un fichier JPG, PNG ou WEBP.');
+        setError('Le fichier sélectionné n\'est pas une image. Choisissez un fichier JPG, PNG ou WEBP.');
         return;
       }
+
+      // ── Step 2: Check for known unsupported types ──
+      const unsupportedTypes = ['image/heic', 'image/heif'];
+      if (unsupportedTypes.some((t) => file.type === t || file.type.startsWith(t + ';'))) {
+        setPhase('error');
+        setError(
+          'Ce format d\'image (HEIC/HEIF) n\'est pas pris en charge.\n'
+          + 'Convertissez l\'image en JPG ou PNG puis réessayez.',
+        );
+        return;
+      }
+
       setPhase('analyzing');
       try {
         const decoded = await decodeImageFile(file);
+
         if (decoded.length === 0) {
           setPhase('error');
           setError(
-            'Aucun QR code détecté.\n'
-            + 'Essayez de recadrer l’image ou utilisez une image où le QR code est plus visible.',
+            'Aucun QR Code détecté dans cette image.\n'
+            + 'Le fichier est valide mais aucun code QR n\'a été trouvé.\n'
+            + 'Essayez avec une image où le QR code est plus net ou plus proche.',
           );
           return;
         }
+
         if (decoded.length === 1 || !multiQr) {
           openResult(decoded[0]);
           return;
         }
+
         setValues(decoded);
         setPhase('multiple');
-      } catch {
+      } catch (err) {
         setPhase('error');
-        setError('Impossible de lire cette image. Vérifiez son format.');
+        if (err instanceof ImageDecodeError) {
+          switch (err.phase) {
+            case 'load':
+              setError(
+                'Impossible de charger cette image.\n'
+                + 'Le fichier semble corrompu ou dans un format non supporté.\n'
+                + err.message,
+              );
+              break;
+            case 'canvas':
+              setError(
+                'L\'image a été chargée mais impossible de la traiter.\n'
+                + err.message,
+              );
+              break;
+            case 'decode':
+              setError(
+                'Un QR Code a été détecté mais son contenu n\'a pas pu être décodé.\n'
+                + 'Le QR code pourrait être endommagé ou dans un format non reconnu.',
+              );
+              break;
+            default:
+              setError('Une erreur inattendue est survenue lors de l\'analyse.');
+          }
+        } else {
+          setError('Une erreur inattendue est survenue lors de l\'analyse de l\'image.');
+        }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -51,7 +94,7 @@ export default function Import() {
   );
 
   function openResult(raw: string) {
-    setLastResult({ result: analyze(raw), raw, method: 'screenshot', fromHistory: false });
+    setLastResult({ result: analyze(raw), raw, method: 'image', fromHistory: false });
     navigate('/result');
   }
 
@@ -60,7 +103,7 @@ export default function Import() {
       <div>
         <h1 className="font-display text-2xl font-bold tracking-tight">Depuis une capture</h1>
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-          Importez une capture d’écran ou une image contenant un QR code.
+          Importez une capture d'écran ou une image contenant un QR code.
         </p>
       </div>
 
@@ -69,7 +112,7 @@ export default function Import() {
           <span className="scanline" />
           <div className="size-10 animate-spin rounded-full border-4 border-electric-500 border-t-transparent" />
           <p className="font-mono text-xs uppercase tracking-widest text-laser-400">
-            analyse de l’image…
+            analyse de l'image…
           </p>
         </div>
       ) : phase === 'error' ? (
@@ -138,7 +181,7 @@ export default function Import() {
             ou cliquez pour choisir un fichier — JPG, PNG, WEBP
           </p>
           <span className="mt-2 text-xs text-slate-400 dark:text-slate-500">
-            Capture d’écran, photo, export…
+            Capture d'écran, photo, export…
           </span>
           <input
             ref={inputRef}
@@ -156,7 +199,7 @@ export default function Import() {
 
       <p className="flex items-center justify-center gap-1.5 text-center text-xs text-slate-400 dark:text-slate-500">
         <Icon name="lock" className="size-3.5" />
-        L’analyse est 100 % locale : l’image n’est jamais envoyée sur Internet.
+        L'analyse est 100 % locale : l'image n'est jamais envoyée sur Internet.
       </p>
     </div>
   );
