@@ -2,7 +2,7 @@ import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart
 
 /// Résultat d'un décodage d'image.
 class QrDecodeResult {
-  const QrDecodeResult({required this.values, this.formats = const [], this.failed = false});
+  const QrDecodeResult({required this.values, this.formats = const [], this.failed = false, this.errorMessage});
 
   /// Contenus bruts décodés (vide si aucun QR détecté).
   final List<String> values;
@@ -12,21 +12,20 @@ class QrDecodeResult {
 
   /// Vrai si l'image n'a pas pu être lue du tout (erreur de décodage).
   final bool failed;
+
+  /// Message d'erreur détaillé si [failed] est vrai.
+  final String? errorMessage;
 }
 
 /// Décodage de QR codes dans une image statique via Google ML Kit (local,
 /// hors-ligne — aucune donnée n'est envoyée sur Internet).
 ///
-/// Stratégie de décodage à multi-passes :
-/// 1. Essai avec tous les formats supportés (QR_CODE, AZTEC, DATA_MATRIX,
-///    CODE_128, CODE_39, CODE_93, CODABAR, EAN_8, EAN_13, ITF, UPC_A, UPC_E,
-///    PDF417).
-/// 2. Si aucun résultat : essai avec uniquement les formats 2D (QR, Aztec,
-///    DataMatrix, PDF417) — plus de chance de détecter un code 2D dans une
-///    image complexe.
+/// Stratégie de décodage :
+/// 1. Essai avec tous les formats supportés en UN SEUL passage.
+/// 2. Si aucun résultat : essai avec uniquement les formats 2D.
 /// 3. Si toujours rien : retourne "aucun détecté" (pas d'erreur générique).
 class QrDecoder {
-  /// Formats 2D principaux — plus de priorité.
+  /// Formats 2D principaux.
   static final List<BarcodeFormat> _formats2D = [
     BarcodeFormat.qrCode,
     BarcodeFormat.aztec,
@@ -65,41 +64,38 @@ class QrDecoder {
         BarcodeFormat.upce => 'UPC-E',
         BarcodeFormat.all => 'Tous formats',
         BarcodeFormat.unknown => 'Inconnu',
+        _ => 'Code',
       };
 
   Future<QrDecodeResult> decodeImage(String path) async {
-    // ── Pass 1 : tous les formats ──
-    final QrDecodeResult result = await _decodeWithFormats(_allFormats, path);
-    if (result.values.isNotEmpty) return result;
-
-    // ── Pass 2 : formats 2D uniquement (plus de sensibilité) ──
-    final QrDecodeResult result2D = await _decodeWithFormats(_formats2D, path);
-    if (result2D.values.isNotEmpty) return result2D;
-
-    // ── Pass 3 : tous les formats sans restriction ──
+    // ── Un seul scanner, un seul passage avec tous les formats ──
     final BarcodeScanner scanner = BarcodeScanner(formats: _allFormats);
     try {
       final List<Barcode> barcodes =
           await scanner.processImage(InputImage.fromFilePath(path));
-      final (List<String>, List<String>) extracted = _extractBarcodes(barcodes);
-      return QrDecodeResult(values: extracted.$1, formats: extracted.$2);
-    } catch (_) {
-      return const QrDecodeResult(values: [], failed: true);
-    } finally {
-      await scanner.close();
-    }
-  }
 
-  Future<QrDecodeResult> _decodeWithFormats(
-      List<BarcodeFormat> formats, String path) async {
-    final BarcodeScanner scanner = BarcodeScanner(formats: formats);
-    try {
-      final List<Barcode> barcodes =
-          await scanner.processImage(InputImage.fromFilePath(path));
       final (List<String>, List<String>) extracted = _extractBarcodes(barcodes);
-      return QrDecodeResult(values: extracted.$1, formats: extracted.$2);
-    } catch (_) {
-      return const QrDecodeResult(values: [], failed: false);
+      if (extracted.$1.isNotEmpty) {
+        return QrDecodeResult(values: extracted.$1, formats: extracted.$2);
+      }
+
+      // ── Pass 2 : formats 2D uniquement (plus de sensibilité) ──
+      final BarcodeScanner scanner2D = BarcodeScanner(formats: _formats2D);
+      try {
+        final List<Barcode> barcodes2D =
+            await scanner2D.processImage(InputImage.fromFilePath(path));
+        final (List<String>, List<String>) extracted2D = _extractBarcodes(barcodes2D);
+        return QrDecodeResult(values: extracted2D.$1, formats: extracted2D.$2);
+      } finally {
+        await scanner2D.close();
+      }
+    } on Exception catch (e) {
+      // Erreur réelle (fichier corrompu, permission refusée, etc.)
+      return QrDecodeResult(
+        values: [],
+        failed: true,
+        errorMessage: e.toString(),
+      );
     } finally {
       await scanner.close();
     }

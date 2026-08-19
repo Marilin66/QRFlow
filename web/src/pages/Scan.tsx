@@ -72,6 +72,8 @@ export default function Scan() {
     }
   };
 
+  const processingRef = useRef(false);
+
   const loop = () => {
     const video = videoRef.current;
     if (!video || video.readyState < 2) {
@@ -87,40 +89,47 @@ export default function Scan() {
     }
     lastDecodeTime.current = now;
 
-    try {
-      const raw = decodeVideoFrame(video);
-
-      if (raw) {
-        // ── Multi-frame confirmation ──
-        if (raw === confirmedValue.current) {
-          confirmCount.current++;
-        } else {
-          confirmedValue.current = raw;
-          confirmCount.current = 1;
-        }
-
-        if (confirmCount.current >= REQUIRED_CONFIRMATIONS) {
-          // Stable detection confirmed
-          setLastResult({
-            result: analyze(raw),
-            raw,
-            method: 'camera',
-            fromHistory: false,
-          });
-          stop();
-          navigate('/result');
-          return;
-        }
-      } else {
-        // No QR found this frame — reset confirmation counter
-        confirmedValue.current = null;
-        confirmCount.current = 0;
-      }
-    } catch {
-      // Frame illisible, on continue.
+    // ── Skip if previous async decode is still running ──
+    if (processingRef.current) {
+      rafRef.current = requestAnimationFrame(loop);
+      return;
     }
+    processingRef.current = true;
 
-    rafRef.current = requestAnimationFrame(loop);
+    decodeVideoFrame(video)
+      .then((raw) => {
+        if (!raw) {
+          confirmedValue.current = null;
+          confirmCount.current = 0;
+        } else {
+          // ── Multi-frame confirmation ──
+          if (raw === confirmedValue.current) {
+            confirmCount.current++;
+          } else {
+            confirmedValue.current = raw;
+            confirmCount.current = 1;
+          }
+
+          if (confirmCount.current >= REQUIRED_CONFIRMATIONS) {
+            setLastResult({
+              result: analyze(raw),
+              raw,
+              method: 'camera',
+              fromHistory: false,
+            });
+            stop();
+            navigate('/result');
+            return;
+          }
+        }
+      })
+      .catch(() => {
+        // Frame illisible, on continue.
+      })
+      .finally(() => {
+        processingRef.current = false;
+        rafRef.current = requestAnimationFrame(loop);
+      });
   };
 
   useEffect(() => {

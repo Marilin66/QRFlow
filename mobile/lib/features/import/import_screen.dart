@@ -37,8 +37,10 @@ class _ImportScreenState extends State<ImportScreen> {
       if (result.failed) {
         _showInfo(
           'Image illisible',
-          'L\'image a été chargée mais son contenu n\'a pas pu être décodé.\n'
-          'Le fichier semble corrompu ou dans un format non supporté.',
+          (result.errorMessage != null)
+              ? 'Erreur : ${result.errorMessage}'
+              : 'L\'image a été chargée mais son contenu n\'a pas pu être décodé.\n'
+                'Le fichier semble corrompu ou dans un format non supporté.',
         );
         return;
       }

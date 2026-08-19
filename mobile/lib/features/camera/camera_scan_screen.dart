@@ -28,12 +28,14 @@ class CameraScanScreen extends StatefulWidget {
 
 class _CameraScanScreenState extends State<CameraScanScreen> {
   final MobileScannerController _controller = MobileScannerController(
+    // Caméra arrière par défaut (évite de prendre la caméra frontale
+    // sur les appareils multi-caméras).
+    cameraDirection: CameraFacing.back,
     // DetectionSpeed.normal : analyse chaque frame. Plus fiable que
     // noDuplicates qui peut ignorer des QR valides.
     detectionSpeed: DetectionSpeed.normal,
     // Pas de filtre de format : on détecte tout pour pouvoir afficher
     // le type exact (QR Code, Data Matrix, Code 128, etc.)
-    // La limite de détection est à 256 pour éviter la surcharge.
     detectionTimeoutMs: 250,
     returnImage: false,
   );

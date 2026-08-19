@@ -26,12 +26,7 @@ if (barcodeDetectorSupported) {
   }
 }
 
-// ── Preprocessing pipeline ─────────────────────────────────────────────────
-
-interface DecodeStrategy {
-  name: string;
-  transform: (ctx: CanvasRenderingContext2D, w: number, h: number) => void;
-}
+// ── Preprocessing helpers ──────────────────────────────────────────────────
 
 function toGrayscale(ctx: CanvasRenderingContext2D, w: number, h: number) {
   const img = ctx.getImageData(0, 0, w, h);
@@ -141,6 +136,13 @@ function grayscaleThreshold(ctx: CanvasRenderingContext2D, w: number, h: number)
   adaptiveThreshold(ctx, w, h);
 }
 
+// ── Preprocessing strategy list ────────────────────────────────────────────
+
+interface DecodeStrategy {
+  name: string;
+  transform: (ctx: CanvasRenderingContext2D, w: number, h: number) => void;
+}
+
 const STRATEGIES: DecodeStrategy[] = [
   { name: 'raw', transform: () => {} },
   { name: 'inverted', transform: invertColors },
@@ -162,16 +164,15 @@ function computeScale(w: number, h: number): number {
   return 1;
 }
 
-// ── Engine: BarcodeDetector (Google ML Kit native) ─────────────────────────
+// ── Shared: BarcodeDetector multi-QR detection ────────────────────────────
 async function detectWithBarcodeDetector(
   canvas: HTMLCanvasElement,
 ): Promise<string[]> {
   if (!barcodeDetector) return [];
 
   const results: string[] = [];
-  const maxIterations = 15;
 
-  for (let i = 0; i < maxIterations; i++) {
+  for (let i = 0; i < 15; i++) {
     try {
       const result = await barcodeDetector.detect(canvas);
       const found = result.barcodes;
@@ -189,8 +190,7 @@ async function detectWithBarcodeDetector(
       const ctx = canvas.getContext('2d');
       if (!ctx) break;
 
-      let foundNew = false;
-
+      let maskedAnything = false;
       for (const barcode of found) {
         if (barcode.boundingBox) {
           const bb = barcode.boundingBox;
@@ -202,11 +202,11 @@ async function detectWithBarcodeDetector(
             Math.min(canvas.width, bb.width + padding * 2),
             Math.min(canvas.height, bb.height + padding * 2),
           );
-          foundNew = true;
+          maskedAnything = true;
         }
       }
 
-      if (!foundNew) break;
+      if (!maskedAnything) break;
       // Check if the masked image has any new barcodes
       const newResult = await barcodeDetector.detect(canvas);
       if (newResult.barcodes.length === 0) break;
@@ -218,40 +218,32 @@ async function detectWithBarcodeDetector(
   return results;
 }
 
-// ── Engine: jsQR fallback ──────────────────────────────────────────────────
-function detectWithJsQR(
+// ── Shared: jsQR single-attempt detection ──────────────────────────────────
+function jsQRDetect(
   imageData: ImageData,
   w: number,
   h: number,
-): { data: string } | null {
+): string | null {
   const code1 = jsQR(imageData.data, w, h, { inversionAttempts: 'dontInvert' });
-  if (code1?.data) return { data: code1.data };
+  if (code1?.data) return code1.data;
 
   const code2 = jsQR(imageData.data, w, h, { inversionAttempts: 'attemptBoth' });
-  if (code2?.data) return { data: code2.data };
+  if (code2?.data) return code2.data;
 
   return null;
 }
 
-// ── Multi-engine detection with preprocessing ──────────────────────────────
-async function detectFromCanvas(
+// ── Shared: jsQR multi-QR detection with preprocessing ─────────────────────
+async function detectWithJsQR(
   canvas: HTMLCanvasElement,
   w: number,
   h: number,
 ): Promise<string[]> {
-  // ── Phase 1: Try BarcodeDetector on raw image (fastest, most robust) ──
-  if (barcodeDetector) {
-    const bdResults = await detectWithBarcodeDetector(canvas);
-    if (bdResults.length > 0) return bdResults;
-  }
-
-  // ── Phase 2: jsQR with preprocessing strategies ──
   const results: string[] = [];
-  const maxIterations = 15;
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   if (!ctx) return results;
 
-  for (let i = 0; i < maxIterations; i++) {
+  for (let i = 0; i < 15; i++) {
     const savedData = ctx.getImageData(0, 0, w, h);
     let found = false;
 
@@ -260,13 +252,13 @@ async function detectFromCanvas(
       strategy.transform(ctx, w, h);
 
       const imageData = ctx.getImageData(0, 0, w, h);
-      const decoded = detectWithJsQR(imageData, w, h);
+      const value = jsQRDetect(imageData, w, h);
 
-      if (decoded && !results.includes(decoded.data)) {
-        results.push(decoded.data);
-        // Restore and mask for next iteration
+      if (value && !results.includes(value)) {
+        results.push(value);
+        // Mask the found QR region for next iteration
         ctx.putImageData(savedData, 0, 0);
-        maskQrRegion(ctx, w, h, decoded.data, savedData);
+        maskQrRegion(ctx, w, h);
         found = true;
         break;
       }
@@ -275,28 +267,15 @@ async function detectFromCanvas(
     if (!found) break;
   }
 
-  // ── Phase 3: If jsQR found nothing, try BarcodeDetector on preprocessed ──
-  if (results.length === 0 && barcodeDetector) {
-    ctx.putImageData(ctx.getImageData(0, 0, w, h), 0, 0);
-    // Try grayscale + contrast before BarcodeDetector
-    toGrayscale(ctx, w, h);
-    contrastStretch(ctx, w, h);
-    const bdResults = await detectWithBarcodeDetector(canvas);
-    if (bdResults.length > 0) return bdResults;
-  }
-
   return results;
 }
 
-/** Mask the QR region to find additional codes. */
+/** Mask the QR region in the canvas to find additional codes in next iteration. */
 function maskQrRegion(
   ctx: CanvasRenderingContext2D,
   w: number,
   h: number,
-  _data: string,
-  originalData: ImageData,
 ): void {
-  ctx.putImageData(originalData, 0, 0);
   const imageData = ctx.getImageData(0, 0, w, h);
   const code = jsQR(imageData.data, w, h, { inversionAttempts: 'dontInvert' });
 
@@ -314,7 +293,6 @@ function maskQrRegion(
 }
 
 // ── Image file decoder ─────────────────────────────────────────────────────
-/** Decode all codes from an imported image file. */
 export async function decodeImageFile(file: File): Promise<string[]> {
   let bitmap: ImageBitmap;
   try {
@@ -336,15 +314,53 @@ export async function decodeImageFile(file: File): Promise<string[]> {
 
     ctx.drawImage(bitmap, 0, 0, w, h);
 
-    return await detectFromCanvas(canvas, w, h);
+    // ── Phase 1: BarcodeDetector on raw image (fastest, most robust) ──
+    if (barcodeDetector) {
+      const bdResults = await detectWithBarcodeDetector(canvas);
+      if (bdResults.length > 0) return bdResults;
+    }
+
+    // ── Phase 2: jsQR with preprocessing ──
+    // Save the original pixels so Phase 3 can start fresh
+    const ctx2 = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx2) return [];
+    const originalPixels = ctx2.getImageData(0, 0, w, h);
+
+    const jsQRResults = await detectWithJsQR(canvas, w, h);
+    if (jsQRResults.length > 0) return jsQRResults;
+
+    // ── Phase 3: BarcodeDetector on preprocessed image ──
+    // Restore canvas to original before preprocessing
+    ctx2.putImageData(originalPixels, 0, 0);
+    toGrayscale(ctx2, w, h);
+    contrastStretch(ctx2, w, h);
+
+    if (barcodeDetector) {
+      const bdResults2 = await detectWithBarcodeDetector(canvas);
+      if (bdResults2.length > 0) return bdResults2;
+    }
+
+    // ── Phase 4: jsQR on preprocessed image ──
+    const imageData = ctx2.getImageData(0, 0, w, h);
+    const lastChance = jsQRDetect(imageData, w, h);
+    if (lastChance) return [lastChance];
+
+    return [];
   } finally {
     bitmap.close();
   }
 }
 
-// ── Video frame decoder ────────────────────────────────────────────────────
-/** Decode a code from a live video frame. Optimized for speed. */
-export function decodeVideoFrame(video: HTMLVideoElement): string | null {
+// ── Video frame decoder (async — uses BarcodeDetector) ─────────────────────
+/**
+ * Decode a code from a live video frame.
+ * Uses BarcodeDetector (native, fast) as primary engine,
+ * falls back to jsQR with preprocessing if unavailable.
+ *
+ * NOTE: This function is async because BarcodeDetector.detect() is async.
+ * The caller must await it.
+ */
+export async function decodeVideoFrame(video: HTMLVideoElement): Promise<string | null> {
   if (!video.videoWidth || !video.videoHeight) return null;
 
   const vw = video.videoWidth;
@@ -358,30 +374,35 @@ export function decodeVideoFrame(video: HTMLVideoElement): string | null {
 
   ctx.drawImage(video, 0, 0);
 
-  // ── Strategy 1: BarcodeDetector (native, fastest) ──
+  // ── Strategy 1: BarcodeDetector (native, fastest, most formats) ──
   if (barcodeDetector) {
-    // BarcodeDetector.detect() is synchronous when called on a canvas
-    // that was just drawn from a video frame — no need for await in this path
-    // But the API is async, so we use it only when available
-    // For video frames, we skip it to keep frame rate high
-    // and only use jsQR which is synchronous
+    try {
+      const result = await barcodeDetector.detect(canvas);
+      if (result.barcodes.length > 0 && result.barcodes[0].rawValue) {
+        return result.barcodes[0].rawValue;
+      }
+    } catch {
+      // BarcodeDetector failed, fall through to jsQR
+    }
   }
 
-  // ── Strategy 2: jsQR raw (fast, synchronous) ──
-  const imageData = ctx.getImageData(0, 0, vw, vh);
-  const decoded = detectWithJsQR(imageData, vw, vh);
-  if (decoded?.data) return decoded.data;
+  // ── Save original pixels for preprocessing strategies ──
+  const originalPixels = ctx.getImageData(0, 0, vw, vh);
+
+  // ── Strategy 2: jsQR raw ──
+  const decoded = jsQRDetect(originalPixels, vw, vh);
+  if (decoded) return decoded;
 
   // ── Strategy 3: Inverted ──
   const img2 = ctx.getImageData(0, 0, vw, vh);
-  const d = img2.data;
-  for (let i = 0; i < d.length; i += 4) {
-    d[i] = 255 - d[i];
-    d[i + 1] = 255 - d[i + 1];
-    d[i + 2] = 255 - d[i + 2];
+  const d2 = img2.data;
+  for (let i = 0; i < d2.length; i += 4) {
+    d2[i] = 255 - d2[i];
+    d2[i + 1] = 255 - d2[i + 1];
+    d2[i + 2] = 255 - d2[i + 2];
   }
-  const decoded2 = detectWithJsQR(img2, vw, vh);
-  if (decoded2?.data) return decoded2.data;
+  const decoded2 = jsQRDetect(img2, vw, vh);
+  if (decoded2) return decoded2;
 
   // ── Strategy 4: Grayscale + contrast ──
   const img3 = ctx.getImageData(0, 0, vw, vh);
@@ -393,13 +414,68 @@ export function decodeVideoFrame(video: HTMLVideoElement): string | null {
     if (gray > max) max = gray;
   }
   const range = max - min || 1;
-  const scale = 255 / range;
+  const scaleVal = 255 / range;
   for (let i = 0; i < d3.length; i += 4) {
-    const v = Math.round(((d3[i] * 0.299 + d3[i + 1] * 0.587 + d3[i + 2] * 0.114) - min) * scale);
+    const v = Math.round(((d3[i] * 0.299 + d3[i + 1] * 0.587 + d3[i + 2] * 0.114) - min) * scaleVal);
     d3[i] = d3[i + 1] = d3[i + 2] = v;
   }
-  const decoded3 = detectWithJsQR(img3, vw, vh);
-  if (decoded3?.data) return decoded3.data;
+  const decoded3 = jsQRDetect(img3, vw, vh);
+  if (decoded3) return decoded3;
+
+  // ── Strategy 5: Adaptive threshold (Otsu) ──
+  const img4 = new ImageData(
+    new Uint8ClampedArray(originalPixels.data),
+    vw, vh,
+  );
+  const d4 = img4.data;
+  const hist = new Uint32Array(256);
+  const total = vw * vh;
+  for (let i = 0; i < d4.length; i += 4) {
+    const gray = Math.round(d4[i] * 0.299 + d4[i + 1] * 0.587 + d4[i + 2] * 0.114);
+    hist[gray]++;
+  }
+  let sum = 0;
+  for (let i = 0; i < 256; i++) sum += i * hist[i];
+  let sumB = 0;
+  let wB = 0;
+  let maxVariance = 0;
+  let threshold = 128;
+  for (let t = 0; t < 256; t++) {
+    wB += hist[t];
+    if (wB === 0) continue;
+    const wF = total - wB;
+    if (wF === 0) break;
+    sumB += t * hist[t];
+    const mB = sumB / wB;
+    const mF = (sum - sumB) / wF;
+    const variance = wB * wF * (mB - mF) * (mB - mF);
+    if (variance > maxVariance) {
+      maxVariance = variance;
+      threshold = t;
+    }
+  }
+  for (let i = 0; i < d4.length; i += 4) {
+    const gray = d4[i] * 0.299 + d4[i + 1] * 0.587 + d4[i + 2] * 0.114;
+    const v = gray > threshold ? 255 : 0;
+    d4[i] = d4[i + 1] = d4[i + 2] = v;
+  }
+  const decoded4 = jsQRDetect(img4, vw, vh);
+  if (decoded4) return decoded4;
+
+  // ── Strategy 6: BarcodeDetector on grayscale+contrast ──
+  if (barcodeDetector) {
+    try {
+      ctx.putImageData(originalPixels, 0, 0);
+      toGrayscale(ctx, vw, vh);
+      contrastStretch(ctx, vw, vh);
+      const result2 = await barcodeDetector.detect(canvas);
+      if (result2.barcodes.length > 0 && result2.barcodes[0].rawValue) {
+        return result2.barcodes[0].rawValue;
+      }
+    } catch {
+      // Fall through
+    }
+  }
 
   return null;
 }
