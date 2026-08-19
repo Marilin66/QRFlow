@@ -31,9 +31,9 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
     // DetectionSpeed.normal : analyse chaque frame. Plus fiable que
     // noDuplicates qui peut ignorer des QR valides.
     detectionSpeed: DetectionSpeed.normal,
-    // Pas de filtre de format : on détecte tout pour pouvoir afficher
-    // le type exact (QR Code, Data Matrix, Code 128, etc.)
-    detectionTimeoutMs: 250,
+    // Timeout légèrement augmenté : donne plus de temps à ML Kit pour
+    // traiter les frames (meilleure détection sur écrans, moiré, reflets).
+    detectionTimeoutMs: 350,
     returnImage: false,
   );
 
