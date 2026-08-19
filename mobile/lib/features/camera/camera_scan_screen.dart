@@ -28,9 +28,6 @@ class CameraScanScreen extends StatefulWidget {
 
 class _CameraScanScreenState extends State<CameraScanScreen> {
   final MobileScannerController _controller = MobileScannerController(
-    // Caméra arrière par défaut (évite de prendre la caméra frontale
-    // sur les appareils multi-caméras).
-    cameraDirection: CameraFacing.back,
     // DetectionSpeed.normal : analyse chaque frame. Plus fiable que
     // noDuplicates qui peut ignorer des QR valides.
     detectionSpeed: DetectionSpeed.normal,
@@ -48,6 +45,13 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
   String? _lastRaw;
   int _confirmCount = 0;
   static const int _requiredConfirmations = 2;
+
+  @override
+  void initState() {
+    super.initState();
+    // Forcer la caméra arrière dès le démarrage.
+    _controller.switchCamera(CameraFacing.back);
+  }
 
   @override
   void dispose() {
