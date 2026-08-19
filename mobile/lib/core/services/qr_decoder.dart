@@ -185,7 +185,7 @@ class QrDecoder {
   static img.Image _contrastStretch(img.Image image) {
     final gray = img.grayscale(image);
     int min = 255, max = 0;
-    for (final pixel in gray.data) {
+    for (final pixel in gray) {
       final v = pixel.r.toInt();
       if (v < min) min = v;
       if (v > max) max = v;
@@ -248,7 +248,7 @@ class QrDecoder {
     // Histogramme
     final hist = List<int>.filled(256, 0);
     final total = gray.width * gray.height;
-    for (final pixel in gray.data) {
+    for (final pixel in gray) {
       hist[pixel.r.toInt()]++;
     }
     // Calcul du seuil optimal (Otsu)
@@ -361,7 +361,7 @@ class QrDecoder {
               final (List<String>, List<String>) extracted = _extractBarcodes(barcodes);
               if (extracted.$1.isNotEmpty) {
                 // Nettoyage du fichier temp
-                await tempFile.delete().catchError((_) {});
+                await tempFile.delete();
                 return QrDecodeResult(values: extracted.$1, formats: extracted.$2);
               }
 
@@ -373,7 +373,7 @@ class QrDecoder {
                 final (List<String>, List<String>) extracted2D =
                     _extractBarcodes(barcodes2D);
                 if (extracted2D.$1.isNotEmpty) {
-                  await tempFile.delete().catchError((_) {});
+                  await tempFile.delete();
                   return QrDecodeResult(values: extracted2D.$1, formats: extracted2D.$2);
                 }
               } finally {
@@ -383,7 +383,7 @@ class QrDecoder {
               await preScanner.close();
             }
           } finally {
-            await tempFile.delete().catchError((_) {});
+            await tempFile.delete();
           }
         } catch (_) {
           // Cette stratégie a échoué, on passe à la suivante
