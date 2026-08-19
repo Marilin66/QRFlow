@@ -93,7 +93,7 @@ class QrDecoder {
     _Strategy('grayscale+contrast', (img.Image i) {
       return _contrastStretch(_toGrayscale(i));
     }),
-    _Strategy('contrast', _contrastStretch),
+    const _Strategy('contrast', _contrastStretch),
 
     // ── Pass 4-5 : flou anti-moiré (écrans) ──
     _Strategy('blur3+contrast', (img.Image i) {
@@ -127,7 +127,7 @@ class QrDecoder {
     }),
 
     // ── Pass 11 : seuillage adaptatif ──
-    _Strategy('threshold', _adaptiveThreshold),
+    const _Strategy('threshold', _adaptiveThreshold),
 
     // ── Pass 12-14 : inversés (QR à fond sombre) ──
     _Strategy('invert+contrast', (img.Image i) {
@@ -296,7 +296,7 @@ class QrDecoder {
     // Décoder l'image originale pour le prétraitement
     final img.Image? originalImage = img.decodeImage(originalBytes);
     if (originalImage == null) {
-      return QrDecodeResult(
+      return const QrDecodeResult(
         values: [],
         failed: true,
         errorMessage: 'Impossible de décoder le fichier image.',
