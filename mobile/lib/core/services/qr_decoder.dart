@@ -1,7 +1,5 @@
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 import 'package:image/image.dart' as img;
@@ -173,9 +171,9 @@ class QrDecoder {
     return img.grayscale(image);
   }
 
-  /// Ajustement de luminosité (+40).
+  /// Ajustement de luminosité (multiplier 1.4×).
   static img.Image _brighten(img.Image image) {
-    return img.brightness(image, amount: 40);
+    return img.adjustColor(image, brightness: 1.4);
   }
 
   /// Inversion des couleurs (QR à fond sombre).
@@ -194,10 +192,17 @@ class QrDecoder {
     }
     final range = max - min;
     if (range <= 0) return image;
-    // Utiliser adjustColor pour étirer le contraste
-    final mid = (min + max) / 2;
-    final contrast = 255.0 / range;
-    return img.contrast(image, contrast: contrast.round());
+    // Étirement min-max : mapper [min, max] vers [0, 255]
+    final scale = 255.0 / range;
+    final result = img.Image(width: gray.width, height: gray.height);
+    for (int y = 0; y < gray.height; y++) {
+      for (int x = 0; x < gray.width; x++) {
+        final v = gray.getPixel(x, y).r.toInt();
+        final stretched = ((v - min) * scale).round().clamp(0, 255);
+        result.setPixelRgba(x, y, stretched, stretched, stretched, 255);
+      }
+    }
+    return result;
   }
 
   /// Flou gaussien 3×3 : réduit le moiré des écrans.
@@ -211,15 +216,28 @@ class QrDecoder {
   }
 
   /// Netteté améliorée (unsharp mask) : améliore les bords sans excess de bruit.
+  /// Original + 1.5 × (original - flou)
   static img.Image _unsharpMask(img.Image image) {
-    return img.unsharpMask(image, amount: 1.5, radius: 1, threshold: 0);
+    final blurred = img.gaussianBlur(image, radius: 1);
+    final result = img.Image.from(image);
+    for (final pixel in result) {
+      final blurredPixel = blurred.getPixel(pixel.x, pixel.y);
+      final dr = (pixel.r - blurredPixel.r) * 1.5;
+      final dg = (pixel.g - blurredPixel.g) * 1.5;
+      final db = (pixel.b - blurredPixel.b) * 1.5;
+      pixel
+        ..r = (pixel.r + dr).clamp(0, 255).toInt()
+        ..g = (pixel.g + dg).clamp(0, 255).toInt()
+        ..b = (pixel.b + db).clamp(0, 255).toInt();
+    }
+    return result;
   }
 
   /// Netteté forte : pour QR très flous.
   static img.Image _sharpenStrong(img.Image image) {
     return img.convolution(
       image,
-      [0, -2, 0, -2, 13, -2, 0, -2, 0],
+      filter: [0, -2, 0, -2, 13, -2, 0, -2, 0],
       div: 1,
     );
   }
@@ -257,11 +275,12 @@ class QrDecoder {
       }
     }
     // Appliquer le seuillage
-    final result = img.Image(width: gray.width, height: gray.height, numChannels: 1);
+    final result = img.Image(width: gray.width, height: gray.height);
     for (int y = 0; y < gray.height; y++) {
       for (int x = 0; x < gray.width; x++) {
         final v = gray.getPixel(x, y).r.toInt();
-        result.setPixelRgba(x, y, v > threshold ? 255 : 0);
+        final val = v > threshold ? 255 : 0;
+        result.setPixelRgba(x, y, val, val, val, 255);
       }
     }
     return result;
