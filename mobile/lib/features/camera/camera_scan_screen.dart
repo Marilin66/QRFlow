@@ -47,13 +47,6 @@ class _CameraScanScreenState extends State<CameraScanScreen> {
   static const int _requiredConfirmations = 2;
 
   @override
-  void initState() {
-    super.initState();
-    // Forcer la caméra arrière dès le démarrage.
-    _controller.switchCamera(CameraFacing.back);
-  }
-
-  @override
   void dispose() {
     _controller.dispose();
     super.dispose();
