@@ -4,46 +4,59 @@ import 'dart:typed_data';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
 import 'package:image/image.dart' as img;
 
-/// Résultat d'un décodage d'image.
+/// Result of a QR decode operation.
 class QrDecodeResult {
-  const QrDecodeResult({required this.values, this.formats = const [], this.failed = false, this.errorMessage});
+  const QrDecodeResult({
+    required this.values,
+    this.formats = const [],
+    this.failed = false,
+    this.errorMessage,
+    this.strategyUsed,
+    this.attemptsCount = 0,
+  });
 
-  /// Contenus bruts décodés (vide si aucun QR détecté).
+  /// Decoded content strings (empty if no QR detected).
   final List<String> values;
 
-  /// Formats des codes détectés, dans le même ordre que [values].
+  /// Barcode format labels, in the same order as [values].
   final List<String> formats;
 
-  /// Vrai si l'image n'a pas pu être lue du tout (erreur de décodage).
+  /// True if the image could not be read at all.
   final bool failed;
 
-  /// Message d'erreur détaillé si [failed] est vrai.
+  /// Detailed error message if [failed] is true.
   final String? errorMessage;
+
+  /// Name of the preprocessing strategy that succeeded (null for raw image).
+  final String? strategyUsed;
+
+  /// Number of decode attempts made.
+  final int attemptsCount;
 }
 
-/// Stratégie de prétraitement d'image pour améliorer la détection de QR codes.
+/// A preprocessing strategy applied to an image before QR decoding.
 class _Strategy {
   const _Strategy(this.name, this.transform);
+
+  /// Human-readable name for debugging/logging.
   final String name;
+
+  /// The image transformation function.
   final img.Image Function(img.Image image) transform;
 }
 
-/// Décodage de QR codes dans une image statique via Google ML Kit (local,
-/// hors-ligne — aucune donnée n'est envoyée sur Internet).
+/// QR code decoder with a multi-phase preprocessing pipeline.
 ///
-/// Stratégie de décodage multi-pass :
-/// 1. Image originale (pas de traitement) — rapide.
-/// 2. Niveaux de gris + contraste — améliore les images ternes.
-/// 3. Flou gaussien + contraste — réduit le moiré des écrans.
-/// 4. Netteté (unsharp mask) + contraste — améliore les images floues.
-/// 5. Flou 5×5 + seuillage — moiré agressif.
-/// 6. Inversé + contraste — QR à fond sombre.
-/// 7. Inversé + flou + contraste — QR inversé sur écran.
-/// 8. Seuillage adaptatif (Otsu) — image binaire nette.
-/// 9. Noir et blanc + flou + seuillage — anti-moiré maximal.
-/// 10. Netteté forte + contraste — QR très flou.
+/// Pipeline:
+/// 1. FAST PATH — ML Kit on original image (<500ms)
+/// 2. SMART PATH — preprocessing strategies on original + upscaled (1–3s)
+/// 3. DEEP RECOVERY — aggressive preprocessing + upscaling (3–10s)
+///
+/// Each phase tries progressively more aggressive transformations.
+/// The pipeline stops as soon as a valid result is found.
 class QrDecoder {
-  /// Formats 2D principaux.
+  // ── Format definitions ──────────────────────────────────────────────────
+
   static final List<BarcodeFormat> _formats2D = [
     BarcodeFormat.qrCode,
     BarcodeFormat.aztec,
@@ -51,7 +64,6 @@ class QrDecoder {
     BarcodeFormat.pdf417,
   ];
 
-  /// Tous les formats supportés par ML Kit.
   static final List<BarcodeFormat> _allFormats = [
     ..._formats2D,
     BarcodeFormat.code128,
@@ -65,7 +77,7 @@ class QrDecoder {
     BarcodeFormat.upce,
   ];
 
-  /// Convertit un BarcodeFormat ML Kit en nom lisible.
+  /// Converts a BarcodeFormat enum to a human-readable label.
   static String _formatLabel(BarcodeFormat format) => switch (format) {
         BarcodeFormat.qrCode => 'QR Code',
         BarcodeFormat.aztec => 'Aztec',
@@ -83,105 +95,18 @@ class QrDecoder {
         _ => 'Code',
       };
 
-  /// Stratégies de prétraitement, de la plus rapide à la plus agressive.
-  /// Chaque stratégie essaie d'améliorer l'image pour un scénario différent.
-  static final List<_Strategy> _strategies = [
-    // ── Pass 1 : image originale (vérification rapide) ──
-    const _Strategy('raw', _noTransform),
+  // ── Preprocessing functions ─────────────────────────────────────────────
 
-    // ── Pass 2-3 : niveaux de gris + ajustements ──
-    _Strategy('grayscale+contrast', (img.Image i) {
-      return _contrastStretch(_toGrayscale(i));
-    }),
-    const _Strategy('contrast', _contrastStretch),
-
-    // ── Pass 4-5 : flou anti-moiré (écrans) ──
-    _Strategy('blur3+contrast', (img.Image i) {
-      return _contrastStretch(_gaussianBlur3(i));
-    }),
-    _Strategy('blur5+contrast', (img.Image i) {
-      return _contrastStretch(_gaussianBlur5(i));
-    }),
-
-    // ── Pass 6-7 : netteté ──
-    _Strategy('unsharp+contrast', (img.Image i) {
-      return _contrastStretch(_unsharpMask(i));
-    }),
-    _Strategy('sharpenStrong+contrast', (img.Image i) {
-      return _contrastStretch(_sharpenStrong(i));
-    }),
-
-    // ── Pass 8 : luminosité + contraste ──
-    _Strategy('brighten+contrast', (img.Image i) {
-      return _contrastStretch(_brighten(i));
-    }),
-
-    // ── Pass 9 : flou 5×5 + seuillage ──
-    _Strategy('blur5+threshold', (img.Image i) {
-      return _adaptiveThreshold(_gaussianBlur5(i));
-    }),
-
-    // ── Pass 10 : noir et blanc + flou + seuillage (anti-moiré max) ──
-    _Strategy('gray+blur5+threshold', (img.Image i) {
-      return _adaptiveThreshold(_gaussianBlur5(_toGrayscale(i)));
-    }),
-
-    // ── Pass 11 : seuillage adaptatif ──
-    const _Strategy('threshold', _adaptiveThreshold),
-
-    // ── Pass 12-14 : inversés (QR à fond sombre) ──
-    _Strategy('invert+contrast', (img.Image i) {
-      return _contrastStretch(_invert(i));
-    }),
-    _Strategy('invert+blur3+contrast', (img.Image i) {
-      return _contrastStretch(_gaussianBlur3(_invert(i)));
-    }),
-    _Strategy('invert+threshold', (img.Image i) {
-      return _adaptiveThreshold(_invert(i));
-    }),
-
-    // ── Pass 15 : inversion + netteté + contraste ──
-    _Strategy('invert+unsharp+contrast', (img.Image i) {
-      return _contrastStretch(_unsharpMask(_invert(i)));
-    }),
-
-    // ── Pass 16 : flou léger + seuillage (moiré intermédiaire) ──
-    _Strategy('blur3+threshold', (img.Image i) {
-      return _adaptiveThreshold(_gaussianBlur3(i));
-    }),
-
-    // ── Pass 17 : contraste agressif ──
-    _Strategy('contrastStretch+threshold', (img.Image i) {
-      return _adaptiveThreshold(_contrastStretch(i));
-    }),
-
-    // ── Pass 18 : nette agressif + flou (anti-moiré léger + bords nets) ──
-    _Strategy('sharpenStrong+blur3+contrast', (img.Image i) {
-      return _contrastStretch(_gaussianBlur3(_sharpenStrong(i)));
-    }),
-  ];
-
-  /// Aucune transformation — image originale.
   static img.Image _noTransform(img.Image image) => image;
 
-  // ── Transformations de base ─────────────────────────────────────────────
+  static img.Image _toGrayscale(img.Image image) => img.grayscale(image);
 
-  /// Conversion en niveaux de gris.
-  static img.Image _toGrayscale(img.Image image) {
-    return img.grayscale(image);
-  }
+  static img.Image _brighten(img.Image image) =>
+      img.adjustColor(image, brightness: 1.4);
 
-  /// Ajustement de luminosité (multiplier 1.4×).
-  static img.Image _brighten(img.Image image) {
-    return img.adjustColor(image, brightness: 1.4);
-  }
+  static img.Image _invert(img.Image image) => img.invert(image);
 
-  /// Inversion des couleurs (QR à fond sombre).
-  static img.Image _invert(img.Image image) {
-    return img.invert(image);
-  }
-
-  /// Extension de contraste (min-max) : maximise la plage dynamique.
+  /// Contrast stretch: maps [min, max] intensity to [0, 255].
   static img.Image _contrastStretch(img.Image image) {
     final gray = img.grayscale(image);
     int min = 255, max = 0;
@@ -192,7 +117,6 @@ class QrDecoder {
     }
     final range = max - min;
     if (range <= 0) return image;
-    // Étirement min-max : mapper [min, max] vers [0, 255]
     final scale = 255.0 / range;
     final result = img.Image(width: gray.width, height: gray.height);
     for (int y = 0; y < gray.height; y++) {
@@ -205,18 +129,13 @@ class QrDecoder {
     return result;
   }
 
-  /// Flou gaussien 3×3 : réduit le moiré des écrans.
-  static img.Image _gaussianBlur3(img.Image image) {
-    return img.gaussianBlur(image, radius: 1);
-  }
+  static img.Image _gaussianBlur3(img.Image image) =>
+      img.gaussianBlur(image, radius: 1);
 
-  /// Flou gaussien 5×5 : moiré plus agressif.
-  static img.Image _gaussianBlur5(img.Image image) {
-    return img.gaussianBlur(image, radius: 2);
-  }
+  static img.Image _gaussianBlur5(img.Image image) =>
+      img.gaussianBlur(image, radius: 2);
 
-  /// Netteté améliorée (unsharp mask) : améliore les bords sans excess de bruit.
-  /// Original + 1.5 × (original - flou)
+  /// Unsharp mask: original + 1.5 × (original − blurred).
   static img.Image _unsharpMask(img.Image image) {
     final blurred = img.gaussianBlur(image, radius: 1);
     final result = img.Image.from(image);
@@ -233,7 +152,7 @@ class QrDecoder {
     return result;
   }
 
-  /// Netteté forte : pour QR très flous.
+  /// Strong sharpening kernel for very blurry QR codes.
   static img.Image _sharpenStrong(img.Image image) {
     return img.convolution(
       image,
@@ -242,16 +161,14 @@ class QrDecoder {
     );
   }
 
-  /// Seuillage adaptatif (méthode d'Otsu) : image binaire nette.
+  /// Otsu's adaptive threshold: produces a clean binary image.
   static img.Image _adaptiveThreshold(img.Image image) {
     final gray = img.grayscale(image);
-    // Histogramme
     final hist = List<int>.filled(256, 0);
     final total = gray.width * gray.height;
     for (final pixel in gray) {
       hist[pixel.r.toInt()]++;
     }
-    // Calcul du seuil optimal (Otsu)
     double sum = 0;
     for (int i = 0; i < 256; i++) {
       sum += i * hist[i];
@@ -274,7 +191,6 @@ class QrDecoder {
         threshold = t;
       }
     }
-    // Appliquer le seuillage
     final result = img.Image(width: gray.width, height: gray.height);
     for (int y = 0; y < gray.height; y++) {
       for (int x = 0; x < gray.width; x++) {
@@ -286,14 +202,111 @@ class QrDecoder {
     return result;
   }
 
-  // ── Pipeline principal ──────────────────────────────────────────────────
+  // ── Upscaling ───────────────────────────────────────────────────────────
 
+  /// Upscale using nearest-neighbor to preserve QR module edges.
+  static img.Image _upscale2x(img.Image image) => img.copyResize(
+        image,
+        width: image.width * 2,
+        height: image.height * 2,
+        interpolation: img.Interpolation.nearest,
+      );
+
+  static img.Image _upscale3x(img.Image image) => img.copyResize(
+        image,
+        width: image.width * 3,
+        height: image.height * 3,
+        interpolation: img.Interpolation.nearest,
+      );
+
+  static img.Image _upscale4x(img.Image image) => img.copyResize(
+        image,
+        width: image.width * 4,
+        height: image.height * 4,
+        interpolation: img.Interpolation.nearest,
+      );
+
+  /// Returns an upscaled version if the image is too small for reliable QR
+  /// decoding, or null if the image is already large enough.
+  static img.Image? _upscaleIfNeeded(img.Image image) {
+    final int minDim =
+        image.width < image.height ? image.width : image.height;
+    if (minDim >= 400) return null; // Already large enough
+    if (minDim < 150) return _upscale4x(image);
+    if (minDim < 250) return _upscale3x(image);
+    return _upscale2x(image);
+  }
+
+  // ── Strategy lists ──────────────────────────────────────────────────────
+
+  /// Phase 2: most effective strategies, tried first on original image.
+  static final List<_Strategy> _smartStrategies = [
+    const _Strategy('contrast', _contrastStretch),
+    _Strategy('grayscale+contrast',
+        (img.Image i) => _contrastStretch(_toGrayscale(i))),
+    _Strategy(
+        'blur3+contrast', (img.Image i) => _contrastStretch(_gaussianBlur3(i))),
+    _Strategy(
+        'blur5+contrast', (img.Image i) => _contrastStretch(_gaussianBlur5(i))),
+    _Strategy('unsharp+contrast',
+        (img.Image i) => _contrastStretch(_unsharpMask(i))),
+    _Strategy('sharpenStrong+contrast',
+        (img.Image i) => _contrastStretch(_sharpenStrong(i))),
+    const _Strategy('threshold', _adaptiveThreshold),
+    _Strategy(
+        'invert+contrast', (img.Image i) => _contrastStretch(_invert(i))),
+    _Strategy(
+        'invert+threshold', (img.Image i) => _adaptiveThreshold(_invert(i))),
+    _Strategy(
+        'brighten+contrast', (img.Image i) => _contrastStretch(_brighten(i))),
+  ];
+
+  /// Phase 3: aggressive strategies for difficult images.
+  static final List<_Strategy> _deepStrategies = [
+    _Strategy('blur5+threshold',
+        (img.Image i) => _adaptiveThreshold(_gaussianBlur5(i))),
+    _Strategy('gray+blur5+threshold',
+        (img.Image i) => _adaptiveThreshold(_gaussianBlur5(_toGrayscale(i)))),
+    _Strategy('invert+blur3+contrast',
+        (img.Image i) => _contrastStretch(_gaussianBlur3(_invert(i)))),
+    _Strategy('invert+unsharp+contrast',
+        (img.Image i) => _contrastStretch(_unsharpMask(_invert(i)))),
+    _Strategy('blur3+threshold',
+        (img.Image i) => _adaptiveThreshold(_gaussianBlur3(i))),
+    _Strategy('contrastStretch+threshold',
+        (img.Image i) => _adaptiveThreshold(_contrastStretch(i))),
+    _Strategy('sharpenStrong+blur3+contrast',
+        (img.Image i) => _contrastStretch(_gaussianBlur3(_sharpenStrong(i)))),
+  ];
+
+  /// Strategies applied to upscaled images (small QR codes).
+  static final List<_Strategy> _upscaleStrategies = [
+    _Strategy('upscale2x+contrast',
+        (img.Image i) => _contrastStretch(_upscale2x(i))),
+    _Strategy('upscale3x+contrast',
+        (img.Image i) => _contrastStretch(_upscale3x(i))),
+    _Strategy('upscale2x+threshold',
+        (img.Image i) => _adaptiveThreshold(_upscale2x(i))),
+    _Strategy('upscale3x+threshold',
+        (img.Image i) => _adaptiveThreshold(_upscale3x(i))),
+    _Strategy('upscale2x+sharpen',
+        (img.Image i) => _contrastStretch(_unsharpMask(_upscale2x(i)))),
+    _Strategy('upscale3x+sharpen',
+        (img.Image i) => _contrastStretch(_unsharpMask(_upscale3x(i)))),
+  ];
+
+  // ── Pipeline ────────────────────────────────────────────────────────────
+
+  /// Decodes QR codes from an image file.
+  ///
+  /// Uses a progressive pipeline:
+  /// 1. Fast path: ML Kit on original image
+  /// 2. Smart path: preprocessing + upscaling
+  /// 3. Deep recovery: aggressive preprocessing combinations
   Future<QrDecodeResult> decodeImage(String path) async {
-    // Lire l'image originale en bytes
+    // Read and decode the image
     final File file = File(path);
     final Uint8List originalBytes = await file.readAsBytes();
-
-    // Décoder l'image originale pour le prétraitement
     final img.Image? originalImage = img.decodeImage(originalBytes);
     if (originalImage == null) {
       return const QrDecodeResult(
@@ -303,24 +316,42 @@ class QrDecoder {
       );
     }
 
-    // ── Pass 1 : image originale via ML Kit (rapide) ──
-    final BarcodeScanner scanner = BarcodeScanner(formats: _allFormats);
+    int attempts = 0;
+
+    // ── Phase 1: Fast path — ML Kit on original image ──
     try {
-      final List<Barcode> barcodes =
-          await scanner.processImage(InputImage.fromFilePath(path));
-      final (List<String>, List<String>) extracted = _extractBarcodes(barcodes);
-      if (extracted.$1.isNotEmpty) {
-        return QrDecodeResult(values: extracted.$1, formats: extracted.$2);
+      final BarcodeScanner scanner = BarcodeScanner(formats: _allFormats);
+      try {
+        final List<Barcode> barcodes =
+            await scanner.processImage(InputImage.fromFilePath(path));
+        final (List<String>, List<String>) extracted =
+            _extractBarcodes(barcodes);
+        if (extracted.$1.isNotEmpty) {
+          return QrDecodeResult(
+            values: extracted.$1,
+            formats: extracted.$2,
+            strategyUsed: 'raw',
+            attemptsCount: ++attempts,
+          );
+        }
+      } finally {
+        await scanner.close();
       }
 
-      // ── Pass 2 : formats 2D uniquement sur image originale ──
+      // Also try with 2D-only formats (faster, catches edge cases)
       final BarcodeScanner scanner2D = BarcodeScanner(formats: _formats2D);
       try {
         final List<Barcode> barcodes2D =
             await scanner2D.processImage(InputImage.fromFilePath(path));
-        final (List<String>, List<String>) extracted2D = _extractBarcodes(barcodes2D);
+        final (List<String>, List<String>) extracted2D =
+            _extractBarcodes(barcodes2D);
         if (extracted2D.$1.isNotEmpty) {
-          return QrDecodeResult(values: extracted2D.$1, formats: extracted2D.$2);
+          return QrDecodeResult(
+            values: extracted2D.$1,
+            formats: extracted2D.$2,
+            strategyUsed: 'raw-2d',
+            attemptsCount: ++attempts,
+          );
         }
       } finally {
         await scanner2D.close();
@@ -331,74 +362,115 @@ class QrDecoder {
         failed: true,
         errorMessage: e.toString(),
       );
-    } finally {
-      await scanner.close();
     }
 
-    // ── Pass 3+ : essais avec prétraitement croissant ──
-    // On applique chaque stratégie et on passe le résultat à ML Kit.
-    // On garde un scanner réutilisé pour la performance.
-    final BarcodeScanner retryScanner = BarcodeScanner(formats: _allFormats);
-    try {
-      for (int s = 1; s < _strategies.length; s++) {
-        final strategy = _strategies[s];
-        try {
-          final img.Image processed = strategy.transform(img.Image.from(originalImage));
-          final Uint8List processedBytes = Uint8List.fromList(
-            img.encodePng(processed, level: 0), // level 0 = pas de compression = plus rapide
+    // ── Phase 2: Smart path — preprocessing on original image ──
+    for (final _Strategy strategy in _smartStrategies) {
+      attempts++;
+      final result = await _tryStrategy(path, originalImage, strategy);
+      if (result != null) {
+        return QrDecodeResult(
+          values: result.$1,
+          formats: result.$2,
+          strategyUsed: strategy.name,
+          attemptsCount: attempts,
+        );
+      }
+    }
+
+    // ── Phase 2b: Upscale if small + try upscale strategies ──
+    final img.Image? upscaled = _upscaleIfNeeded(originalImage);
+    if (upscaled != null) {
+      for (final _Strategy strategy in _upscaleStrategies) {
+        attempts++;
+        final result = await _tryStrategy(path, upscaled, strategy);
+        if (result != null) {
+          return QrDecodeResult(
+            values: result.$1,
+            formats: result.$2,
+            strategyUsed: strategy.name,
+            attemptsCount: attempts,
           );
-
-          // Écrire dans un fichier temporaire pour ML Kit
-          final String tempPath = '${path}_preprocessed_$s.png';
-          final File tempFile = File(tempPath);
-          await tempFile.writeAsBytes(processedBytes);
-
-          try {
-            final BarcodeScanner preScanner = BarcodeScanner(formats: _allFormats);
-            try {
-              final List<Barcode> barcodes =
-                  await preScanner.processImage(InputImage.fromFilePath(tempPath));
-              final (List<String>, List<String>) extracted = _extractBarcodes(barcodes);
-              if (extracted.$1.isNotEmpty) {
-                // Nettoyage du fichier temp
-                await tempFile.delete();
-                return QrDecodeResult(values: extracted.$1, formats: extracted.$2);
-              }
-
-              // Aussi essayer avec formats 2D uniquement
-              final BarcodeScanner preScanner2D = BarcodeScanner(formats: _formats2D);
-              try {
-                final List<Barcode> barcodes2D =
-                    await preScanner2D.processImage(InputImage.fromFilePath(tempPath));
-                final (List<String>, List<String>) extracted2D =
-                    _extractBarcodes(barcodes2D);
-                if (extracted2D.$1.isNotEmpty) {
-                  await tempFile.delete();
-                  return QrDecodeResult(values: extracted2D.$1, formats: extracted2D.$2);
-                }
-              } finally {
-                await preScanner2D.close();
-              }
-            } finally {
-              await preScanner.close();
-            }
-          } finally {
-            await tempFile.delete();
-          }
-        } catch (_) {
-          // Cette stratégie a échoué, on passe à la suivante
-          continue;
         }
       }
-    } finally {
-      await retryScanner.close();
+    }
+
+    // ── Phase 3: Deep recovery — aggressive preprocessing ──
+    for (final _Strategy strategy in _deepStrategies) {
+      attempts++;
+      final result = await _tryStrategy(path, originalImage, strategy);
+      if (result != null) {
+        return QrDecodeResult(
+          values: result.$1,
+          formats: result.$2,
+          strategyUsed: strategy.name,
+          attemptsCount: attempts,
+        );
+      }
+    }
+
+    // ── Phase 3b: Upscaled + deep strategies ──
+    if (upscaled != null) {
+      for (final _Strategy strategy in _deepStrategies) {
+        attempts++;
+        final result = await _tryStrategy(path, upscaled, strategy);
+        if (result != null) {
+          return QrDecodeResult(
+            values: result.$1,
+            formats: result.$2,
+            strategyUsed: strategy.name,
+            attemptsCount: attempts,
+          );
+        }
+      }
     }
 
     // Aucun QR détecté avec toutes les stratégies
-    return const QrDecodeResult(values: []);
+    return QrDecodeResult(values: [], attemptsCount: attempts);
   }
 
-  /// Extrait les valeurs et les formats des barcodes détectés.
+  // ── Helpers ─────────────────────────────────────────────────────────────
+
+  /// Applies a preprocessing strategy and attempts to decode with ML Kit.
+  /// Returns the extracted barcodes if any were found, null otherwise.
+  Future<(List<String>, List<String>)?> _tryStrategy(
+    String basePath,
+    img.Image baseImage,
+    _Strategy strategy,
+  ) async {
+    try {
+      final img.Image processed =
+          strategy.transform(img.Image.from(baseImage));
+      final Uint8List processedBytes = Uint8List.fromList(
+        img.encodePng(processed, level: 0), // level 0 = no compression = fastest
+      );
+
+      final String safeName = strategy.name.replaceAll('+', '_');
+      final String tempPath = '${basePath}_preprocessed_$safeName.png';
+      final File tempFile = File(tempPath);
+      await tempFile.writeAsBytes(processedBytes);
+
+      try {
+        final BarcodeScanner scanner = BarcodeScanner(formats: _allFormats);
+        try {
+          final List<Barcode> barcodes =
+              await scanner.processImage(InputImage.fromFilePath(tempPath));
+          final (List<String>, List<String>) extracted =
+              _extractBarcodes(barcodes);
+          if (extracted.$1.isNotEmpty) return extracted;
+        } finally {
+          await scanner.close();
+        }
+      } finally {
+        await tempFile.delete();
+      }
+    } catch (_) {
+      // Strategy failed, continue to next
+    }
+    return null;
+  }
+
+  /// Extracts values and format labels from detected barcodes.
   (List<String>, List<String>) _extractBarcodes(List<Barcode> barcodes) {
     final List<String> values = [];
     final List<String> formats = [];

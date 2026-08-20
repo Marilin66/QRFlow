@@ -509,6 +509,45 @@ function maskQrRegion(
   }
 }
 
+// ── BarcodeDetector with preprocessing combos ─────────────────────────────
+// Tries BarcodeDetector (native ML Kit) with various image preprocessing
+// strategies. Significantly improves detection on difficult images.
+async function tryBarcodeDetectorWithPreprocessing(
+  canvas: HTMLCanvasElement,
+  w: number,
+  h: number,
+  originalPixels: ImageData,
+): Promise<string[]> {
+  if (!barcodeDetector) return [];
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) return [];
+
+  const combos: (() => void)[] = [
+    () => { toGrayscale(ctx, w, h); contrastStretch(ctx, w, h); },
+    () => { gaussianBlur(ctx, w, h); contrastStretch(ctx, w, h); },
+    () => { unsharpMask(ctx, w, h); contrastStretch(ctx, w, h); },
+    () => { adaptiveThreshold(ctx, w, h); },
+    () => { invertColors(ctx, w, h); },
+    () => { invertColors(ctx, w, h); contrastStretch(ctx, w, h); },
+    () => { gaussianBlur5(ctx, w, h); contrastStretch(ctx, w, h); },
+    () => { sharpenStrong(ctx, w, h); contrastStretch(ctx, w, h); },
+    () => { invertColors(ctx, w, h); gaussianBlur(ctx, w, h); contrastStretch(ctx, w, h); },
+  ];
+
+  for (const combo of combos) {
+    ctx.putImageData(originalPixels, 0, 0);
+    combo();
+    try {
+      const result = await barcodeDetector.detect(canvas);
+      if (result.barcodes.length > 0 && result.barcodes[0].rawValue) {
+        return [result.barcodes[0].rawValue];
+      }
+    } catch {}
+  }
+
+  return [];
+}
+
 // ── Image file decoder ─────────────────────────────────────────────────────
 export async function decodeImageFile(file: File): Promise<string[]> {
   let bitmap: ImageBitmap;
@@ -538,7 +577,6 @@ export async function decodeImageFile(file: File): Promise<string[]> {
     }
 
     // ── Phase 2: jsQR with preprocessing ──
-    // Save the original pixels so Phase 3+ can start fresh
     const ctx2 = canvas.getContext('2d', { willReadFrequently: true });
     if (!ctx2) return [];
     const originalPixels = ctx2.getImageData(0, 0, w, h);
@@ -546,28 +584,11 @@ export async function decodeImageFile(file: File): Promise<string[]> {
     const jsQRResults = await detectWithJsQR(canvas, w, h);
     if (jsQRResults.length > 0) return jsQRResults;
 
-    // ── Phase 3: BarcodeDetector on preprocessed image ──
-    // Restore canvas to original before preprocessing
-    ctx2.putImageData(originalPixels, 0, 0);
-    toGrayscale(ctx2, w, h);
-    contrastStretch(ctx2, w, h);
+    // ── Phase 3: BarcodeDetector with preprocessing combos ──
+    const bdPreprocessed = await tryBarcodeDetectorWithPreprocessing(canvas, w, h, originalPixels);
+    if (bdPreprocessed.length > 0) return bdPreprocessed;
 
-    if (barcodeDetector) {
-      const bdResults2 = await detectWithBarcodeDetector(canvas);
-      if (bdResults2.length > 0) return bdResults2;
-    }
-
-    // ── Phase 4: BarcodeDetector on blur+contrast (moiré-optimized) ──
-    ctx2.putImageData(originalPixels, 0, 0);
-    gaussianBlur(ctx2, w, h);
-    contrastStretch(ctx2, w, h);
-
-    if (barcodeDetector) {
-      const bdResults3 = await detectWithBarcodeDetector(canvas);
-      if (bdResults3.length > 0) return bdResults3;
-    }
-
-    // ── Phase 5: jsQR on blur+contrast (moiré-optimized) ──
+    // ── Phase 4: jsQR on blur+contrast (moiré-optimized) ──
     ctx2.putImageData(originalPixels, 0, 0);
     gaussianBlur(ctx2, w, h);
     contrastStretch(ctx2, w, h);
@@ -576,7 +597,7 @@ export async function decodeImageFile(file: File): Promise<string[]> {
     const lastChance5 = jsQRDetect(imageData5, w, h);
     if (lastChance5) return [lastChance5];
 
-    // ── Phase 6: jsQR on sharp+contrast ──
+    // ── Phase 5: jsQR on sharp+contrast ──
     ctx2.putImageData(originalPixels, 0, 0);
     unsharpMask(ctx2, w, h);
     contrastStretch(ctx2, w, h);
@@ -691,7 +712,71 @@ export async function decodeVideoFrame(video: HTMLVideoElement): Promise<string 
     }
   }
 
-  // ── Strategy 12: Inverted + blur + contrast (dark QR on screen) ──
+  // ── Strategy 12: BarcodeDetector on sharpen+contrast ──
+  if (barcodeDetector) {
+    try {
+      ctx.putImageData(originalPixels, 0, 0);
+      unsharpMask(ctx, vw, vh);
+      contrastStretch(ctx, vw, vh);
+      const result4 = await barcodeDetector.detect(canvas);
+      if (result4.barcodes.length > 0 && result4.barcodes[0].rawValue) {
+        return result4.barcodes[0].rawValue;
+      }
+    } catch {}
+  }
+
+  // ── Strategy 13: BarcodeDetector on threshold ──
+  if (barcodeDetector) {
+    try {
+      ctx.putImageData(originalPixels, 0, 0);
+      adaptiveThreshold(ctx, vw, vh);
+      const result5 = await barcodeDetector.detect(canvas);
+      if (result5.barcodes.length > 0 && result5.barcodes[0].rawValue) {
+        return result5.barcodes[0].rawValue;
+      }
+    } catch {}
+  }
+
+  // ── Strategy 14: BarcodeDetector on inverted+contrast ──
+  if (barcodeDetector) {
+    try {
+      ctx.putImageData(originalPixels, 0, 0);
+      invertColors(ctx, vw, vh);
+      contrastStretch(ctx, vw, vh);
+      const result6 = await barcodeDetector.detect(canvas);
+      if (result6.barcodes.length > 0 && result6.barcodes[0].rawValue) {
+        return result6.barcodes[0].rawValue;
+      }
+    } catch {}
+  }
+
+  // ── Strategy 15: BarcodeDetector on blur5+contrast ──
+  if (barcodeDetector) {
+    try {
+      ctx.putImageData(originalPixels, 0, 0);
+      gaussianBlur5(ctx, vw, vh);
+      contrastStretch(ctx, vw, vh);
+      const result7 = await barcodeDetector.detect(canvas);
+      if (result7.barcodes.length > 0 && result7.barcodes[0].rawValue) {
+        return result7.barcodes[0].rawValue;
+      }
+    } catch {}
+  }
+
+  // ── Strategy 16: BarcodeDetector on sharpenStrong+contrast ──
+  if (barcodeDetector) {
+    try {
+      ctx.putImageData(originalPixels, 0, 0);
+      sharpenStrong(ctx, vw, vh);
+      contrastStretch(ctx, vw, vh);
+      const result8 = await barcodeDetector.detect(canvas);
+      if (result8.barcodes.length > 0 && result8.barcodes[0].rawValue) {
+        return result8.barcodes[0].rawValue;
+      }
+    } catch {}
+  }
+
+  // ── Strategy 17: Inverted + blur + contrast (dark QR on screen) ──
   ctx.putImageData(originalPixels, 0, 0);
   invertColors(ctx, vw, vh);
   gaussianBlur(ctx, vw, vh);
