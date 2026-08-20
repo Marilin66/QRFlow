@@ -97,8 +97,6 @@ class QrDecoder {
 
   // ── Preprocessing functions ─────────────────────────────────────────────
 
-  static img.Image _noTransform(img.Image image) => image;
-
   static img.Image _toGrayscale(img.Image image) => img.grayscale(image);
 
   static img.Image _brighten(img.Image image) =>
